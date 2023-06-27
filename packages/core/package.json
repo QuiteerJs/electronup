@@ -1,0 +1,64 @@
+{
+  "name": "electronup",
+  "version": "0.0.1",
+  "description": "融合构建 electron 应用需要的构建工具,保留原有配置习惯的命令行工具 ",
+  "author": "quiteer",
+  "license": "MIT",
+  "homepage": "https://github.com/QuiteerJs/electronup#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electronup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electronup/issues"
+  },
+  "keywords": [
+    "vite",
+    "tsup",
+    "electron-builder",
+    "electron"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "main": "dist/client/index.js",
+  "module": "dist/client/index.mjs",
+  "types": "dist/client/index.d.ts",
+  "bin": {
+    "electronup": "dist/bin/electronup.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "update-version": "bumpp package.json"
+  },
+  "peerDependencies": {
+    "@types/node": ">= 16",
+    "node": ">= 16",
+    "vue": ">= 3"
+  },
+  "dependencies": {
+    "@quiteer/parser-config": "^1.0.3",
+    "cac": "^6.7.14",
+    "dotenv": "^16.0.3",
+    "electron-builder": "^23.6.0",
+    "fs-extra": "^10.1.0",
+    "inquirer": "8.2.5",
+    "portfinder": "^1.0.32",
+    "rimraf": "^3.0.2",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.1",
+    "yaml": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/inquirer": "^9.0.3",
+    "@types/rimraf": "^3.0.2",
+    "zx": "^7.2.1"
+  }
+}

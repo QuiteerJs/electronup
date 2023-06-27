@@ -1,0 +1,10 @@
+{
+  "extends": "@quiteer/ts-config/tsconfig.node.json",
+  "include": ["packages/**/*", "experiment"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "composite": true,
+    "declaration": true,
+    "typeRoots": ["node_modules/@types"]
+  }
+}

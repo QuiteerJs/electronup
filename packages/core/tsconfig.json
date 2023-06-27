@@ -1,0 +1,13 @@
+{
+  "extends": "@quiteer/ts-config/tsconfig.node.json",
+  "include": [
+    "src/*",
+    "package.json"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "isolatedModules": false,
+    "ignoreDeprecations": "5.0",
+    "paths": { }
+  }
+}
