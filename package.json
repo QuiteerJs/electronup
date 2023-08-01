@@ -1,8 +1,8 @@
 {
   "name": "electronup-monorepo",
+  "private": true,
   "description": "融合构建 electron 应用需要的构建工具,保留原有配置习惯的命令行工具 ",
   "author": "quiteer",
-  "private": true,
   "license": "MIT",
   "homepage": "https://github.com/QuiteerJs/electronup#readme",
   "repository": {
