@@ -11,7 +11,7 @@ export default defineConfig([
     ...config,
     name: 'electronup-api',
     outDir: 'dist/client',
-    entry: ['index.ts'],
+    entry: ['src/index.ts'],
     format: ['esm', 'cjs'],
     dts: true
   },
@@ -20,6 +20,6 @@ export default defineConfig([
     name: 'electronup-cli',
     outDir: 'dist/bin',
     format: ['cjs'],
-    entry: { electronup: 'cli.ts' }
+    entry: { electronup: 'src/cli.ts' }
   }
 ])

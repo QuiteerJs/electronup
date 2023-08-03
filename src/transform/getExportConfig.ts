@@ -1,5 +1,5 @@
 import type { ElectronupConfig, ElectronupConfigFn, UserElectronupConfig } from '../typings/electronup'
-import { getElectronupConfig } from '../default/electronup.config'
+import { getElectronupConfig } from '../configs/electronup'
 import { store } from '../utils'
 
 /**
