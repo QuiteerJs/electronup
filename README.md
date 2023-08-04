@@ -81,7 +81,7 @@ pnpm add @quiteer/electronup -D
 ```json
 {
   "dependencies": {
-    "@quiteer/resolve-config": "workspace:^0.0.4",
+    "@quiteer/parser-config": "^1.0.3",
     "cac": "^6.7.14",
     "dotenv": "^16.0.3",
     "electron-builder": "^23.6.0",
