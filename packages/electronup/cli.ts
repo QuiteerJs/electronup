@@ -2,7 +2,7 @@
 import { resolve } from 'path'
 import { cac } from 'cac'
 import { sync } from 'rimraf'
-import { version } from '../package.json'
+import { version } from './package.json'
 import { getConfig } from './transform'
 import { DefaultDirs, store } from './utils'
 import { build, watch } from './runner'

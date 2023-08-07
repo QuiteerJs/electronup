@@ -1,0 +1,47 @@
+{
+  "name": "create-electronup",
+  "type": "module",
+  "version": "0.0.5",
+  "description": "创建electronup项目模板",
+  "author": "quiteer",
+  "license": "ISC",
+  "homepage": "https://github.com/QuiteerJs/create-electronup#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/create-electronup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/create-electronup/issues"
+  },
+  "bin": {
+    "create-electronup": "index.js"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "index.js",
+    "template-*",
+    "dist"
+  ],
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0"
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild",
+    "typecheck": "tsc --noEmit",
+    "bumpp": "bumpp",
+    "test-cli": "npm create electronup text-project-name"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.2",
+    "@types/prompts": "^2.4.4",
+    "execa": "^7.2.0",
+    "kolorist": "^1.8.0",
+    "minimist": "^1.2.8",
+    "prompts": "^2.4.2",
+    "unbuild": "^1.2.1"
+  }
+}
