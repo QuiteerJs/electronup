@@ -70,7 +70,6 @@ export function getTsupConfig(config: TsupConfig, allConfig: ElectronupConfig) {
   const isServe = command === 'serve'
 
   const defaultConfig: Options = {
-    target:'es5',
     minify: minify === false ? false : isServe,
     external: ['electron', ...(config.external ?? [])],
     noExternal: config.noExternal,

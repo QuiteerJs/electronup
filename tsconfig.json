@@ -3,7 +3,7 @@
   "include": [
     "src/*",
     "package.json"
-  ],
+   ],
   "compilerOptions": {
     "strict": true, // 开启所有严格的类型检查
     "strictPropertyInitialization": false, // 类的实例属性必须初始化
