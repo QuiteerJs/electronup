@@ -1,19 +1,11 @@
 
 import { Configuration } from 'electron-builder';
-import type { AliasOptions, PluginOption, ResolveOptions, UserConfig } from 'vite';
+import type { UserConfig } from 'vite';
 import type { Options } from 'tsup'
 
-export interface ViteConfig {
-  resolve?: ResolveOptions & {
-    alias?: AliasOptions;
-  }
-  plugins?: PluginOption[]
-  build?:UserConfig['build']
-  viteOptions?: Omit<UserConfig, 'plugins' | 'resolve' | 'publicDir'| 'build'>
-}
+export type ViteConfig = Omit<UserConfig, 'publicDir'>
 
 export interface TsupConfig {
-  target?: Options['target'];
   external?: (string | RegExp)[];
   noExternal?: (string | RegExp)[];
 }
@@ -68,7 +60,7 @@ export interface ConfigEnv {
   root: string
 }
 
-export type ElectronupConfigFn = (env: ConfigEnv) => ElectronupConfig
+export type ElectronupConfigFn = (env: ConfigEnv) => ElectronupConfig | Promise<ElectronupConfig>
 export type UserElectronupConfig = ElectronupConfig | ElectronupConfigFn
 
 

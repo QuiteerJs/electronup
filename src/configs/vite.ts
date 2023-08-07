@@ -8,22 +8,15 @@ export function getViteConfig(config: ViteConfig, allConfig: ElectronupConfig) {
 
   const defaultConfig: UserConfig = {
     base: './',
-    root: allConfig.renderDir || DefaultDirs.renderDir,
-    server: { host: '0.0.0.0' },
+    ...config,
     build: {
-      outDir: resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir),
-      target: 'esnext',
+      ...config?.build,
       minify: minify && 'esbuild',
-      reportCompressedSize: false,
-      emptyOutDir: true,
-      ...config?.build
+      outDir: resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir),
     },
-    ...config.viteOptions
+    root: allConfig.renderDir || DefaultDirs.renderDir,
+    publicDir: resolve(root, allConfig.publicDir || DefaultDirs.publicDir)
   }
-
-  config?.resolve && (defaultConfig.resolve = config.resolve)
-  config?.plugins && (defaultConfig.plugins = config.plugins)
-  defaultConfig.publicDir = resolve(root, allConfig.publicDir || DefaultDirs.publicDir)
 
   return defaultConfig
 }

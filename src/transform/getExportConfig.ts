@@ -7,10 +7,10 @@ import { store } from '../utils'
  * @param {any} config:UserElectronupConfig
  * @returns {any}
  */
-const exportElectronupConfig = (config: UserElectronupConfig): ElectronupConfig => {
+const exportElectronupConfig = async (config: UserElectronupConfig): Promise<ElectronupConfig> => {
   const typeStr = typeof config
   if (typeStr === 'function') {
-    const option = (config as ElectronupConfigFn)({ command: store.command, root: store.root })
+    const option = await (config as ElectronupConfigFn)({ command: store.command, root: store.root })
     return option
   }
 
@@ -20,4 +20,4 @@ const exportElectronupConfig = (config: UserElectronupConfig): ElectronupConfig 
   throw new Error('electronup 配置错误,解析失败！')
 }
 
-export const electronupConfig = (config: UserElectronupConfig) => getElectronupConfig(exportElectronupConfig(config))
+export const electronupConfig = async (config: UserElectronupConfig) => getElectronupConfig(await exportElectronupConfig(config))

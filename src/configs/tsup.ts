@@ -69,12 +69,9 @@ export function getTsupConfig(config: TsupConfig, allConfig: ElectronupConfig) {
   const { command, root, minify } = store
   const isServe = command === 'serve'
 
-  const userConfig = {
-    minify: minify === false ? false : isServe,
-    ...config
-  }
-
   const defaultConfig: Options = {
+    target:'es5',
+    minify: minify === false ? false : isServe,
     external: ['electron', ...(config.external ?? [])],
     noExternal: config.noExternal,
     entry: { electron: resolve(root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts') },
@@ -89,9 +86,7 @@ export function getTsupConfig(config: TsupConfig, allConfig: ElectronupConfig) {
     }
   }
 
-  config.target && (defaultConfig.target = config.target)
-
-  return { ...userConfig, ...defaultConfig }
+  return { ...config, ...defaultConfig }
 }
 
 let electronProcess: ChildProcessWithoutNullStreams | null
