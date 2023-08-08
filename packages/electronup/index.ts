@@ -1,5 +1,12 @@
-import type { UserElectronupConfig } from './typings/electronup'
+import type { ElectronupConfigAsyncFn,ElectronupConfigFn,ElectronupConfig } from './typings/electronup'
 
-export const defineConfig = (config: UserElectronupConfig): UserElectronupConfig => config
+
+export declare function defineConfig(config: ElectronupConfig): ElectronupConfig;
+
+export declare function defineConfig(config: Promise<ElectronupConfig>): Promise<ElectronupConfig>;
+
+export declare function defineConfig(config: ElectronupConfigFn): ElectronupConfigFn;
+
+export declare function defineConfig(config: ElectronupConfigAsyncFn): ElectronupConfigAsyncFn;
 
 export type { ElectronupConfig, ViteConfig, ConfigEnv, TsupConfig, BuilderConfig } from './typings/electronup'

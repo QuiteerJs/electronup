@@ -1,5 +1,5 @@
 {
-  "name": "create-electronup",
+  "name":"create-electronup",
   "type": "module",
   "version": "0.0.5",
   "description": "创建electronup项目模板",

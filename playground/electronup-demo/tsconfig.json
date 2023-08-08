@@ -15,7 +15,7 @@
     "module": "esnext", // 生成代码的模板标准
     "target": "esnext", // 目标语言的版本
     "moduleResolution": "node", // 模块解析策略，ts默认用node的解析策略，即相对的方式导入
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "typings/*.d.ts",

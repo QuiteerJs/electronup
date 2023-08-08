@@ -35,6 +35,9 @@ importers:
       typescript:
         specifier: ^5.1.6
         version: 5.1.6
+      unbuild:
+        specifier: ^1.2.1
+        version: 1.2.1
       vitepress:
         specifier: 1.0.0-beta.7
         version: 1.0.0-beta.7(@types/node@20.3.2)
@@ -148,6 +151,9 @@ importers:
       sass:
         specifier: ^1.63.5
         version: 1.63.5
+      vite:
+        specifier: ^4.3.1
+        version: 4.4.8(@types/node@20.4.6)(sass@1.63.5)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -1857,7 +1863,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.4.8(@types/node@20.3.2)
+      vite: 4.4.8(@types/node@20.4.6)(sass@1.63.5)
       vue: 3.3.4
     dev: true
 
@@ -2538,13 +2544,13 @@ packages:
       load-tsconfig: 0.2.5
     dev: false
 
-  /bundle-require@4.0.1(esbuild@0.18.10):
+  /bundle-require@4.0.1(esbuild@0.18.19):
     resolution: {integrity: sha512-9NQkRHlNdNpDBGmLpngF3EFDcwodhMUuLz9PaWYciVcQF9SE4LFjM2DB/xV1Li5JiuDMv7ZUWuC3rGbqR0MAXQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     peerDependencies:
       esbuild: '>=0.17'
     dependencies:
-      esbuild: 0.18.10
+      esbuild: 0.18.19
       load-tsconfig: 0.2.5
     dev: true
 
@@ -6148,11 +6154,11 @@ packages:
       typescript:
         optional: true
     dependencies:
-      bundle-require: 4.0.1(esbuild@0.18.10)
+      bundle-require: 4.0.1(esbuild@0.18.19)
       cac: 6.7.14
       chokidar: 3.5.3
       debug: 4.3.4
-      esbuild: 0.18.10
+      esbuild: 0.18.19
       execa: 5.1.1
       globby: 11.1.0
       joycon: 3.1.1
@@ -6434,9 +6440,46 @@ packages:
         optional: true
     dependencies:
       '@types/node': 20.3.2
-      esbuild: 0.18.10
+      esbuild: 0.18.19
       postcss: 8.4.27
       rollup: 3.25.3
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite@4.4.8(@types/node@20.4.6)(sass@1.63.5):
+    resolution: {integrity: sha512-LONawOUUjxQridNWGQlNizfKH89qPigK36XhMI7COMGztz8KNY0JHim7/xDd71CZwGT4HtSRgI7Hy+RlhG0Gvg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 20.4.6
+      esbuild: 0.18.19
+      postcss: 8.4.27
+      rollup: 3.25.3
+      sass: 1.63.5
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -6470,7 +6513,7 @@ packages:
         optional: true
     dependencies:
       '@types/node': 20.4.8
-      esbuild: 0.18.10
+      esbuild: 0.18.19
       postcss: 8.4.27
       rollup: 3.25.3
     optionalDependencies:
