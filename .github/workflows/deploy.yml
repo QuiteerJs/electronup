@@ -48,7 +48,7 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install # or pnpm install / yarn install
-        
+
       - name: Build with VitePress
         run: pnpm docs:build # or pnpm docs:build / yarn docs:build
 

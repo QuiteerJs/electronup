@@ -8,7 +8,6 @@
     "build": "electronup build",
     "dir": "electronup build --dir --no-asar --no-minify",
     "typecheck": "vue-tsc --noEmit --skipLibCheck",
-    "preinstall": "npx only-allow yarn",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
@@ -21,7 +20,7 @@
     "@types/node": "^20.4.6",
     "@vitejs/plugin-vue": "^4.2.3",
     "electron": "22.3.6",
-    "electronup": "^0.0.4",
+    "electronup": "^0.0.6",
     "eslint": "^8.43.0",
     "pinia": "^2.1.4",
     "sass": "^1.63.5",

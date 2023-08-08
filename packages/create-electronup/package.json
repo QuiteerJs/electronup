@@ -32,8 +32,7 @@
     "dev": "unbuild --stub",
     "build": "unbuild",
     "typecheck": "tsc --noEmit",
-    "bumpp": "bumpp",
-    "test-cli": "npm create electronup text-project-name"
+    "update-version": "bumpp package.json"
   },
   "devDependencies": {
     "@types/minimist": "^1.2.2",

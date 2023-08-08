@@ -12,7 +12,7 @@ export function getViteConfig(config: ViteConfig, allConfig: ElectronupConfig) {
     build: {
       ...config?.build,
       minify: minify && 'esbuild',
-      outDir: resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir),
+      outDir: resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir)
     },
     root: allConfig.renderDir || DefaultDirs.renderDir,
     publicDir: resolve(root, allConfig.publicDir || DefaultDirs.publicDir)

@@ -25,7 +25,7 @@ export default defineConfig({
       next: '下一页'
     },
     nav: nav(),
-    socialLinks: [{ icon: 'github', link: 'https://github.com/QuiteerJs' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/QuiteerJs/electronup' }],
     sidebar: {
       '/about/': [
         {
@@ -75,8 +75,8 @@ function nav() {
       text: version,
       items: [
         {
-          text: '文档仓库地址',
-          link: 'https://github.com/QuiteerJs/docs'
+          text: '组织',
+          link: 'https://github.com/QuiteerJs'
         },
         {
           text: '友情连接/sky',

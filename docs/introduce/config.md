@@ -130,9 +130,10 @@ vite:
     emptyOutDir: true
   resolve:
     alias:
-      "@": E:\demo\template-react\render
+      '@': E:\demo\template-react\render
   plugins:
-    - - name: vite:react-babel
+    -
+      - name: vite:react-babel
         enforce: pre
       - name: vite:react-refresh
         enforce: pre
@@ -162,7 +163,7 @@ builder:
         - deeplink
     nsis:
       oneClick: false
-      language: "2052"
+      language: '2052'
       perMachine: true
       allowElevation: true
       allowToChangeInstallationDirectory: true
