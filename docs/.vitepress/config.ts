@@ -4,7 +4,7 @@ import { version } from '../../packages/electronup/package.json'
 export default defineConfig({
   title: 'electronup中文文档',
   description: 'electron 的构建所需',
-  base: '/docs/',
+  base: '/electronup/',
   lang: 'en',
   head: [['link', { rel: 'icon', href: 'favicon.ico' }]],
   markdown: {
