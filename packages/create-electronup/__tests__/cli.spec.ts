@@ -35,7 +35,6 @@ afterEach(() => fs.remove(genPath))
 // 如果未提供项目名称，则提示输入项目名称
 test('prompts for the project name if none supplied', () => {
   const { stdout } = run([])
-  console.log('stdout: ', stdout)
   expect(stdout).toContain('Project name:')
 })
 

@@ -6,7 +6,7 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      './playground/**/*.*',
+      './playground/**/*.*'
     ],
     testTimeout: 20000,
     // node14 segfaults often with threads
