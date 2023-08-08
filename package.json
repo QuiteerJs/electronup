@@ -5,6 +5,7 @@
   "author": "quiteer",
   "license": "MIT",
   "homepage": "https://github.com/QuiteerJs/electronup#readme",
+  "packageManager": "pnpm@8.6.7",
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
