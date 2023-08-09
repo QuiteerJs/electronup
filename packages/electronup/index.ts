@@ -1,11 +1,24 @@
-import type { ElectronupConfig, ElectronupConfigAsyncFn, ElectronupConfigFn } from './typings/electronup'
+import type { ConfigEnv, ElectronupConfig } from './typings/electronup'
 
-export declare function defineConfig(config: ElectronupConfig): ElectronupConfig
+export type ElectronupConfigFnObject = (env: ConfigEnv) => ElectronupConfig
+export type ElectronupConfigFnPromise = (env: ConfigEnv) => Promise<ElectronupConfig>
+export type ElectronupConfigFn = (env: ConfigEnv) => ElectronupConfig | Promise<ElectronupConfig>
 
-export declare function defineConfig(config: Promise<ElectronupConfig>): Promise<ElectronupConfig>
+export type ElectronupConfigExport =
+  | ElectronupConfig
+  | Promise<ElectronupConfig>
+  | ElectronupConfigFnObject
+  | ElectronupConfigFnPromise
+  | ElectronupConfigFn
 
-export declare function defineConfig(config: ElectronupConfigFn): ElectronupConfigFn
+export function defineConfig(config: ElectronupConfig): ElectronupConfig
 
-export declare function defineConfig(config: ElectronupConfigAsyncFn): ElectronupConfigAsyncFn
+export function defineConfig(config: Promise<ElectronupConfig>): Promise<ElectronupConfig>
+
+export function defineConfig(config: ElectronupConfigFnObject): ElectronupConfigFnObject
+
+export function defineConfig(config: ElectronupConfigExport): ElectronupConfigExport {
+  return config
+}
 
 export type { ElectronupConfig, ViteConfig, ConfigEnv, TsupConfig, BuilderConfig } from './typings/electronup'

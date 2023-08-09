@@ -6,13 +6,16 @@ const config: Options = {
   clean: true
 }
 
-export default defineConfig([
+const external = ['electron', 'esbuild', 'electron-builder', 'vite', 'tsup']
+
+export default defineConfig(() => [
   {
     ...config,
     name: 'electronup-api',
     outDir: 'dist/client',
     entry: ['index.ts'],
     format: ['esm', 'cjs'],
+    external,
     dts: true
   },
   {
@@ -20,7 +23,7 @@ export default defineConfig([
     name: 'electronup-cli',
     outDir: 'dist/bin',
     format: ['cjs'],
-    external: ['esbuild'],
+    external,
     entry: { electronup: 'cli.ts' }
   }
 ])

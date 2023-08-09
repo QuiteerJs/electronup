@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { resolve } from 'path'
+import { resolve } from 'node:path'
+import fs from 'node:fs'
 import { cac } from 'cac'
-import { sync } from 'rimraf'
 import { version } from './package.json'
 import { getConfig } from './transform'
 import { DefaultDirs, store } from './utils'
@@ -47,8 +47,8 @@ cli
 
     const option = await getConfig(configFile)
 
-    sync(resolve(store.root, option.resourceDir || DefaultDirs.resourceDir))
-    sync(resolve(store.root, option.outDir || DefaultDirs.outDir))
+    emptyDir(resolve(store.root, option.resourceDir || DefaultDirs.resourceDir))
+    emptyDir(resolve(store.root, option.outDir || DefaultDirs.outDir))
 
     store.command = 'serve'
     store.mode = (mode || 'development')
@@ -81,8 +81,8 @@ cli
 
     const configOption = await getConfig(configFile)
 
-    sync(resolve(store.root, configOption.resourceDir || DefaultDirs.resourceDir))
-    sync(resolve(store.root, configOption.outDir || DefaultDirs.outDir))
+    emptyDir(resolve(store.root, configOption.resourceDir || DefaultDirs.resourceDir))
+    emptyDir(resolve(store.root, configOption.outDir || DefaultDirs.outDir))
 
     store.command = 'build'
     store.mode = (mode || 'production')
@@ -105,3 +105,11 @@ cli
 cli.help()
 cli.version(version)
 cli.parse()
+
+function emptyDir(dir: string) {
+  if (!fs.existsSync(dir))
+    return
+
+  for (const file of fs.readdirSync(dir))
+    fs.rmSync(resolve(dir, file), { recursive: true, force: true })
+}
