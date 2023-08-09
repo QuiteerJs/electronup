@@ -5,11 +5,9 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig((env: ConfigEnv) => {
   const srcDir = resolve(env.root, 'render')
-
   return {
     viteConfig: {
-      resolve: { alias: { '@': srcDir } },
-      plugins: [vue()]
+      resolve: { alias: { '@': srcDir } }, plugins: [vue()]
     },
     builderConfig: {
       win: {

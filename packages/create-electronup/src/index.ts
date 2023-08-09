@@ -200,6 +200,9 @@ async function init() {
     template = template.replace('-swc', '')
   }
 
+  const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent)
+  const pkgManager = pkgInfo ? pkgInfo.name : 'npm'
+
   // eslint-disable-next-line no-console
   console.log(lightGreen(`\nScaffolding project in ${root}...`))
 
@@ -240,15 +243,29 @@ async function init() {
   // 创建成功后给出的提示文字
   // eslint-disable-next-line no-console
   console.log('\nDone. Now run:\n')
+
   if (root !== cwd) {
     // eslint-disable-next-line no-console
-    console.log(`  cd ${cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName}`)
+    console.log(
+      `  cd ${
+        cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName
+      }`
+    )
   }
-
-  // eslint-disable-next-line no-console
-  console.log('  yarn')
-  // eslint-disable-next-line no-console
-  console.log('  yarn dev')
+  switch (pkgManager) {
+    case 'yarn':
+    // eslint-disable-next-line no-console
+      console.log('  yarn')
+      // eslint-disable-next-line no-console
+      console.log('  yarn dev')
+      break
+    default:
+    // eslint-disable-next-line no-console
+      console.log(`  ${pkgManager} install`)
+      // eslint-disable-next-line no-console
+      console.log(`  ${pkgManager} run dev`)
+      break
+  }
 }
 
 function formatTargetDir(targetDir: string | undefined) {
@@ -300,6 +317,17 @@ function emptyDir(dir: string) {
       continue
 
     fs.rmSync(path.resolve(dir, file), { recursive: true, force: true })
+  }
+}
+
+function pkgFromUserAgent(userAgent: string | undefined) {
+  if (!userAgent)
+    return undefined
+  const pkgSpec = userAgent.split(' ')[0]
+  const pkgSpecArr = pkgSpec.split('/')
+  return {
+    name: pkgSpecArr[0],
+    version: pkgSpecArr[1]
   }
 }
 

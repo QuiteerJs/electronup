@@ -6,7 +6,6 @@ import Loading from './loading/index.vue'
 
 createApp(Loading).mount('#app-loading')
 
-// eslint-disable-next-line no-console
 console.log(import.meta.env)
 
 setTimeout(() => {
