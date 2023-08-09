@@ -6,7 +6,7 @@ title: 项目介绍
 
 ## 简介
 
-[electronup](https://github.com/QuiteerJs/electronup) 是一个集成 **Vite4.x**、**tsup6.x**、**electron-builder23.x** 的桌面端构建工具，利用了幽灵依赖的特性，意味着您无需重复安装这些依赖。
+[electronup](https://github.com/QuiteerJs/electronup) 是一个集成 **Vite4.x**、**tsup6.x**、**electron-builder23.x** 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
 
 ::: warning
 因为使用了 tsup 构建主进程代码，所以该命令行及脚手架只支持 `TypeScript` ，不支持 `JavaScript`。
@@ -41,8 +41,7 @@ title: 项目介绍
 - 更多相关 js 知识 ...
 
 
-## 内置依赖
-> 部分依赖已内置 无需重复安装 （开发此脚手架的目的也是给项目 package 瘦瘦身）
+## 集成依赖
 
 ```json
 {
