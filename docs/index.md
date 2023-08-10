@@ -5,7 +5,12 @@ layout: home
 hero:
   name: "electronup"
   text: "electron 的构建所需"
-  tagline: 简化配置文件 , package 瘦身 , 多种选项的 cli 
+  tagline: 简化配置文件 , package 瘦身 , 多种选项的 cli
+  image:
+    src: /home.png
+    alt: quiteer
+    style:
+
   actions:
     - theme: brand
       text: 开始使用
@@ -29,14 +34,36 @@ features:
   - icon: 🤺
     title: 知根知底
     details: 详尽的文档介绍 , 手摸手教学 ( 共同学习 )
-  - icon: 🛠️ 
+  - icon: 🛠️
     title: vite
     details: 提供渲染进程热更新及构建发布
-  - icon: 🛠️ 
+  - icon: 🛠️
     title: tsup
     details: 提供主进程代码热更新及构建发布
-  - icon: 🛠️ 
+  - icon: 🛠️
     title: electron-builder
     details: 构建桌面端软件包所需,提供了一些可覆盖的预置配置
 ---
 
+
+<style>
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #bd34fe 30%, #41d1ff);
+
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, #bd34fe 50%, #47caff 50%);
+  --vp-home-hero-image-filter: blur(40px);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(72px);
+  }
+}
+</style>

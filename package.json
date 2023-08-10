@@ -10,7 +10,6 @@
   "scripts": {
     "work:dev": "pnpm --filter electronup --filter create-electronup dev",
     "work:build": "pnpm --filter electronup --filter create-electronup build",
-    "work:publish": "pnpm --filter electronup --filter create-electronup npm publish",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
