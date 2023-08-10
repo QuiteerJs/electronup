@@ -45,6 +45,7 @@ pnpm create electronup
 
 :::warning 使用 pnpm
 使用 pnpm 安装依赖前需要在 install 前根据注释放开配置。
+并执行 `pnpm add electron-builder -D`
 :::
 
 模板中内置了 npm 源的一些配置，可以根据需要放开注释后安装依赖。
