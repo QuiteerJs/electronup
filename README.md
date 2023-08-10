@@ -1,7 +1,7 @@
 # electronup
 
 
-> 融合构建 electron 应用需要的构建工具,保留原有配置习惯的命令行工具 
+> 融合构建 electron 应用需要的构建工具,保留原有配置习惯的命令行工具
 
 
 
@@ -64,7 +64,7 @@ pnpm add @quiteer/electronup -D
 
   - 指定配置文件 `electornup build [config file]`
 
-  - 开启选项式构建 `electornup build -o` 或 `electornup build --option` 
+  - 开启选项式构建 `electornup build -o` 或 `electornup build --option`
 
   - 输出选项默认当前平台架构
 
@@ -91,7 +91,7 @@ pnpm add @quiteer/electronup -D
     "rimraf": "^3.0.2",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
-    "vite": "^4.3.1",
+    "vite": "^4.4.9",
     "yaml": "^2.2.1"
   }
 }
@@ -188,25 +188,25 @@ export { BuilderConfig, ConfigEnv, ElectronupConfig, TsupConfig, ViteConfig, def
 
 ### command
 
-目前 `command` 命令仅支持 `dev` 及 `build` 
+目前 `command` 命令仅支持 `dev` 及 `build`
 
-`dev` 指令下向 `process.env` 中注入 `NODE_ENV` 字段 为 `develpoment` 
+`dev` 指令下向 `process.env` 中注入 `NODE_ENV` 字段 为 `develpoment`
 
-`build` 指令下向 `process.env` 中注入 `NODE_ENV` 字段 为 `production` 
+`build` 指令下向 `process.env` 中注入 `NODE_ENV` 字段 为 `production`
 
 双进程下区分环境略有不同 ， 主进程代码中直接访问  `process.env` 上的  `NODE_ENV` 即可，渲染进程中访问 `vite` 提供的 `import.meta.env` 获取
 
 ```typescript
-// main.ts 
+// main.ts
 // dev
 console.log('NODE_ENV', process.env.NODE_ENV)  // NODE_ENV development
 
 // build
-console.log('NODE_ENV', process.env.NODE_ENV)  // NODE_ENV production 
+console.log('NODE_ENV', process.env.NODE_ENV)  // NODE_ENV production
 ```
 
 ```typescript
-// render.ts 
+// render.ts
 // dev
 console.log('isDev', import.meta.env.DEV)  // isDev true
 
@@ -216,7 +216,7 @@ console.log('isDev', import.meta.env.DEV)  // isDev fasle
 
 
 
-### mode 
+### mode
 
 通过添加命令行指令 `-m xxx | -mode xxx` 指定加载环境变量文件以满足不同环境下的不同环境变量。
 
@@ -250,13 +250,13 @@ electronup -m test
 
 当然也可通过传入 mode 参数使 dev 环境加载 production 的环境变量。
 
-`electronup dev -m production` 
+`electronup dev -m production`
 
 
 
 #### 文件命名
 
-`.env` 
+`.env`
 
 `.env.development`
 
@@ -274,17 +274,17 @@ electronup -m test
 
 #### vite
 
-- `base` :  `./` 
+- `base` :  `./`
 
 - `mode` :  `development` | `production`
 
-- `root` :  `render` 
+- `root` :  `render`
 
-- `publicDir` :  `public` 
+- `publicDir` :  `public`
 
-- `server` :  `{ host: '0.0.0.0' }` 
+- `server` :  `{ host: '0.0.0.0' }`
 
-- `build` : 
+- `build` :
 
 ```ts
 {
@@ -300,9 +300,9 @@ electronup -m test
 
 #### tsup配置选项
 
-- `external` :  `['electorn']` 
-- `target` :  `node14` 
-- `noExternal` :  `[]` 
+- `external` :  `['electorn']`
+- `target` :  `node14`
+- `noExternal` :  `[]`
 
 ##### 路径别名
 
@@ -337,7 +337,7 @@ electronup -m test
   directories: {
     output: allConfig.outDir || config.directories?.output || DefaultDirs.outDir
   },
-  // ...传入同名参数即可完成覆盖 
+  // ...传入同名参数即可完成覆盖
 }
 ```
 

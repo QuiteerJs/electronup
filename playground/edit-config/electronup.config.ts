@@ -1,5 +1,4 @@
 import { defineConfig } from 'electronup'
-import { defineConfig as viteConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import react from '@vitejs/plugin-react'
 

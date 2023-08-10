@@ -91,7 +91,7 @@ pnpm add @quiteer/electronup -D
     "rimraf": "^3.0.2",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
-    "vite": "^4.3.1",
+    "vite": "^4.4.9",
     "yaml": "^2.2.1"
   }
 }

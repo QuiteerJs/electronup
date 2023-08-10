@@ -39,10 +39,10 @@
   "peerDependencies": {
     "@types/node": ">= 16",
     "electron": ">= 20",
-    "electron-builder": ">= 23",
+    "electron-builder": "^23.6.0",
     "node": ">= 16",
-    "tsup": ">= 6",
-    "vite": ">= 4",
+    "tsup": "^6.7.0",
+    "vite": "^4.4.9",
     "vue": ">= 3"
   },
   "devDependencies": {
@@ -56,7 +56,7 @@
     "inquirer": "8.2.5",
     "portfinder": "^1.0.32",
     "tsup": "^6.7.0",
-    "vite": "^4.3.1",
+    "vite": "^4.4.9",
     "yaml": "^2.3.1"
   }
 }

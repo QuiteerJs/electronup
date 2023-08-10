@@ -49,7 +49,7 @@ title: 项目介绍
     "electron-builder": "^23.6.0",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
-    "vite": "^4.3.1"
+    "vite": "^4.4.9"
   }
 }
 ```
