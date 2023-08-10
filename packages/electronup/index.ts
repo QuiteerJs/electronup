@@ -17,6 +17,8 @@ export function defineConfig(config: Promise<ElectronupConfig>): Promise<Electro
 
 export function defineConfig(config: ElectronupConfigFnObject): ElectronupConfigFnObject
 
+export function defineConfig(config: ElectronupConfigExport): ElectronupConfigExport
+
 export function defineConfig(config: ElectronupConfigExport): ElectronupConfigExport {
   return config
 }

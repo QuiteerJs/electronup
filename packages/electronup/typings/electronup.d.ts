@@ -1,6 +1,6 @@
 
-import { Configuration } from 'electron-builder';
-import type {  PluginOption, UserConfig } from 'vite';
+import type { Configuration } from 'electron-builder';
+import type { UserConfig } from 'vite';
 import type { Options } from 'tsup'
 
 export interface ViteConfig extends Omit<UserConfig, 'publicDir' | 'ssr'> { }

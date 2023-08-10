@@ -1,10 +1,18 @@
-import type { ConfigEnv, ElectronupConfig } from 'electronup'
 import { defineConfig } from 'electronup'
+import { defineConfig as viteConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import react from '@vitejs/plugin-react'
 
 defineConfig({
   viteConfig: {
+    resolve: {
+      alias: {
+        '@': 'src'
+      }
+    },
+    build: {
+      reportCompressedSize: false
+    },
     plugins: [vue(), react()]
   },
   tsupConfig: {
@@ -43,26 +51,14 @@ defineConfig(() => Promise.resolve({
   builderConfig: {}
 }))
 
-defineConfig((env: ConfigEnv) => {
-  // eslint-disable-next-line no-console
-  console.log('env: ', env)
-  const options: ElectronupConfig = {
+defineConfig(async (env) => {
+  return {
     viteConfig: {
-      plugins: [vue(), react()]
     },
     tsupConfig: {
       external: ['electron']
     },
-    builderConfig: {
-      win: {
-        icon: 'public/icon.png',
-        target: {
-          target: 'nsis',
-          arch: 'ia32'
-        }
-      }
-    }
+    builderConfig: {}
   }
-
-  return options
 })
+

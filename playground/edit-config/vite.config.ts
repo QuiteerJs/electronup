@@ -17,3 +17,9 @@ defineConfig(() => ({
 defineConfig(() => Promise.resolve({
   plugins: [vue(), react()]
 }))
+
+defineConfig(() => {
+  return Promise.resolve({
+    plugins: [vue(), react()]
+  })
+})
