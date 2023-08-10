@@ -52,22 +52,22 @@ const FRAMEWORKS: Framework[] = [
         color: blue
       }
     ]
-  },
-  {
-    name: 'preact',
-    display: 'Preact + TS',
-    color: magenta
-  },
-  {
-    name: 'svelte',
-    display: 'Svelte + TS',
-    color: lightRed
-  },
-  {
-    name: 'solid',
-    display: 'Solid + TS',
-    color: blue
   }
+  // ,{
+  //   name: 'preact',
+  //   display: 'Preact + TS',
+  //   color: magenta
+  // },
+  // {
+  //   name: 'svelte',
+  //   display: 'Svelte + TS',
+  //   color: lightRed
+  // },
+  // {
+  //   name: 'solid',
+  //   display: 'Solid + TS',
+  //   color: blue
+  // }
 ]
 
 const renameFiles: Record<string, string | undefined> = {
@@ -188,10 +188,6 @@ async function init() {
 
   // determine template
   let template: string = variant || framework?.name
-
-  if (!['vue', 'react', 'react-swc'].includes(template))
-    // eslint-disable-next-line no-console
-    return console.log(yellow('暂未内置模板,敬请期待'))
 
   // react-swc 模板名称处理
   let isReactSwc = false

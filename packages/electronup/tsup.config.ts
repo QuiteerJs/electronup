@@ -3,10 +3,9 @@ import { defineConfig } from 'tsup'
 
 const config: Options = {
   splitting: false,
+  minify: false,
   clean: true
 }
-
-const external = ['electron', 'esbuild', 'electron-builder', 'vite', 'tsup']
 
 export default defineConfig(() => [
   {
@@ -15,15 +14,13 @@ export default defineConfig(() => [
     outDir: 'dist/client',
     entry: ['index.ts'],
     format: ['esm', 'cjs'],
-    external,
     dts: true
   },
   {
     ...config,
     name: 'electronup-cli',
     outDir: 'dist/bin',
-    format: ['cjs'],
-    external,
+    format: 'cjs',
     entry: { electronup: 'cli.ts' }
   }
 ])

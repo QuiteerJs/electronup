@@ -1,0 +1,10 @@
+{
+  "extends": "@quiteer/ts-config/tsconfig.web.json",
+  "compilerOptions": {
+  },
+  "include": [
+    "typings/*.d.ts",
+    "render/**/*"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

@@ -1,9 +1,6 @@
 dist
-playground-temp
 temp
 node_modules
-packages/create-electronup/template-react
-packages/create-electronup/template-vue
 **/*.md
 docs/.vitepress/cache
 .github

@@ -76,6 +76,7 @@ export function getTsupConfig(config: TsupConfig, allConfig: ElectronupConfig) {
     entry: { electron: resolve(root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts') },
     outDir: allConfig.resourceDir || DefaultDirs.resourceDir,
     watch: isServe,
+    format: 'cjs',
     dts: false,
     clean: false,
     env: injectEnv(),
@@ -85,7 +86,7 @@ export function getTsupConfig(config: TsupConfig, allConfig: ElectronupConfig) {
     }
   }
 
-  return { ...config, ...defaultConfig }
+  return { ...defaultConfig }
 }
 
 let electronProcess: ChildProcessWithoutNullStreams | null

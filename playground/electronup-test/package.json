@@ -1,0 +1,42 @@
+{
+  "name": "electronup-test",
+  "version": "1.0.0",
+  "description": "description",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "dist/resource/electron.js",
+  "scripts": {
+    "command": "electronup -h && electronup -v",
+    "dev:1": "electronup",
+    "dev:2": "electronup dev",
+    "dev:port": "electronup dev --port 1020",
+    "dev:production": "electronup --mode production",
+    "dev:test": "electronup --mode test",
+    "dev:staging": "electronup --mode staging",
+    "dev:err": "electronup --mode err",
+    "dev:custom": "electronup dev build/electronup.config.ts",
+    "build": "electronup build",
+    "build:dir": "electronup build --dir",
+    "build:win": "electronup build --win",
+    "build:win32": "electronup build --win --ia32",
+    "build:ia32": "electronup build --ia32",
+    "build:custom": "electronup build build/electronup.config.ts",
+    "build:option": "electronup build build/electronup.config.ts -o"
+  },
+  "dependencies": {
+    "@quiteer/electron-ipc": "^2.0.4",
+    "@quiteer/electron-preload": "^0.0.10",
+    "epic-spinners": "^2.0.0"
+  },
+  "devDependencies": {
+    "@quiteer/eslint-config": "^0.0.3",
+    "@quiteer/ts-config": "^0.0.5",
+    "@vitejs/plugin-vue": "^4.0.0",
+    "@vitejs/plugin-vue-jsx": "^3.0.0",
+    "electron": "^21.2.2",
+    "electronup": "workspace:^",
+    "unplugin-vue-macros": "^1.0.3",
+    "vue": "^3.2.43"
+  }
+}
