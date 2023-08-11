@@ -5,12 +5,11 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 # sqlite3_mirror=https://cdn.npmmirror.com/binaries/sqlite3/
 # node_sqlite3_binary_host_mirror=https://npmmirror.com/mirrors/sqlite3/
 
-# 如果你使用的是 pnpm 包管理器，打开以下配置。
+<% if(pnpm){ %>
 # https://pnpm.io/zh/npmrc#strict-peer-dependencies
-# strict-peer-dependencies=false
+strict-peer-dependencies=false
 # https://pnpm.io/zh/cli/run#shell-emulator
-# shell-emulator=true
+shell-emulator=true
 # https://pnpm.io/zh/npmrc#auto-install-peers
-# auto-install-peers=false
-
-
+auto-install-peers=false
+<% } %>

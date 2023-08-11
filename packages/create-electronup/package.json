@@ -38,6 +38,7 @@
   "devDependencies": {
     "@types/minimist": "^1.2.2",
     "@types/prompts": "^2.4.4",
+    "ejs": "^3.1.9",
     "execa": "^7.2.0",
     "kolorist": "^1.8.0",
     "minimist": "^1.2.8",

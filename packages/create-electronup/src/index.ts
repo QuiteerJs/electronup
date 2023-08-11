@@ -3,7 +3,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import minimist from 'minimist'
 import prompts from 'prompts'
+import ejs from 'ejs'
 import { blue, cyan, green, lightBlue, lightGreen, lightRed, magenta, red, reset, yellow } from 'kolorist'
+import templateData from './template.json'
 
 // Avoids autoconversion to number of the project name by defining that the args
 // non associated with an option ( _ ) needs to be parsed as a string. See #4606
@@ -187,52 +189,97 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
 
   // determine template
-  let template: string = variant || framework?.name
-
-  // react-swc 模板名称处理
-  let isReactSwc = false
-  if (template.includes('-swc')) {
-    isReactSwc = true
-    template = template.replace('-swc', '')
-  }
-
-  const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent)
-  const pkgManager = pkgInfo ? pkgInfo.name : 'npm'
+  const template: string = variant || framework?.name
 
   // eslint-disable-next-line no-console
   console.log(lightGreen(`\nScaffolding project in ${root}...`))
 
   // 返回模板所在路径
-  const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', `template-${template}`)
+  const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', 'template')
 
-  const write = (file: string, content?: string) => {
-    // 处理需要重命名的文件
-    const targetPath = path.join(root, renameFiles[file] ?? file)
-    // 存在内容写入内容
-    if (content)
-      fs.writeFileSync(targetPath, content)
-    // 直接copy
-    else copy(path.join(templateDir, file), targetPath)
+  // 默认模板
+  const baseTemplateDir = path.resolve(templateDir, 'base')
+
+  const currentTemplateDir = path.resolve(templateDir, template)
+  console.log('currentTemplateDir: ', currentTemplateDir)
+
+  const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent)
+  const pkgManager = pkgInfo ? pkgInfo.name : 'npm'
+
+  const writeTemplate = (dirPath: string, dir = '') => {
+    // 读取模板目录结构
+    const files = fs.readdirSync(dirPath)
+    // 遍历模板生成模板
+    for (const file of files) {
+      // 处理需要重命名的文件
+      let targetPath = path.join(root, dir, renameFiles[file] ?? file)
+      // 处理默认模板中 ejs 模板
+      if (file.endsWith('.ejs')) {
+        console.log('file :>> ', file)
+        const filepath = path.resolve(dirPath, file)
+        const dest = file.replace(/\.ejs$/, '')
+        console.log('dest: ', dest)
+        targetPath = path.join(root, dir, dest)
+
+        const writeTempl = (options: Record<string, any>) => {
+          console.log('options: ', options)
+          const templateContent = fs.readFileSync(filepath, 'utf-8')
+          console.log('templateContent: ', templateContent)
+          const content = ejs.render(templateContent, options)
+
+          console.log('targetPath: ', targetPath)
+          fs.writeFileSync(targetPath, content)
+        }
+
+        if (dest.includes('.eslintrc'))
+          writeTempl({ template })
+
+        if (dest.includes('.npmrc'))
+          writeTempl({ pnpm: pkgManager === 'pnpm' })
+
+        if (dest.includes('package.json')) {
+          const options = templateData?.[dest]?.find(item => item.id === template)
+          writeTempl({
+            name: packageName,
+            dependencies: options && Object.entries(options.dependencies),
+            devDependencies: options && Object.entries(options.devDependencies)
+          })
+        }
+
+        if (dest.includes('electronup')) {
+          const options = templateData?.[dest]?.find(item => item.id === template)
+          writeTempl({
+            name: packageName,
+            importer: options?.importer ?? '',
+            initializer: options?.initializer ?? ''
+          })
+        }
+
+        if (dest.includes('tsconfig')) {
+          const options = templateData?.[dest]?.find(item => item.id === template)
+          writeTempl({ jsx: options?.jsx })
+        }
+      }
+
+      // 直接copy
+      else { copy(path.join(dirPath, file), targetPath) }
+    }
   }
 
-  // 读取模板目录结构
-  const files = fs.readdirSync(templateDir)
-  // 遍历模板生成模板
-  for (const file of files.filter(f => f !== 'package.json')) write(file)
+  writeTemplate(baseTemplateDir)
 
-  // 读取模板内的 package.json 的内容
-  const pkg = JSON.parse(fs.readFileSync(path.join(templateDir, 'package.json'), 'utf-8'))
+  // 生成render文件夹
+  const renderPath = path.join(root, 'render')
+  const currentfiles = path.resolve(templateDir, template)
+  if (fs.existsSync(renderPath))
+    emptyDir(renderPath)
+  else
+    fs.mkdirSync(renderPath, { recursive: true })
+  // 写入render目录
+  writeTemplate(currentfiles, 'render')
 
-  // 修改 package.json 的项目名称
-  pkg.name = packageName || getProjectName()
-
-  // 写入内容
-  write('package.json', `${JSON.stringify(pkg, null, 2)}\n`)
-
-  // react 模板的 swc 选项
-  if (isReactSwc)
-    setupReactSwc(root, true)
-
+  if (template === 'vanilla')
+    return
   // 比对路径
   const cdProjectName = path.relative(cwd, root)
 
@@ -248,6 +295,7 @@ async function init() {
       }`
     )
   }
+
   switch (pkgManager) {
     case 'yarn':
     // eslint-disable-next-line no-console
@@ -325,22 +373,6 @@ function pkgFromUserAgent(userAgent: string | undefined) {
     name: pkgSpecArr[0],
     version: pkgSpecArr[1]
   }
-}
-
-function setupReactSwc(root: string, isTs: boolean) {
-  // 匹配不同插件
-  editFile(path.resolve(root, 'package.json'), (content) => {
-    return content.replace(/"@vitejs\/plugin-react": ".+?"/, '"@vitejs/plugin-react-swc": "^3.3.2"')
-  })
-  // 匹配 electronup.config 后缀
-  editFile(path.resolve(root, `electronup.config.${isTs ? 'ts' : 'js'}`), (content) => {
-    return content.replace('@vitejs/plugin-react', '@vitejs/plugin-react-swc')
-  })
-}
-
-function editFile(file: string, callback: (content: string) => string) {
-  const content = fs.readFileSync(file, 'utf-8')
-  fs.writeFileSync(file, callback(content), 'utf-8')
 }
 
 init().catch((e) => {

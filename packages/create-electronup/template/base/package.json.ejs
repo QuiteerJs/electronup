@@ -1,5 +1,5 @@
 {
-  "name": "electronup-app",
+  "name": "<%= name %>",
   "version": "1.0.0",
   "license": "MIT",
   "main": "dist/resource/electron.js",
@@ -12,15 +12,22 @@
   },
   "dependencies": {
     "@quiteer/electron-ipc": "^2.0.4",
-    "@quiteer/electron-preload": "^0.0.10"
+    "@quiteer/electron-preload": "^0.0.10",
+    <% dependencies.forEach(function (name) { %>
+    "<%= name[0] %>": "<%= name[1] %>",
+    <% }) %>
   },
   "devDependencies": {
     "@quiteer/eslint-config": "^0.0.3",
     "@types/node": "^20.4.6",
     "electron": "22.3.6",
+    "electron-builder": "^24.6.3",
     "electronup": "^0.0.9",
     "eslint": "^8.43.0",
     "sass": "^1.63.5",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    <% devDependencies.forEach(function (name) { %>
+    "<%= name[0] %>": "<%= name[1] %>",
+    <% }) %>
   }
 }

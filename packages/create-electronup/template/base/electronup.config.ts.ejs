@@ -1,0 +1,26 @@
+import { defineConfig } from 'electronup'
+import { fileURLToPath, URL } from 'node:url'
+
+<%= importer %>
+
+export default defineConfig((env) => {
+  return {
+    viteConfig: {
+      plugins: [<%= initializer %>],
+      resolve: {
+        alias: {
+          '@': fileURLToPath(new URL('./render', import.meta.url))
+        }
+      }
+    },
+    builderConfig: {
+      win: {
+        icon: 'public/icon.png',
+        target: {
+          target: 'nsis',
+          arch: 'ia32'
+        }
+      }
+    }
+  }
+})
