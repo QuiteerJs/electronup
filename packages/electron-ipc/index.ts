@@ -1,0 +1,1 @@
+export { Ipc } from './instance'
