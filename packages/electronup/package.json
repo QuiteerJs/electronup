@@ -34,8 +34,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "update-version": "bumpp package.json",
-    "publish": "npm publish"
+    "update-version": "bumpp package.json"
   },
   "peerDependencies": {
     "@types/node": ">= 16",

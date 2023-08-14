@@ -32,8 +32,7 @@
     "dev": "unbuild --stub",
     "build": "unbuild",
     "typecheck": "tsc --noEmit",
-    "update-version": "bumpp package.json",
-    "publish": "npm publish"
+    "update-version": "bumpp package.json"
   },
   "devDependencies": {
     "@types/ejs": "^3.1.2",
