@@ -3,7 +3,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import minimist from 'minimist'
 import prompts from 'prompts'
-import { blue, cyan, green, lightBlue, lightGreen, lightRed, magenta, red, reset, yellow } from 'kolorist'
+import ejs from 'ejs'
+import { blue, cyan, green, lightBlue, lightCyan, lightGreen, lightYellow, red, reset, yellow } from 'kolorist'
+import templateData from './template.json'
 
 // Avoids autoconversion to number of the project name by defining that the args
 // non associated with an option ( _ ) needs to be parsed as a string. See #4606
@@ -83,7 +85,7 @@ async function init() {
   let targetDir = argTargetDir || defaultTargetDir
   const getProjectName = () => (targetDir === '.' ? path.basename(path.resolve()) : targetDir)
 
-  let result: prompts.Answers<'projectName' | 'overwrite' | 'packageName' | 'framework' | 'variant'>
+  let result: prompts.Answers<'projectName' | 'overwrite' | 'packageName' | 'framework' | 'variant' | 'isRegistry'>
 
   try {
     result = await prompts(
@@ -156,6 +158,10 @@ async function init() {
                 value: variant.name
               }
             })
+        }, {
+          type: () => (!fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm'),
+          name: 'isRegistry',
+          message: '是否开启 npm 国内镜像源 ?'
         }
       ],
       {
@@ -173,7 +179,7 @@ async function init() {
 
   // 用户选择与提示相关联
   // user choice associated with prompts
-  const { framework, overwrite, packageName, variant } = result
+  const { framework, overwrite, packageName, variant, isRegistry } = result
 
   const root = path.join(cwd, targetDir)
 
@@ -187,81 +193,107 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
 
   // determine template
-  let template: string = variant || framework?.name
+  const template: string = variant || framework?.name
 
-  // react-swc 模板名称处理
-  let isReactSwc = false
-  if (template.includes('-swc')) {
-    isReactSwc = true
-    template = template.replace('-swc', '')
-  }
+  // 返回模板所在路径
+  const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', 'template')
+
+  // 默认模板
+  const baseTemplateDir = path.resolve(templateDir, 'base')
 
   const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent)
   const pkgManager = pkgInfo ? pkgInfo.name : 'npm'
 
+  const writeTemplate = (dirPath: string, dir = '') => {
+    // 读取模板目录结构
+    const files = fs.readdirSync(dirPath)
+    // 遍历模板生成模板
+    for (const file of files) {
+      // 处理需要重命名的文件
+      let targetPath = path.join(root, dir, renameFiles[file] ?? file)
+      // 处理默认模板中 ejs 模板
+      if (file.endsWith('.ejs')) {
+        const filepath = path.resolve(dirPath, file)
+        const dest = file.replace(/\.ejs$/, '')
+        targetPath = path.join(root, dir, dest)
+
+        const writeTempl = (options: Record<string, any>) => {
+          const templateContent = fs.readFileSync(filepath, 'utf-8')
+          const content = ejs.render(templateContent, options)
+          fs.writeFileSync(targetPath, content)
+        }
+
+        if (dest === '.eslintrc.cjs')
+          writeTempl({ template })
+
+        if (dest === '.npmrc')
+          writeTempl({ isPnpm: pkgManager === 'pnpm', isRegistry })
+
+        if (dest === 'electronup.config.ts') {
+          const options = templateData[dest].find(item => item.id === template)
+          writeTempl({
+            importer: options?.importer ?? '',
+            initializer: options?.initializer ?? ''
+          })
+        }
+
+        if (dest === 'package.json') {
+          const options = templateData[dest].find(item => item.id === template)
+          writeTempl({
+            name: packageName ?? getProjectName(),
+            isVue: template === 'vue',
+            isPnpm: pkgManager === 'pnpm',
+            dependencies: options && Object.entries(options.dependencies),
+            devDependencies: options && Object.entries(options.devDependencies)
+          })
+        }
+
+        if (dest === 'tsconfig.json') {
+          const options = templateData[dest].find(item => item.id === template)
+          writeTempl({ jsx: options?.jsx })
+        }
+      }
+
+      // 直接copy
+      else { copy(path.join(dirPath, file), targetPath) }
+    }
+  }
+
   // eslint-disable-next-line no-console
   console.log(lightGreen(`\nScaffolding project in ${root}...`))
 
-  // 返回模板所在路径
-  const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', `template-${template}`)
+  writeTemplate(baseTemplateDir)
 
-  const write = (file: string, content?: string) => {
-    // 处理需要重命名的文件
-    const targetPath = path.join(root, renameFiles[file] ?? file)
-    // 存在内容写入内容
-    if (content)
-      fs.writeFileSync(targetPath, content)
-    // 直接copy
-    else copy(path.join(templateDir, file), targetPath)
-  }
+  // 生成render文件夹
+  const renderPath = path.join(root, 'render')
+  const currentfiles = path.resolve(templateDir, template === 'react-swc' ? 'react' : template)
+  if (fs.existsSync(renderPath))
+    emptyDir(renderPath)
+  else
+    fs.mkdirSync(renderPath, { recursive: true })
+  // 写入render目录
+  writeTemplate(currentfiles, 'render')
 
-  // 读取模板目录结构
-  const files = fs.readdirSync(templateDir)
-  // 遍历模板生成模板
-  for (const file of files.filter(f => f !== 'package.json')) write(file)
-
-  // 读取模板内的 package.json 的内容
-  const pkg = JSON.parse(fs.readFileSync(path.join(templateDir, 'package.json'), 'utf-8'))
-
-  // 修改 package.json 的项目名称
-  pkg.name = packageName || getProjectName()
-
-  // 写入内容
-  write('package.json', `${JSON.stringify(pkg, null, 2)}\n`)
-
-  // react 模板的 swc 选项
-  if (isReactSwc)
-    setupReactSwc(root, true)
+  // eslint-disable-next-line no-console
+  console.log('\nDone. Now run: \n')
 
   // 比对路径
   const cdProjectName = path.relative(cwd, root)
 
   // 创建成功后给出的提示文字
-  // eslint-disable-next-line no-console
-  console.log('\nDone. Now run:\n')
-
   if (root !== cwd) {
+    const cdCommand = `\ncd ${cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName}\n`
+
     // eslint-disable-next-line no-console
-    console.log(
-      `  cd ${
-        cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName
-      }`
-    )
+    console.log(lightGreen(cdCommand))
   }
-  switch (pkgManager) {
-    case 'yarn':
-    // eslint-disable-next-line no-console
-      console.log('  yarn')
-      // eslint-disable-next-line no-console
-      console.log('  yarn dev')
-      break
-    default:
-    // eslint-disable-next-line no-console
-      console.log(`  ${pkgManager} install`)
-      // eslint-disable-next-line no-console
-      console.log(`  ${pkgManager} run dev`)
-      break
-  }
+
+  const inStallCommand = pkgManager === 'yarn' ? 'yarn' : `${pkgManager} install\n`
+  // eslint-disable-next-line no-console
+  console.log(lightYellow(inStallCommand))
+  const devConmand = pkgManager === 'yarn' ? 'yarn dev' : `${pkgManager} run dev`
+  // eslint-disable-next-line no-console
+  console.log(lightCyan(devConmand))
 }
 
 function formatTargetDir(targetDir: string | undefined) {
@@ -325,22 +357,6 @@ function pkgFromUserAgent(userAgent: string | undefined) {
     name: pkgSpecArr[0],
     version: pkgSpecArr[1]
   }
-}
-
-function setupReactSwc(root: string, isTs: boolean) {
-  // 匹配不同插件
-  editFile(path.resolve(root, 'package.json'), (content) => {
-    return content.replace(/"@vitejs\/plugin-react": ".+?"/, '"@vitejs/plugin-react-swc": "^3.3.2"')
-  })
-  // 匹配 electronup.config 后缀
-  editFile(path.resolve(root, `electronup.config.${isTs ? 'ts' : 'js'}`), (content) => {
-    return content.replace('@vitejs/plugin-react', '@vitejs/plugin-react-swc')
-  })
-}
-
-function editFile(file: string, callback: (content: string) => string) {
-  const content = fs.readFileSync(file, 'utf-8')
-  fs.writeFileSync(file, callback(content), 'utf-8')
 }
 
 init().catch((e) => {

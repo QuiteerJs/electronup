@@ -1,13 +1,18 @@
-import { resolve } from 'path'
-import type { ConfigEnv } from 'electronup'
+import { resolve } from 'node:path'
 import { defineConfig } from 'electronup'
-import vue from '@vitejs/plugin-vue'
 
-export default defineConfig((env: ConfigEnv) => {
+<%- importer %>
+
+export default defineConfig((env) => {
   const srcDir = resolve(env.root, 'render')
   return {
     viteConfig: {
-      resolve: { alias: { '@': srcDir } }, plugins: [vue()]
+      plugins: [<%- initializer _%>],
+      resolve: {
+        alias: {
+          '@': resolve(env.root, 'render')
+        }
+      }
     },
     builderConfig: {
       win: {

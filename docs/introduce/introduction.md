@@ -43,31 +43,23 @@ pnpm create electronup
 
 ## 安装依赖
 
-:::warning 使用 pnpm
-使用 pnpm 安装依赖前需要在 install 前根据注释放开配置。
-并执行 `pnpm add electron-builder -D`
-:::
+使用 `npm`:
 
-模板中内置了 npm 源的一些配置，可以根据需要放开注释后安装依赖。
+```bash
+npm install
+```
 
-```yaml
-# .npmrc
-# 一些镜像配置
-registry=https://registry.npmmirror.com
-electron_mirror=https://cdn.npmmirror.com/binaries/electron/
-electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-binaries/
-# sqlite3_mirror=https://cdn.npmmirror.com/binaries/sqlite3/
-# node_sqlite3_binary_host_mirror=https://npmmirror.com/mirrors/sqlite3/
 
-# 如果你使用的是 pnpm 包管理器，打开以下配置。
-# https://pnpm.io/zh/npmrc#strict-peer-dependencies
-# strict-peer-dependencies=false
-# https://pnpm.io/zh/cli/run#shell-emulator
-# shell-emulator=true
-# https://pnpm.io/zh/npmrc#auto-install-peers
-# auto-install-peers=false
-# https://pnpm.io/zh/npmrc#node-linker
-# node-linker=hoisted
+使用 `yarn`:
+
+```bash
+yarn
+```
+
+使用 `pnpm`:
+
+```bash
+pnpm install
 ```
 
 ## 命令行
