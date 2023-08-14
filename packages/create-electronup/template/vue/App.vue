@@ -31,7 +31,7 @@ const btns = [{
 
 <template>
   <div>
-    <img class="avatar" src="/avatar.png">
+    <img class="avatar" src="@/assets/avatar.png">
   </div>
   <button v-for="item in btns" :key="item.key" @click="changeWin(item.key)">
     {{ item.label }}

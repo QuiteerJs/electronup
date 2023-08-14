@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import minimist from 'minimist'
 import prompts from 'prompts'
 import ejs from 'ejs'
-import { blue, cyan, green, lightBlue, lightGreen, lightRed, magenta, red, reset, yellow } from 'kolorist'
+import { blue, cyan, green, lightBlue, lightCyan, lightGreen, lightYellow, red, reset, yellow } from 'kolorist'
 import templateData from './template.json'
 
 // Avoids autoconversion to number of the project name by defining that the args
@@ -85,7 +85,7 @@ async function init() {
   let targetDir = argTargetDir || defaultTargetDir
   const getProjectName = () => (targetDir === '.' ? path.basename(path.resolve()) : targetDir)
 
-  let result: prompts.Answers<'projectName' | 'overwrite' | 'packageName' | 'framework' | 'variant'>
+  let result: prompts.Answers<'projectName' | 'overwrite' | 'packageName' | 'framework' | 'variant' | 'isRegistry'>
 
   try {
     result = await prompts(
@@ -158,6 +158,10 @@ async function init() {
                 value: variant.name
               }
             })
+        }, {
+          type: () => (!fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm'),
+          name: 'isRegistry',
+          message: '是否开启 npm 国内镜像源 ?'
         }
       ],
       {
@@ -175,7 +179,7 @@ async function init() {
 
   // 用户选择与提示相关联
   // user choice associated with prompts
-  const { framework, overwrite, packageName, variant } = result
+  const { framework, overwrite, packageName, variant, isRegistry } = result
 
   const root = path.join(cwd, targetDir)
 
@@ -191,17 +195,11 @@ async function init() {
   // determine template
   const template: string = variant || framework?.name
 
-  // eslint-disable-next-line no-console
-  console.log(lightGreen(`\nScaffolding project in ${root}...`))
-
   // 返回模板所在路径
   const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', 'template')
 
   // 默认模板
   const baseTemplateDir = path.resolve(templateDir, 'base')
-
-  const currentTemplateDir = path.resolve(templateDir, template)
-  console.log('currentTemplateDir: ', currentTemplateDir)
 
   const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent)
   const pkgManager = pkgInfo ? pkgInfo.name : 'npm'
@@ -215,48 +213,43 @@ async function init() {
       let targetPath = path.join(root, dir, renameFiles[file] ?? file)
       // 处理默认模板中 ejs 模板
       if (file.endsWith('.ejs')) {
-        console.log('file :>> ', file)
         const filepath = path.resolve(dirPath, file)
         const dest = file.replace(/\.ejs$/, '')
-        console.log('dest: ', dest)
         targetPath = path.join(root, dir, dest)
 
         const writeTempl = (options: Record<string, any>) => {
-          console.log('options: ', options)
           const templateContent = fs.readFileSync(filepath, 'utf-8')
-          console.log('templateContent: ', templateContent)
           const content = ejs.render(templateContent, options)
-
-          console.log('targetPath: ', targetPath)
           fs.writeFileSync(targetPath, content)
         }
 
-        if (dest.includes('.eslintrc'))
+        if (dest === '.eslintrc.cjs')
           writeTempl({ template })
 
-        if (dest.includes('.npmrc'))
-          writeTempl({ pnpm: pkgManager === 'pnpm' })
+        if (dest === '.npmrc')
+          writeTempl({ isPnpm: pkgManager === 'pnpm', isRegistry })
 
-        if (dest.includes('package.json')) {
-          const options = templateData?.[dest]?.find(item => item.id === template)
+        if (dest === 'electronup.config.ts') {
+          const options = templateData[dest].find(item => item.id === template)
           writeTempl({
-            name: packageName,
-            dependencies: options && Object.entries(options.dependencies),
-            devDependencies: options && Object.entries(options.devDependencies)
-          })
-        }
-
-        if (dest.includes('electronup')) {
-          const options = templateData?.[dest]?.find(item => item.id === template)
-          writeTempl({
-            name: packageName,
             importer: options?.importer ?? '',
             initializer: options?.initializer ?? ''
           })
         }
 
-        if (dest.includes('tsconfig')) {
-          const options = templateData?.[dest]?.find(item => item.id === template)
+        if (dest === 'package.json') {
+          const options = templateData[dest].find(item => item.id === template)
+          writeTempl({
+            name: packageName ?? getProjectName(),
+            isVue: template === 'vue',
+            isPnpm: pkgManager === 'pnpm',
+            dependencies: options && Object.entries(options.dependencies),
+            devDependencies: options && Object.entries(options.devDependencies)
+          })
+        }
+
+        if (dest === 'tsconfig.json') {
+          const options = templateData[dest].find(item => item.id === template)
           writeTempl({ jsx: options?.jsx })
         }
       }
@@ -266,11 +259,14 @@ async function init() {
     }
   }
 
+  // eslint-disable-next-line no-console
+  console.log(lightGreen(`\nScaffolding project in ${root}...`))
+
   writeTemplate(baseTemplateDir)
 
   // 生成render文件夹
   const renderPath = path.join(root, 'render')
-  const currentfiles = path.resolve(templateDir, template)
+  const currentfiles = path.resolve(templateDir, template === 'react-swc' ? 'react' : template)
   if (fs.existsSync(renderPath))
     emptyDir(renderPath)
   else
@@ -278,38 +274,26 @@ async function init() {
   // 写入render目录
   writeTemplate(currentfiles, 'render')
 
-  if (template === 'vanilla')
-    return
+  // eslint-disable-next-line no-console
+  console.log('\nDone. Now run: \n')
+
   // 比对路径
   const cdProjectName = path.relative(cwd, root)
 
   // 创建成功后给出的提示文字
-  // eslint-disable-next-line no-console
-  console.log('\nDone. Now run:\n')
-
   if (root !== cwd) {
+    const cdCommand = `\ncd ${cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName}\n`
+
     // eslint-disable-next-line no-console
-    console.log(
-      `  cd ${
-        cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName
-      }`
-    )
+    console.log(lightGreen(cdCommand))
   }
 
-  switch (pkgManager) {
-    case 'yarn':
-    // eslint-disable-next-line no-console
-      console.log('  yarn')
-      // eslint-disable-next-line no-console
-      console.log('  yarn dev')
-      break
-    default:
-    // eslint-disable-next-line no-console
-      console.log(`  ${pkgManager} install`)
-      // eslint-disable-next-line no-console
-      console.log(`  ${pkgManager} run dev`)
-      break
-  }
+  const inStallCommand = pkgManager === 'yarn' ? 'yarn' : `${pkgManager} install\n`
+  // eslint-disable-next-line no-console
+  console.log(lightYellow(inStallCommand))
+  const devConmand = pkgManager === 'yarn' ? 'yarn dev' : `${pkgManager} run dev`
+  // eslint-disable-next-line no-console
+  console.log(lightCyan(devConmand))
 }
 
 function formatTargetDir(targetDir: string | undefined) {

@@ -1,8 +1,8 @@
 module.exports = {
-  <% if(template === 'vue'|| template === 'vanilla'){ %>
-    extends: ['@quiteer/eslint-config'],
-  <% } %>
-  <% if(template === 'react'|| template === 'react-swc'){ %>
+<%_ if(template === 'vue'|| template === 'vanilla'){ _%>
+  extends: ['@quiteer/eslint-config'],
+<%_ } _%>
+<%_ if(template === 'react'|| template === 'react-swc'){ _%>
   root: true,
   env: { browser: true, es2020: true },
   extends: [
@@ -17,5 +17,5 @@ module.exports = {
       { allowConstantExport: true }
     ]
   }
-  <% } %>
+<%_ } _%>
 }

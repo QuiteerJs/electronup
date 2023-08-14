@@ -7,27 +7,34 @@
     "dev": "electronup --no-minify",
     "build": "electronup build",
     "dir": "electronup build --dir --no-asar --no-minify",
+    <%_ if(isVue){ _%>
     "typecheck": "vue-tsc --noEmit --skipLibCheck",
+    <%_ }else{ -%>
+    <%_ } _%>
+    "lint": "eslint .",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@quiteer/electron-ipc": "^2.0.4",
-    "@quiteer/electron-preload": "^0.0.10",
-    <% dependencies.forEach(function (name) { %>
-    "<%= name[0] %>": "<%= name[1] %>",
-    <% }) %>
+    "@quiteer/electron-preload": "^0.0.10"<%_ if(dependencies.length !== 0){ _%>,<%_ } %>
+    <%_ dependencies.forEach(function (name,index) { _%>
+    "<%= name[0] %>": "<%= name[1] %>"<%_ if(index !== dependencies.length - 1){ _%>,<%_ } %>
+    <%_ }) _%>
   },
   "devDependencies": {
     "@quiteer/eslint-config": "^0.0.3",
     "@types/node": "^20.4.6",
     "electron": "22.3.6",
+    <%_ if(isPnpm){ _%>
     "electron-builder": "^24.6.3",
+    <%_ }else{ -%>
+    <%_ } _%>
     "electronup": "^0.0.9",
     "eslint": "^8.43.0",
-    "sass": "^1.63.5",
-    "typescript": "^5.1.6",
-    <% devDependencies.forEach(function (name) { %>
-    "<%= name[0] %>": "<%= name[1] %>",
-    <% }) %>
+    "sass": "^1.65.1",
+    "typescript": "^5.1.6"<%_ if(devDependencies.length !== 0){ _%>,<%_ } %>
+    <%_ devDependencies.forEach(function (name,index) { _%>
+    "<%= name[0] %>": "<%= name[1] %>"<%_ if(index !== devDependencies.length - 1){ _%>,<%_ } %>
+    <%_ }) _%>
   }
 }

@@ -1,15 +1,16 @@
+import { resolve } from 'node:path'
 import { defineConfig } from 'electronup'
-import { fileURLToPath, URL } from 'node:url'
 
-<%= importer %>
+<%- importer %>
 
 export default defineConfig((env) => {
+  const srcDir = resolve(env.root, 'render')
   return {
     viteConfig: {
-      plugins: [<%= initializer %>],
+      plugins: [<%- initializer _%>],
       resolve: {
         alias: {
-          '@': fileURLToPath(new URL('./render', import.meta.url))
+          '@': resolve(env.root, 'render')
         }
       }
     },
