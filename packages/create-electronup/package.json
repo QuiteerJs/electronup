@@ -1,7 +1,7 @@
 {
   "name": "create-electronup",
   "type": "module",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "创建electronup项目模板",
   "author": "quiteer",
   "license": "ISC",
@@ -22,7 +22,7 @@
   },
   "files": [
     "index.js",
-    "template-*",
+    "template",
     "dist"
   ],
   "engines": {
