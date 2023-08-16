@@ -7,7 +7,7 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 # node_sqlite3_binary_host_mirror=https://npmmirror.com/mirrors/sqlite3/
 <%_ } _%>
 
-<%_ if(isPnpm){ _%>
+<%_ if(pkgManager === 'pnpm'){ _%>
 # https://pnpm.io/zh/npmrc#strict-peer-dependencies
 strict-peer-dependencies=false
 # https://pnpm.io/zh/cli/run#shell-emulator

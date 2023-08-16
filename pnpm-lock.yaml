@@ -161,6 +161,12 @@ importers:
         specifier: ^3.2.43
         version: 3.3.4
 
+  playground/template:
+    devDependencies:
+      create-electronup:
+        specifier: workspace:^
+        version: link:../../packages/create-electronup
+
 packages:
 
   /7zip-bin@5.1.1:

@@ -1,17 +1,17 @@
 {
   "name": "create-electronup",
   "type": "module",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "创建electronup项目模板",
   "author": "quiteer",
-  "license": "ISC",
-  "homepage": "https://github.com/QuiteerJs/create-electronup#readme",
+  "license": "MIT",
+  "homepage": "https://github.com/QuiteerJs/electronup/tree/main/packages/create-electronup#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QuiteerJs/create-electronup.git"
+    "url": "git+https://github.com/QuiteerJs/electronup.git"
   },
   "bugs": {
-    "url": "https://github.com/QuiteerJs/create-electronup/issues"
+    "url": "https://github.com/QuiteerJs/electronup/issues"
   },
   "bin": {
     "create-electronup": "index.js"

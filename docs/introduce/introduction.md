@@ -38,13 +38,48 @@ pnpm create electronup
 ```
 
 
-这一指令将会安装并执行 [**create-electronup**](https://github.com/QuiteerJs/create-electronup)，它是 [**electronup**](https://github.com/QuiteerJs/electronup) 的项目模板脚手架工具。你将会看到一些模板选项提示,根据提示选择想要的模板即可完成创建。
+这一指令将会安装并执行 [**create-electronup**](https://github.com/QuiteerJs/electronup/tree/main/packages/create-electronup)，它是 [**electronup**](https://github.com/QuiteerJs/electronup) 的项目模板脚手架工具。你将会看到一些模板选项提示,根据提示选择想要的模板即可完成创建。
 
 ::: tip ps
 如果你想要在当前目录下创建项目，
 项目名称填入 `.` 即可： <br />
 `? Project name: » .`
 :::
+
+### create-electornup 命令行参数
+
+> `-t` or `--template`
+
+可选项：
+
+- vanilla
+- vue
+- react
+- react-swc
+- solid
+
+示例：
+
+```bash
+create-electronup vanilla-project --template vanilla
+```
+
+```bash
+create-electronup vue-project -t vue
+```
+
+```bash
+create-electronup react-project -t react
+```
+
+```bash
+create-electronup react-swc-project -t react-swc
+```
+
+```bash
+create-electronup solid-project -t solid
+```
+
 
 ## 安装依赖
 

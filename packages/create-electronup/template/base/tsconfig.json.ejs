@@ -13,6 +13,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "<%= jsx %>",
+    <%_ if(template === 'solid'){ _%>
+    "jsxImportSource": "solid-js",
+    <%_ }else{ -%>
+    <%_ } _%>
 
     /* Linting */
     "strict": true,

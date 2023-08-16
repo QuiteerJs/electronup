@@ -7,7 +7,7 @@
     "dev": "electronup --no-minify",
     "build": "electronup build",
     "dir": "electronup build --dir --no-asar --no-minify",
-    <%_ if(isVue){ _%>
+    <%_ if(template === 'vue'){ _%>
     "typecheck": "vue-tsc --noEmit --skipLibCheck",
     <%_ }else{ -%>
     <%_ } _%>
@@ -25,7 +25,7 @@
     "@quiteer/eslint-config": "^0.0.3",
     "@types/node": "^20.4.6",
     "electron": "22.3.6",
-    <%_ if(isPnpm){ _%>
+    <%_ if(pkgManager === 'pnpm'){ _%>
     "electron-builder": "^24.6.3",
     <%_ }else{ -%>
     <%_ } _%>

@@ -1,6 +1,7 @@
 {
   "extends": "@quiteer/ts-config/tsconfig.web.json",
   "compilerOptions": {
+    "ignoreDeprecations": "5.0"
   },
   "include": [
     "typings/*.d.ts",

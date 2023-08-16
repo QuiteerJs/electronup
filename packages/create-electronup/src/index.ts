@@ -5,11 +5,14 @@ import minimist from 'minimist'
 import prompts from 'prompts'
 import ejs from 'ejs'
 import { blue, cyan, green, lightBlue, lightCyan, lightGreen, lightYellow, red, reset, yellow } from 'kolorist'
-import templateData from './template.json'
+import { type Template, getData } from './getData'
 
 // Avoids autoconversion to number of the project name by defining that the args
 // non associated with an option ( _ ) needs to be parsed as a string. See #4606
-const argv = minimist(process.argv.slice(2), { string: ['_'] })
+const argv = minimist<{
+  t?: string
+  template?: string
+}>(process.argv.slice(2), { string: ['_'] })
 
 const cwd = process.cwd()
 
@@ -54,23 +57,17 @@ const FRAMEWORKS: Framework[] = [
         color: blue
       }
     ]
+  },
+  {
+    name: 'solid',
+    display: 'Solid + TS',
+    color: blue
   }
-  // ,{
-  //   name: 'preact',
-  //   display: 'Preact + TS',
-  //   color: magenta
-  // },
-  // {
-  //   name: 'svelte',
-  //   display: 'Svelte + TS',
-  //   color: lightRed
-  // },
-  // {
-  //   name: 'solid',
-  //   display: 'Solid + TS',
-  //   color: blue
-  // }
 ]
+
+const TEMPLATES = FRAMEWORKS.map(
+  f => (f.variants && f.variants.map(v => v.name)) || [f.name]
+).reduce((a, b) => a.concat(b), [])
 
 const renameFiles: Record<string, string | undefined> = {
   _gitignore: '.gitignore',
@@ -81,6 +78,7 @@ const defaultTargetDir = 'electronup-project'
 
 async function init() {
   const argTargetDir = formatTargetDir(argv._[0])
+  const argTemplate = argv.template || argv.t
 
   let targetDir = argTargetDir || defaultTargetDir
   const getProjectName = () => (targetDir === '.' ? path.basename(path.resolve()) : targetDir)
@@ -133,9 +131,13 @@ async function init() {
         },
         // 选择预置模板
         {
-          type: 'select',
+          type: argTemplate && TEMPLATES.includes(argTemplate) ? null : 'select',
           name: 'framework',
-          message: reset('Select a framework:'),
+          message: typeof argTemplate === 'string' && !TEMPLATES.includes(argTemplate)
+            ? reset(
+              `"${argTemplate}" isn't a valid template. Please choose from below: `
+            )
+            : reset('Select a framework:'),
           initial: 0,
           choices: FRAMEWORKS.map((framework) => {
             const frameworkColor = framework.color
@@ -158,8 +160,9 @@ async function init() {
                 value: variant.name
               }
             })
-        }, {
-          type: () => (!fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm'),
+        },
+        {
+          type: 'confirm',
           name: 'isRegistry',
           message: '是否开启 npm 国内镜像源 ?'
         }
@@ -193,7 +196,7 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
 
   // determine template
-  const template: string = variant || framework?.name
+  const template: string = variant || framework?.name || argTemplate
 
   // 返回模板所在路径
   const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', 'template')
@@ -223,35 +226,27 @@ async function init() {
           fs.writeFileSync(targetPath, content)
         }
 
-        if (dest === '.eslintrc.cjs')
-          writeTempl({ template })
-
-        if (dest === '.npmrc')
-          writeTempl({ isPnpm: pkgManager === 'pnpm', isRegistry })
-
-        if (dest === 'electronup.config.ts') {
-          const options = templateData[dest].find(item => item.id === template)
-          writeTempl({
-            importer: options?.importer ?? '',
-            initializer: options?.initializer ?? ''
-          })
+        let options: Record<string, any> = {
+          name: packageName ?? getProjectName(),
+          template,
+          pkgManager,
+          isRegistry
         }
 
-        if (dest === 'package.json') {
-          const options = templateData[dest].find(item => item.id === template)
-          writeTempl({
-            name: packageName ?? getProjectName(),
-            isVue: template === 'vue',
-            isPnpm: pkgManager === 'pnpm',
-            dependencies: options && Object.entries(options.dependencies),
-            devDependencies: options && Object.entries(options.devDependencies)
-          })
+        if (dest === 'electronup.config.ts' || dest === 'package.json' || dest === 'tsconfig.json') {
+          const data = getData(template as Template)
+
+          options = {
+            ...options,
+            jsx: data?.jsx ?? '',
+            importer: data?.importer ?? '',
+            initializer: data?.initializer ?? '',
+            dependencies: data && Object.entries(data.dependencies),
+            devDependencies: data && Object.entries(data.devDependencies)
+          }
         }
 
-        if (dest === 'tsconfig.json') {
-          const options = templateData[dest].find(item => item.id === template)
-          writeTempl({ jsx: options?.jsx })
-        }
+        writeTempl(options)
       }
 
       // 直接copy
