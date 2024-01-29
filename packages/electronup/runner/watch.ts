@@ -1,11 +1,11 @@
 import { getPortPromise } from 'portfinder'
 import { createServer } from 'vite'
 import { build } from 'tsup'
-import type { UserElectronupConfig } from '../typings/electronup'
+import type { ElectronupConfig } from '../typings/electronup'
 import { electronupConfig } from '../transform'
 import { store } from '../utils'
 
-export async function watch(options: UserElectronupConfig) {
+export async function watch(options: ElectronupConfig) {
   const p = await getPortPromise({
     port: Number(store.port)
   })
