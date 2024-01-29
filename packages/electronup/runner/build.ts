@@ -3,140 +3,208 @@ import { Arch, Platform, build as builder } from 'electron-builder'
 import { build as viteBuild } from 'vite'
 import { build as tsBuild } from 'tsup'
 
-import inquirer from 'inquirer'
+import prompts from 'prompts'
+import { blue, green, red, yellow } from 'kolorist'
 import { stringify } from 'yaml'
 import { writeFile } from 'fs-extra'
 import type { ElectronupConfig } from '../typings/electronup'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
 
+type ColorFunc = (str: string | number) => string
+interface PlatformSelect {
+  name: string
+  platform: 'win32' | 'darwin' | 'linux'
+  disabled: boolean
+  createTarget: (archs: Arch[]) => Map<Platform, Map<Arch, Array<string>>>
+  color: ColorFunc
+  archs?: Framework[]
+}
+
+interface Framework {
+  name: string
+  arch: Arch
+  disabled: boolean
+  color: ColorFunc
+}
+
+const platformSelect: PlatformSelect[] = [
+  {
+    name: 'Windows',
+    platform: 'win32',
+    createTarget: (archs: Arch[]) => {
+      if (archs.length)
+        return Platform.WINDOWS.createTarget(store.dir, ...archs)
+      return Platform.WINDOWS.createTarget(store.dir, Arch.ia32, Arch.x64)
+    },
+    color: blue,
+    disabled: !(store.isMac || store.isWin),
+    archs: [{
+      name: 'x64',
+      arch: Arch.x64,
+      disabled: store.currentArch === 'ia32',
+      color: blue
+    }, {
+      name: 'ia32',
+      arch: Arch.ia32,
+      color: blue,
+      disabled: false
+    }]
+  },
+  {
+    name: 'MacOS',
+    platform: 'darwin',
+    createTarget: (archs: Arch[]) => {
+      if (archs.length)
+        return Platform.MAC.createTarget(store.dir, Arch[store.currentArch])
+      return Platform.MAC.createTarget(store.dir, ...archs)
+    },
+    disabled: !store.isMac,
+    color: green,
+    archs: [{
+      name: 'x64',
+      arch: Arch.x64,
+      disabled: false,
+      color: green
+    }, {
+      name: 'arm64',
+      arch: Arch.arm64,
+      disabled: false,
+      color: green
+    }, {
+      name: 'universal',
+      arch: Arch.universal,
+      disabled: false,
+      color: green
+    }]
+  },
+  {
+    name: 'Linux',
+    platform: 'linux',
+    disabled: !(store.isMac || store.isLinux),
+    createTarget: (archs: Arch[]) => {
+      if (archs.length)
+        return Platform.LINUX.createTarget(store.dir, Arch[store.currentArch])
+      return Platform.LINUX.createTarget(store.dir, ...archs)
+    },
+    color: yellow,
+    archs: [{
+      name: 'x64',
+      arch: Arch.x64,
+      disabled: false,
+      color: yellow
+    }, {
+      name: 'arm64',
+      arch: Arch.arm64,
+      disabled: false,
+      color: yellow
+    }, {
+      name: 'armv7l',
+      arch: Arch.armv7l,
+      disabled: false,
+      color: yellow
+    }]
+  }
+]
+
 export async function build(options: ElectronupConfig) {
   if (store.option) {
-    const { isMinify } = await inquirer
-      .prompt([{ type: 'confirm', name: 'isMinify', message: '是否压缩代码?' }])
-      .catch((err) => {
-        console.error('err: ', err)
-        process.exit(1)
+    let result: prompts.Answers<'isMinify' | 'isPackage' | 'platform' | 'arch'>
+
+    try {
+      result = await prompts([
+        {
+          type: 'confirm',
+          name: 'isMinify',
+          message: green('是否压缩代码?')
+        }, {
+          type: 'confirm',
+          name: 'isPackage',
+          message: blue('是否生成安装包?')
+        }, {
+          type: 'select',
+          name: 'platform',
+          message: '请选择构建模式 ~',
+          choices: platformSelect.map(item => ({ title: item.color(item.name), value: item, disabled: item.disabled }))
+        }, {
+          type: 'multiselect',
+          name: 'arch',
+          message: '请选择打包架构～',
+          choices: (platformSelect: PlatformSelect) => {
+            return platformSelect.archs?.map(item => ({ title: item.color(item.name), value: item.arch, disabled: item.disabled }))
+          }
+        }
+      ], {
+        onCancel: () => {
+          throw new Error(`${red('✖')} Operation cancelled`)
+        }
       })
+    }
+    catch (cancelled: any) {
+      console.error('err: ', cancelled.message)
+      process.exit(1)
+    }
+
+    const { isMinify, isPackage, platform, arch } = result
+    console.log('isMinify: ', isMinify)
+    console.log('isPackage: ', isPackage)
+    console.log('platform: ', platform)
+    console.log('arch: ', arch)
 
     store.minify = isMinify
-
-    const { isPackage } = await inquirer
-      .prompt([{ type: 'confirm', name: 'isPackage', message: '是否生成安装包?' }])
-      .catch((err) => {
-        console.error('err: ', err)
-        process.exit(1)
-      })
-
-    store.dir = !isPackage
-
+    store.dir = isPackage ? null : 'dir'
+    store.targets = (platform as PlatformSelect).createTarget(arch as Arch[])
+  }
+  else {
     if (store.isWin) {
-      if (store.currentArch === 'ia32')
-        store.ia32 = true
+      if (store.win === 'ia32')
+        store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)
 
-      if (store.currentArch === 'x64') {
-        const { pattern } = await inquirer
-          .prompt([
-            {
-              type: 'checkbox',
-              name: 'pattern',
-              message: '请选择构建模式 , 跳过选择为当前操作系统平台 ~',
-              pageSize: 10,
-              choices: [
-                { name: 'win-x64', value: 'x64' },
-                { name: 'win-ia32', value: 'ia32' }
-              ]
-            }
-          ])
-          .catch((err) => {
-            console.error('err: ', err)
-            process.exit(1)
-          })
+      else if (store.win === 'x64')
+        store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)
 
-        if (pattern.length) {
-          pattern.forEach((arch: 'x64' | 'ia32') => {
-            store[arch] = true
-          })
-        }
-      }
-      store.dir = !isPackage
+      else
+        store.targets = Platform.WINDOWS.createTarget(store.dir, Arch[store.currentArch])
     }
 
     if (store.isMac) {
-      const { outPlatform } = await inquirer
-        .prompt([
-          {
-            type: 'list',
-            name: 'outPlatform',
-            message: '请选择构建平台 , 跳过选择为当前操作系统平台 ~',
-            pageSize: 10,
-            choices: [
-              { name: 'win', value: 'win' },
-              { name: 'mac', value: 'mac' },
-              { name: 'linux', value: 'linux' }
-            ]
-          }
-        ])
-        .catch((err) => {
-          console.error('err: ', err)
-          process.exit(1)
-        })
+      if (store.win) {
+        if (store.win === 'ia32')
+          store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)
 
-      if (outPlatform === 'mac') {
-        const { pattern } = await inquirer
-          .prompt([
-            {
-              type: 'checkbox',
-              name: 'pattern',
-              message: '请选择构建模式 , 跳过选择为当前操作系统平台 ~',
-              pageSize: 10,
-              choices: [
-                { name: 'mac-x64', value: Arch.x64 },
-                { name: 'mac-arm64', value: Arch.arm64 }
-              ]
-            }
-          ])
-          .catch((err) => {
-            console.error('err: ', err)
-            process.exit(1)
-          })
+        else if (store.win === 'x64')
+          store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)
 
-        const archList = []
-        pattern.length ? archList.push(...pattern) : archList.push(Arch[store.currentArch])
-        store.targets = Platform.MAC.createTarget(!isPackage ? 'dir' : null, ...archList)
+        else
+          store.targets = Platform.WINDOWS.createTarget(store.dir, Arch[store.currentArch])
+      }
+      else if (store.mac) {
+        if (store.mac === 'x64')
+          store.targets = Platform.MAC.createTarget(store.dir, Arch.x64)
+
+        else if (store.mac === 'arm64')
+          store.targets = Platform.MAC.createTarget(store.dir, Arch.arm64)
+
+        else if (store.mac === 'universal')
+          store.targets = Platform.MAC.createTarget(store.dir, Arch.universal)
+
+        else
+          store.targets = Platform.MAC.createTarget(store.dir, Arch[store.currentArch])
+      }
+      else if (store.linux) {
+        if (store.linux === true)
+          store.targets = Platform.LINUX.createTarget(store.dir)
+
+        else
+          store.targets = Platform.LINUX.createTarget(store.dir, Arch[store.currentArch])
       }
 
-      if (outPlatform === 'win') {
-        const { pattern } = await inquirer
-          .prompt([
-            {
-              type: 'checkbox',
-              name: 'pattern',
-              message: '请选择构建模式 , 跳过选择为当前操作系统平台 ~',
-              pageSize: 10,
-              choices: [
-                { name: 'win-x64', value: Arch.x64 },
-                { name: 'win-ia32', value: Arch.ia32 }
-              ]
-            }
-          ])
-          .catch((err) => {
-            console.error('err: ', err)
-            process.exit(1)
-          })
-
-        const archList = []
-        pattern.length ? archList.push(...pattern) : archList.push(Arch.x64)
-        store.targets = Platform.WINDOWS.createTarget(!isPackage ? 'dir' : null, ...archList)
+      else {
+        store.targets = Platform.MAC.createTarget(store.dir, Arch[store.currentArch])
       }
-
-      if (outPlatform === 'linux')
-        store.targets = Platform.LINUX.createTarget(!isPackage ? 'dir' : null, Arch.armv7l)
     }
 
-    if (store.isLinux) {
-      //
-    }
+    else if (store.isLinux) { store.targets = Platform.LINUX.createTarget(store.dir, Arch.armv7l) }
   }
 
   const initConfig = await electronupConfig(options)
