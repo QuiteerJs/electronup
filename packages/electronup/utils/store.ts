@@ -12,15 +12,10 @@ class Store {
   minify: boolean
   port?: number
   option: boolean
-  win?: boolean
-  mac?: boolean
-  linux?: boolean
-  ia32?: boolean
-  x64?: boolean
-  arm64?: boolean
-  armv7l?: boolean
-  universal?: boolean
-  dir?: boolean
+  win?: true | 'ia32' | 'x64'
+  mac?: true | 'x64' | 'arm64' | 'universal'
+  linux?: true | 'x64' | 'arm64' | 'armv7l'
+  dir?: 'dir' | null
   asar?: boolean
   targets?: Map<Platform, Map<Arch, string[]>>
 

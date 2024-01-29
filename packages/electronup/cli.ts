@@ -19,27 +19,22 @@ interface DevOptions extends Options {
 }
 
 interface BuildOptions extends Options {
-  o?: boolean
-  option?: boolean
-  win?: boolean
-  mac?: boolean
-  linux?: boolean
-  ia32?: boolean
-  x64?: boolean
-  arm64?: boolean
-  armv7l?: boolean
-  universal?: boolean
-  dir?: boolean
+  o?: true
+  option?: true
+  win?: true | 'ia32' | 'x64'
+  mac?: true | 'x64' | 'arm64' | 'universal'
+  linux?: true
+  dir?: true
   asar: boolean
 }
 
 const cli = cac('electronup')
 
 cli.option('-m , --mode <mode>', '[development | production | test | staging | ...] 环境模式 ')
-cli.option('--no-minify', '使主进程和渲染进程代码压缩 ')
+cli.option('--no-minify', '使主进程和渲染进程代码不进行压缩 ')
 
 cli
-  .command('[config-file]', 'start dev server') // default command
+  .command('[config-file]', '等同于electronup dev ,启动开发环境热更新') // default command
   .alias('dev')
   .option('-p , --port <port>', '[number] 渲染进程的端口号 ，如果占用会切换非占用的端口 ')
   .action(async (configFile: undefined | string, options: DevOptions) => {
@@ -48,7 +43,6 @@ cli
     const option = await getConfig(configFile)
 
     emptyDir(resolve(store.root, option.resourceDir || DefaultDirs.resourceDir))
-    emptyDir(resolve(store.root, option.outDir || DefaultDirs.outDir))
 
     store.command = 'serve'
     store.mode = (mode || 'development')
@@ -59,23 +53,17 @@ cli
   })
 
 cli
-  .command('build [root]', '构建')
+  .command('build [root]', '开始构建服务 , 若不指定平台则默认当前操作系统的架构类型')
   .option('-o , --option', '自定义 , 自定义构建选项 ')
   .option('--dir', '只生成目录')
   .option('--no-asar', 'asar false')
-  .option('--win', ' 构建 win 平台下的输出包')
-  .option('--mac', ' 构建 mac 平台下的输出包')
-  .option('--linux', ' 构建 linux 平台下的输出包')
-  .option('--ia32', ' 构建 ia32 架构')
-  .option('--x64', ' 构建 x64 架构')
-  .option('--arm64', ' 构建 arm64 架构')
-  .option('--armv7l', ' 构建 armv7l 架构')
-  .option('--universal', ' 构建 universal 平台包')
+  .option('--win [arch]', '[ia32 | x64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包')
+  .option('--mac [arch]', '[x64 | arm64 | universal] 构建 mac 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型')
+  .option('--linux', '[x64 | arm64 | armv7l] 构建 linux 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型')
   .action(async (configFile: undefined | string, options: BuildOptions) => {
     const {
       mode, minify, option,
       win, mac, linux,
-      ia32, x64, arm64, armv7l, universal,
       dir, asar
     } = options
 
@@ -88,16 +76,11 @@ cli
     store.mode = (mode || 'production')
     store.minify = minify
     store.option = !!option
-    store.dir = !!dir
+    store.dir = dir ? 'dir' : null
     store.asar = asar
-    store.win = !!win
-    store.mac = !!mac
-    store.linux = !!linux
-    store.ia32 = !!ia32
-    store.x64 = !!x64
-    store.arm64 = !!arm64
-    store.armv7l = !!armv7l
-    store.universal = !!universal
+    store.win = win
+    store.mac = mac
+    store.linux = linux
 
     build(configOption)
   })
