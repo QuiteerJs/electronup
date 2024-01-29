@@ -1,4 +1,4 @@
-import type { ViteConfig } from '@quiteer/electronup'
+import type { ViteConfig } from 'electronup'
 import VueMacros from 'unplugin-vue-macros/vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJsx from '@vitejs/plugin-vue-jsx'

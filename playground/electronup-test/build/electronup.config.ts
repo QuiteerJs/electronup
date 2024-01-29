@@ -1,5 +1,5 @@
-import type { ConfigEnv } from '@quiteer/electronup'
-import { defineConfig } from '@quiteer/electronup'
+import type { ConfigEnv } from 'electronup'
+import { defineConfig } from 'electronup'
 import builderConfig from './builder.config'
 import tsupConfig from './tsup.config'
 import viteConfig from './vite.config'

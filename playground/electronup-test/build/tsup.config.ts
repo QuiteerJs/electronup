@@ -1,4 +1,4 @@
-import type { TsupConfig } from '@quiteer/electronup'
+import type { TsupConfig } from 'electronup'
 
 /**
  * 框架内置的配置

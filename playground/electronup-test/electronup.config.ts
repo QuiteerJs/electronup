@@ -15,7 +15,14 @@ export default defineConfig((env) => {
       })]
     },
     builderConfig: {
-      asar: false
+      asar: false,
+      mac: {
+        target: [
+          {
+            target: 'dmg'
+          }
+        ]
+      }
     }
   }
 })

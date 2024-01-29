@@ -1,4 +1,4 @@
-import type { BuilderConfig } from '@quiteer/electronup'
+import type { BuilderConfig } from 'electronup'
 
 /**
  * 框架内置的配置

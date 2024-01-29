@@ -7,7 +7,7 @@
   "keywords": [],
   "main": "dist/resource/electron.js",
   "scripts": {
-    "command": "electronup -h && electronup -v",
+    "command": "electronup -h && electronup build -h && electronup -v",
     "dev:1": "electronup",
     "dev:2": "electronup dev",
     "dev:port": "electronup dev --port 1020",
@@ -19,8 +19,13 @@
     "build": "electronup build",
     "build:dir": "electronup build --dir",
     "build:win": "electronup build --win",
-    "build:win32": "electronup build --win --ia32",
-    "build:ia32": "electronup build --ia32",
+    "build:win32": "electronup build --win ia32",
+    "build:win64": "electronup build --win x64",
+    "build:mac": "electronup build --mac",
+    "build:mac-x64": "electronup build --mac x64",
+    "build:mac-arm64": "electronup build --mac arm64",
+    "build:mac-universal": "electronup build --mac universal",
+    "build:linux": "electronup build --linux",
     "build:custom": "electronup build build/electronup.config.ts",
     "build:option": "electronup build build/electronup.config.ts -o"
   },
@@ -37,6 +42,7 @@
     "electron": "^21.2.2",
     "electronup": "workspace:^",
     "unplugin-vue-macros": "^1.0.3",
+    "vite": "^5.0.12",
     "vue": "^3.2.43"
   }
 }
