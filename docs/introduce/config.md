@@ -82,7 +82,7 @@ title: 配置
 `publicDir` 只能通过外部的 `publicDir` 配置项覆盖。
 
 
-[electronup 中的 vite 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/src/configs/vite.ts)。
+[electronup 中的 vite 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/vite.ts)。
 
 ## tsup
 
@@ -100,13 +100,13 @@ title: 配置
 > 总是参与构建的 modules。
 > 以数组的形式配置。
 
-[electronup 中的 tsup 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/src/configs/tsup.ts#L77)。
+[electronup 中的 tsup 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/tsup.ts#L77)。
 
 ## electron-builder
 
 > 预置配置皆可覆盖，路径类配置需要在外部配置。
 
-[electronup 中的 electron-builder 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/src/configs/builder.ts#L36)。
+[electronup 中的 electron-builder 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/builder.ts#L36)。
 
 :::tip 提示
 命令行参数权重高于用户配置，请结合文档完成构建配置。
@@ -119,33 +119,28 @@ title: 配置
 ```yaml
 vite:
   base: ./
-  root: render
-  server:
-    host: 0.0.0.0
-  build:
-    outDir: E:\demo\template-react\dist\resource
-    target: esnext
-    minify: esbuild
-    reportCompressedSize: false
-    emptyOutDir: true
-  resolve:
-    alias:
-      '@': E:\demo\template-react\render
   plugins:
-    -
-      - name: vite:react-babel
+    - - name: vite:react-babel
         enforce: pre
       - name: vite:react-refresh
         enforce: pre
-  publicDir: E:\demo\template-react\public
+  resolve:
+    alias:
+      "@": /Users/quiteer/Documents/GitHub/electronup/template/react-project/render
+  build:
+    minify: esbuild
+    outDir: /Users/quiteer/Documents/GitHub/electronup/template/react-project/dist/resource
+  root: render
+  publicDir: /Users/quiteer/Documents/GitHub/electronup/template/react-project/public
 tsup:
   minify: false
   external:
     - electron
   entry:
-    electron: E:\demo\template-react\main\index.ts
+    electron: /Users/quiteer/Documents/GitHub/electronup/template/react-project/main/index.ts
   outDir: dist/resource
   watch: false
+  format: cjs
   dts: false
   clean: false
   env:
@@ -153,24 +148,25 @@ tsup:
     VITE_MODE_TEXT: 这里是生产环境
     NODE_ENV: production
 builder:
+  targets: {}
   config:
     asar: true
     appId: org.quiteer.electronup
-    productName: electronup-app
+    productName: react-project
     protocols:
-      name: electronup-app
+      name: react-project
       schemes:
         - deeplink
     nsis:
       oneClick: false
-      language: '2052'
+      language: "2052"
       perMachine: true
       allowElevation: true
       allowToChangeInstallationDirectory: true
       runAfterFinish: true
       createDesktopShortcut: true
       createStartMenuShortcut: true
-      artifactName: electronup-app ${arch} Setup 1.0.0.${ext}
+      artifactName: react-project ${arch} Setup 1.0.0.${ext}
     files:
       - filter:
           - dist/resource/**/*
@@ -184,10 +180,4 @@ builder:
       target:
         target: nsis
         arch: ia32
-  x64: false
-  ia32: false
-  armv7l: false
-  arm64: false
-  universal: false
-  dir: false
 ```
