@@ -1,0 +1,34 @@
+{
+  "name": "react-swc-project",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "dist/resource/electron.js",
+  "scripts": {
+    "dev": "electronup --no-minify",
+    "build": "electronup build",
+    "dir": "electronup build --dir --no-asar --no-minify",
+    "lint": "eslint .",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@quiteer/electron-ipc": "^2.0.4",
+    "@quiteer/electron-preload": "^0.0.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@quiteer/eslint-config": "^0.0.3",
+    "@types/node": "^20.4.6",
+    "@types/react": "^18.2.18",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react-swc": "^3.3.2",
+    "electron": "22.3.6",
+    "electron-builder": "^24.6.3",
+    "electronup": "workspace:^",
+    "eslint": "^8.43.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "sass": "^1.65.1",
+    "typescript": "^5.1.6"
+  }
+}

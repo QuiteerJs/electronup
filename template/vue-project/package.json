@@ -1,0 +1,34 @@
+{
+  "name": "vue-project",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "dist/resource/electron.js",
+  "scripts": {
+    "dev": "electronup --no-minify",
+    "build": "electronup build",
+    "dir": "electronup build --dir --no-asar --no-minify",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck",
+    "lint": "eslint .",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@quiteer/electron-ipc": "^2.0.4",
+    "@quiteer/electron-preload": "^0.0.10",
+    "echarts": "^5.4.2"
+  },
+  "devDependencies": {
+    "@quiteer/eslint-config": "^0.0.3",
+    "@types/node": "^20.4.6",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "electron": "22.3.6",
+    "electron-builder": "^24.6.3",
+    "electronup": "workspace:^",
+    "eslint": "^8.43.0",
+    "pinia": "^2.1.7",
+    "sass": "^1.65.1",
+    "typescript": "^5.1.6",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5",
+    "vue-tsc": "^1.8.1"
+  }
+}
