@@ -3,7 +3,7 @@ export const enum DefaultDirs {
   renderDir = 'render',
   /* 主进程入口目录 */
   mainDir = 'main',
-  /* 动态库目录 */
+  /* 静态资源目录 */
   publicDir = 'public',
   /* 动态库目录 */
   libDir = 'lib',
