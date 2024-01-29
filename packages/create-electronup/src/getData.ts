@@ -18,10 +18,10 @@ export function getData(template: Template) {
           echarts: '^5.4.2'
         },
         devDependencies: {
-          '@vitejs/plugin-vue': '^4.2.3',
-          'pinia': '^2.1.6',
-          'vue': '^3.3.4',
-          'vue-router': '^4.2.2',
+          '@vitejs/plugin-vue': '^5.0.3',
+          'pinia': '^2.1.7',
+          'vue': '^3.4.15',
+          'vue-router': '^4.2.5',
           'vue-tsc': '^1.8.1'
         },
         jsx: 'preserve'
