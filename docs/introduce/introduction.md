@@ -93,7 +93,7 @@ npm install
 使用 `yarn`:
 
 ```bash
-yarn
+yarn install
 ```
 
 使用 `pnpm`:
