@@ -60,7 +60,16 @@ export interface ConfigEnv {
   root: string
 }
 
+export type ElectronupConfigFnObject = (env: ConfigEnv) => ElectronupConfig
+export type ElectronupConfigFnPromise = (env: ConfigEnv) => Promise<ElectronupConfig>
+export type ElectronupConfigFn = (env: ConfigEnv) => ElectronupConfig | Promise<ElectronupConfig>
 
+export type ElectronupConfigExport =
+  | ElectronupConfig
+  | Promise<ElectronupConfig>
+  | ElectronupConfigFnObject
+  | ElectronupConfigFnPromise
+  | ElectronupConfigFn
 
 
 

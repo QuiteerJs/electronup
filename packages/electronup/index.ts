@@ -1,15 +1,4 @@
-import type { ConfigEnv, ElectronupConfig } from './typings/electronup'
-
-export type ElectronupConfigFnObject = (env: ConfigEnv) => ElectronupConfig
-export type ElectronupConfigFnPromise = (env: ConfigEnv) => Promise<ElectronupConfig>
-export type ElectronupConfigFn = (env: ConfigEnv) => ElectronupConfig | Promise<ElectronupConfig>
-
-export type ElectronupConfigExport =
-  | ElectronupConfig
-  | Promise<ElectronupConfig>
-  | ElectronupConfigFnObject
-  | ElectronupConfigFnPromise
-  | ElectronupConfigFn
+import type { ElectronupConfig, ElectronupConfigExport, ElectronupConfigFnObject } from './typings/electronup'
 
 export function defineConfig(config: ElectronupConfig): ElectronupConfig
 
