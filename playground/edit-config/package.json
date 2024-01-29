@@ -12,7 +12,6 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.4",
     "@vitejs/plugin-vue": "^4.2.3",
-    "electronup": "workspace:^",
-    "vite": "^4.4.9"
+    "electronup": "workspace:^"
   }
 }
