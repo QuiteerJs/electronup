@@ -1,31 +1,53 @@
 
 <div align="center">
-	<h1>electronup-app</h1>
-  <p>使用 electronup cli 驱动。</p>
+	<h1>electronup-project</h1>
+  <p>使用 <a href="https://github.com/QuiteerJs/electronup">electronup</a> cli 驱动。</p>
 </div>
 
+# [electronup](https://github.com/QuiteerJs/electronup)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE) ![](https://img.shields.io/github/stars/QuiteerJs/electronup) ![](https://img.shields.io/github/forks/QuiteerJs/electronup)
 
-[![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE) ![](https://img.shields.io/github/stars/TaiAiAc/electronup-app) ![](https://img.shields.io/github/forks/TaiAiAc/electronup-app)
+> electronup 是一个集成 Vite4.x、tsup6.x、electron-builder24.x 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
 
-## 简介
-[electronup-app](https://github.com/TaiAiAc/electronup-app) 是一个基于 electron 、 vue3 、 Typescript 、vite 的桌面端模版，它使用了最新流行的前端技术栈，内置了一些启动项目的通用配置，开箱即用的桌面端前端解决方案，也可用于学习参考。
+## 文档地址
 
-## 安装使用
+文档地址 ：https://quiteerjs.github.io/electronup
 
-- 环境配置
-  **本地环境需要安装 Node.js 16+ 、  Git**
 
-### 一些便携包的相关配置参考 
+## 特性
 
-- `electronup` 
+- **多框架支持** : 使用 `create-electronup` 询问式创建项目模板 , 内置 `vue3` ， `react` ，`solid` 等项目模板。
+- **Vite + tsup** : 双进程热更新 , 快速开发(主进程代码修改会触发软件重启)。
+- **统一的环境变量** : `dotenv` 加载 , 构建时注入 , 双进程拥有相同的环境变量。
+- **模式构建** : 默认识别当前代码运行的平台输出打包程序 。
+- **可选构建功能提示** : 你将获得可选范围内支持的功能提示 , 选项式自定义构建输出。
+- **TypeScript** : 应用程序级 `JavaScript` 的语言。
+- **集中管理路径** : 解决双进程资源路径的问题。
+- **预置配置** : 内置了很多可以覆盖的构建工具配置。
+- **单文件配置** : 只需一个 **electronup.config.ts** 即可管理项目的运行构建。
+- **多插件** : 作者会继续开发更多无副作用的独立插件，如：创建窗口，预加载，ipc通信，更新等等。
 
-https://www.npmjs.com/package/@quiteer/electronup
+## 声明
 
-- `@quiteer/electron-ipc` 
+前提条件
+> 熟悉命令行
+> 已安装 16.0 或更高版本的 Node.js
+
+
+因为使用了 tsup 构建主进程代码，所以该命令行及脚手架只支持 TypeScript ，不支持 JavaScript。
+
+
+### 一些便携包的相关配置参考
+
+- `electronup`
+
+https://www.npmjs.com/package/electronup
+
+- `@quiteer/electron-ipc`
 
 https://www.npmjs.com/package/@quiteer/electron-ipc
 
-- `@quiteer/electron-preload` 
+- `@quiteer/electron-preload`
 
 https://www.npmjs.com/package/@quiteer/electron-preload
 
