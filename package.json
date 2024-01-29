@@ -8,8 +8,8 @@
   "license": "MIT",
   "homepage": "https://github.com/QuiteerJs/electronup#readme",
   "scripts": {
-    "work:dev": "pnpm --filter electronup --filter create-electronup dev",
-    "work:build": "pnpm --filter electronup --filter create-electronup build",
+    "work:dev": "pnpm --filter './packages/*' dev",
+    "work:build": "pnpm --filter './packages/*' build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
