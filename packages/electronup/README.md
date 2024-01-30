@@ -38,7 +38,7 @@ pnpm add electronup -D
 
 前提条件
 > 熟悉命令行
-> 已安装 18.0 或更高版本的 Node.js
+> 已安装 16.0 或更高版本的 Node.js
 
 
 因为使用了 tsup 构建主进程代码，所以该命令行及脚手架只支持 TypeScript ，不支持 JavaScript。
