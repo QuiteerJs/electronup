@@ -19,7 +19,7 @@
     "@types/node": "^20.4.6",
     "electron": "22.3.6",
     "electron-builder": "^24.6.3",
-    "electronup": "^0.1.0",
+    "electronup": "workspace:^",
     "eslint": "^8.43.0",
     "sass": "^1.65.1",
     "typescript": "^5.1.6"
