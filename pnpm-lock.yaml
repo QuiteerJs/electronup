@@ -118,7 +118,7 @@ importers:
         version: 4.0.4
       '@vitejs/plugin-vue':
         specifier: ^4.2.3
-        version: 4.2.3(vite@5.0.12)(vue@3.3.4)
+        version: 4.2.3(vite@4.5.1)(vue@3.4.15)
       electronup:
         specifier: workspace:^
         version: link:../../packages/electronup
@@ -200,7 +200,7 @@ importers:
         specifier: ^24.6.3
         version: 24.9.1
       electronup:
-        specifier: ^0.1.0
+        specifier: workspace:^
         version: link:../../packages/electronup
       eslint:
         specifier: ^8.43.0
@@ -255,7 +255,7 @@ importers:
         specifier: ^24.6.3
         version: 24.9.1
       electronup:
-        specifier: ^0.1.0
+        specifier: workspace:^
         version: link:../../packages/electronup
       eslint:
         specifier: ^8.43.0
@@ -298,7 +298,7 @@ importers:
         specifier: ^24.6.3
         version: 24.9.1
       electronup:
-        specifier: ^0.1.0
+        specifier: workspace:^
         version: link:../../packages/electronup
       eslint:
         specifier: ^8.43.0
@@ -335,7 +335,7 @@ importers:
         specifier: ^24.6.3
         version: 24.9.1
       electronup:
-        specifier: ^0.1.0
+        specifier: workspace:^
         version: link:../../packages/electronup
       eslint:
         specifier: ^8.43.0
@@ -375,7 +375,7 @@ importers:
         specifier: ^24.6.3
         version: 24.9.1
       electronup:
-        specifier: ^0.1.0
+        specifier: workspace:^
         version: link:../../packages/electronup
       eslint:
         specifier: ^8.43.0
