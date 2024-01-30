@@ -37,8 +37,8 @@
     "update-version": "bumpp package.json"
   },
   "peerDependencies": {
-    "@types/node": ">= 16",
-    "node": ">= 16",
+    "@types/node": ">= 18",
+    "node": ">= 18",
     "vue": ">= 3"
   },
   "dependencies": {
