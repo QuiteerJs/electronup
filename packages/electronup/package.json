@@ -1,6 +1,6 @@
 {
   "name": "electronup",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "融合构建 electron 应用需要的构建工具,保留原有配置习惯的命令行工具 ",
   "author": "quiteer",
   "license": "MIT",
@@ -52,9 +52,8 @@
     "kolorist": "^1.8.0",
     "portfinder": "^1.0.32",
     "prompts": "^2.4.2",
-    "tsup": "^7.2.0",
+    "tsup": "^7.3.0",
     "vite": "^4.5.1",
     "yaml": "^2.3.4"
-  },
-  "devDependencies": { }
+  }
 }
