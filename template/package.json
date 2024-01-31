@@ -18,9 +18,11 @@
     "create:react": "create-electronup react-project -t react",
     "create:react-swc": "create-electronup react-swc-project -t react-swc",
     "create:solid": "create-electronup solid-project -t solid",
-    "create:all": "pnpm create:vanilla && pnpm create:vue && pnpm create:react && pnpm create:react-swc && pnpm create:solid"
+    "create:all": "esno index.ts"
   },
   "devDependencies": {
-    "create-electronup": "workspace:^"
+    "create-electronup": "workspace:^",
+    "esno": "^4.0.0",
+    "zx": "^7.2.3"
   }
 }
