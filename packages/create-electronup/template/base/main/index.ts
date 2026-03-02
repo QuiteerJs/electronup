@@ -1,6 +1,6 @@
 import { Ipc } from '@quiteer/electron-ipc'
 import preload from '@quiteer/electron-preload'
-import { BrowserWindow, app } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { Common } from './utils/common'
 
 app.whenReady().then(() => {
@@ -10,8 +10,8 @@ app.whenReady().then(() => {
     height: 700,
     width: 800,
     webPreferences: {
-      preload: preload as string
-    }
+      preload: preload as string,
+    },
   })
 
   const child = new BrowserWindow({
@@ -21,8 +21,8 @@ app.whenReady().then(() => {
     frame: false,
     show: false,
     webPreferences: {
-      preload: preload as string
-    }
+      preload: preload as string,
+    },
   })
 
   win.loadURL(Common.loadUrl)

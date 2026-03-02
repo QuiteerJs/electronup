@@ -1,13 +1,13 @@
-import path from 'path'
-import { Arch, Platform, build as builder } from 'electron-builder'
-import { build as viteBuild } from 'vite'
-import { build as tsBuild } from 'tsup'
-
-import prompts from 'prompts'
-import { blue, green, red, yellow } from 'kolorist'
-import { stringify } from 'yaml'
-import { writeFile } from 'fs-extra'
 import type { ElectronupConfig } from '../typings/electronup'
+import path from 'node:path'
+import process from 'node:process'
+import * as prompts from '@clack/prompts'
+
+import { Arch, build as builder, Platform } from 'electron-builder'
+import { writeFile } from 'fs-extra'
+import { blue, green, red, yellow } from 'kolorist'
+import { build as viteBuild } from 'vite'
+import { stringify } from 'yaml'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
 
@@ -42,21 +42,21 @@ const platformSelect: PlatformSelect[] = [
     archs: [{
       name: 'x64',
       arch: Arch.x64,
-      disabled: store.currentArch === 'ia32',
-      color: blue
+      disabled: store.currentArch === Arch.ia32,
+      color: blue,
     }, {
       name: 'ia32',
       arch: Arch.ia32,
       color: blue,
-      disabled: false
-    }]
+      disabled: false,
+    }],
   },
   {
     name: 'MacOS',
     platform: 'darwin',
     createTarget: (archs: Arch[]) => {
       if (archs.length)
-        return Platform.MAC.createTarget(store.dir, Arch[store.currentArch])
+        return Platform.MAC.createTarget(store.dir, store.currentArch)
       return Platform.MAC.createTarget(store.dir, ...archs)
     },
     disabled: !store.isMac,
@@ -65,18 +65,18 @@ const platformSelect: PlatformSelect[] = [
       name: 'x64',
       arch: Arch.x64,
       disabled: false,
-      color: green
+      color: green,
     }, {
       name: 'arm64',
       arch: Arch.arm64,
       disabled: false,
-      color: green
+      color: green,
     }, {
       name: 'universal',
       arch: Arch.universal,
       disabled: false,
-      color: green
-    }]
+      color: green,
+    }],
   },
   {
     name: 'Linux',
@@ -84,7 +84,7 @@ const platformSelect: PlatformSelect[] = [
     disabled: !(store.isMac || store.isLinux),
     createTarget: (archs: Arch[]) => {
       if (archs.length)
-        return Platform.LINUX.createTarget(store.dir, Arch[store.currentArch])
+        return Platform.LINUX.createTarget(store.dir, store.currentArch)
       return Platform.LINUX.createTarget(store.dir, ...archs)
     },
     color: yellow,
@@ -92,68 +92,75 @@ const platformSelect: PlatformSelect[] = [
       name: 'x64',
       arch: Arch.x64,
       disabled: false,
-      color: yellow
+      color: yellow,
     }, {
       name: 'arm64',
       arch: Arch.arm64,
       disabled: false,
-      color: yellow
+      color: yellow,
     }, {
       name: 'armv7l',
       arch: Arch.armv7l,
       disabled: false,
-      color: yellow
-    }]
-  }
+      color: yellow,
+    }],
+  },
 ]
 
 export async function build(options: ElectronupConfig) {
   if (store.option) {
-    let result: prompts.Answers<'isMinify' | 'isPackage' | 'platform' | 'arch'>
-
     try {
-      result = await prompts([
-        {
-          type: 'confirm',
-          name: 'isMinify',
-          message: green('是否压缩代码?')
-        }, {
-          type: 'confirm',
-          name: 'isPackage',
-          message: blue('是否生成安装包?')
-        }, {
-          type: 'select',
-          name: 'platform',
-          message: '请选择构建模式 ~',
-          choices: platformSelect.map(item => ({ title: item.color(item.name), value: item, disabled: item.disabled }))
-        }, {
-          type: 'multiselect',
-          name: 'arch',
-          message: '请选择打包架构～',
-          choices: (platformSelect: PlatformSelect) => {
-            return platformSelect.archs?.map(item => ({ title: item.color(item.name), value: item.arch, disabled: item.disabled }))
-          }
-        }
-      ], {
-        onCancel: () => {
-          throw new Error(`${red('✖')} Operation cancelled`)
-        }
+      const isMinify = await prompts.confirm({
+        message: green('是否压缩代码?'),
       })
+
+      if (prompts.isCancel(isMinify)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      const isPackage = await prompts.confirm({
+        message: blue('是否生成安装包?'),
+      })
+
+      if (prompts.isCancel(isPackage)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      const platform = await prompts.select({
+        message: '请选择构建模式 ~',
+        options: platformSelect.map(item => ({
+          label: item.color(item.name),
+          value: item,
+          disabled: item.disabled,
+        })),
+      })
+
+      if (prompts.isCancel(platform)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      const selectedPlatform = platform as PlatformSelect
+      const arch = await prompts.multiselect({
+        message: '请选择打包架构～',
+        options: selectedPlatform.archs?.map(item => ({
+          label: item.color(item.name),
+          value: item.arch,
+          disabled: item.disabled,
+        })) || [],
+      })
+
+      if (prompts.isCancel(arch)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      store.minify = isMinify
+      store.dir = isPackage ? null : 'dir'
+      store.targets = selectedPlatform.createTarget(arch as Arch[])
     }
     catch (cancelled: any) {
       console.error('err: ', cancelled.message)
       process.exit(1)
     }
-
-    const { isMinify, isPackage, platform, arch } = result
-    console.log('isMinify: ', isMinify)
-    console.log('isPackage: ', isPackage)
-    console.log('platform: ', platform)
-    console.log('arch: ', arch)
-
-    store.minify = isMinify
-    store.dir = isPackage ? null : 'dir'
-    store.targets = (platform as PlatformSelect).createTarget(arch as Arch[])
   }
   else {
     if (store.isWin) {
@@ -164,7 +171,7 @@ export async function build(options: ElectronupConfig) {
         store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)
 
       else
-        store.targets = Platform.WINDOWS.createTarget(store.dir, Arch[store.currentArch])
+        store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)
     }
 
     if (store.isMac) {
@@ -176,7 +183,7 @@ export async function build(options: ElectronupConfig) {
           store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)
 
         else
-          store.targets = Platform.WINDOWS.createTarget(store.dir, Arch[store.currentArch])
+          store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)
       }
       else if (store.mac) {
         if (store.mac === 'x64')
@@ -189,33 +196,36 @@ export async function build(options: ElectronupConfig) {
           store.targets = Platform.MAC.createTarget(store.dir, Arch.universal)
 
         else
-          store.targets = Platform.MAC.createTarget(store.dir, Arch[store.currentArch])
+          store.targets = Platform.MAC.createTarget(store.dir, store.currentArch)
       }
       else if (store.linux) {
         if (store.linux === true)
           store.targets = Platform.LINUX.createTarget(store.dir)
 
         else
-          store.targets = Platform.LINUX.createTarget(store.dir, Arch[store.currentArch])
+          store.targets = Platform.LINUX.createTarget(store.dir, store.currentArch)
       }
 
       else {
-        store.targets = Platform.MAC.createTarget(store.dir, Arch[store.currentArch])
+        store.targets = Platform.MAC.createTarget(store.dir, store.currentArch)
       }
     }
 
-    else if (store.isLinux) { store.targets = Platform.LINUX.createTarget(store.dir, Arch.armv7l) }
+    else if (store.isLinux) {
+      store.targets = Platform.LINUX.createTarget(store.dir, Arch.armv7l)
+    }
   }
 
   const initConfig = await electronupConfig(options)
 
   await viteBuild(initConfig.vite)
-  await tsBuild(initConfig.tsup)
+  const { build: tsBuild } = await import('tsdown')
+  await tsBuild(initConfig.tsdown)
 
   await builder(initConfig.builder)
 
   await writeFile(
     path.resolve(store.root, options.outDir || DefaultDirs.outDir, 'electronup-effective-config.yaml'),
-    stringify(JSON.parse(JSON.stringify(initConfig)))
+    stringify(JSON.parse(JSON.stringify(initConfig))),
   )
 }

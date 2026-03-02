@@ -7,7 +7,7 @@ import { store } from '../utils'
  * @param {any} config:ElectronupConfigExport
  * @returns {any}
  */
-const exportElectronupConfig = async (config: ElectronupConfigExport): Promise<ElectronupConfig> => {
+async function exportElectronupConfig(config: ElectronupConfigExport): Promise<ElectronupConfig> {
   const typeStr = typeof config
 
   if (typeStr === 'function') {

@@ -1,2 +1,2 @@
-export { store } from './store'
 export { DefaultDirs } from './dirs'
+export { store } from './store'

@@ -1,31 +1,31 @@
 <script setup lang="ts">
 import { EventKeys, IpcWindowOptions } from '@quiteer/electron-ipc/web'
 
-const changeWin = (keys: IpcWindowOptions) => {
+function changeWin(keys: IpcWindowOptions) {
   window.$ipc.send(EventKeys.WindowOptionsKey, keys)
 }
 
 const btns = [{
   label: '窗口最大化',
-  key: IpcWindowOptions.MAXIMIZE
+  key: IpcWindowOptions.MAXIMIZE,
 }, {
   label: '取消窗口最大化',
-  key: IpcWindowOptions.UNMAXIMIZE
+  key: IpcWindowOptions.UNMAXIMIZE,
 }, {
   label: '窗口最小化',
-  key: IpcWindowOptions.MINIMIZE
+  key: IpcWindowOptions.MINIMIZE,
 }, {
   label: '窗口恢复',
-  key: IpcWindowOptions.RESTORE
+  key: IpcWindowOptions.RESTORE,
 }, {
   label: '窗口刷新',
-  key: IpcWindowOptions.RELOAD
+  key: IpcWindowOptions.RELOAD,
 }, {
   label: '窗口失去焦点',
-  key: IpcWindowOptions.BLUR
+  key: IpcWindowOptions.BLUR,
 }, {
   label: '销毁窗口',
-  key: IpcWindowOptions.DESTROY
+  key: IpcWindowOptions.DESTROY,
 }]
 </script>
 

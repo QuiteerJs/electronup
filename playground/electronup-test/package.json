@@ -5,7 +5,7 @@
   "author": "",
   "license": "ISC",
   "keywords": [],
-  "main": "dist/resource/electron.js",
+  "main": "dist/resource/electron.mjs",
   "scripts": {
     "command": "electronup -h && electronup build -h && electronup -v",
     "dev:1": "electronup",
@@ -35,14 +35,11 @@
     "epic-spinners": "^2.0.0"
   },
   "devDependencies": {
-    "@quiteer/eslint-config": "^0.0.3",
-    "@quiteer/ts-config": "^0.0.5",
-    "@vitejs/plugin-vue": "^4.0.0",
-    "@vitejs/plugin-vue-jsx": "^3.0.0",
-    "electron": "^21.2.2",
+    "@quiteer/eslint-config": "^0.0.5",
+    "@quiteer/ts-config": "^0.0.7",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "@vitejs/plugin-vue-jsx": "^5.1.4",
     "electronup": "workspace:^",
-    "unplugin-vue-macros": "^1.0.3",
-    "vite": "^5.0.12",
     "vue": "^3.2.43"
   }
 }

@@ -1,6 +1,7 @@
-import { resolve } from 'path'
-import { BrowserWindow, app } from 'electron'
+import { resolve } from 'node:path'
+import process from 'node:process'
 import { Ipc } from '@quiteer/electron-ipc'
+import { app, BrowserWindow } from 'electron'
 
 const loadUrl = process.env.NODE_ENV === 'development'
   ? `http://localhost:${process.env.RENDER_PORT}`
@@ -9,7 +10,8 @@ const loadUrl = process.env.NODE_ENV === 'development'
 app.whenReady().then(() => {
   Ipc.init()
   const win = new BrowserWindow({
-    height: 700, width: 1000
+    height: 700,
+    width: 1000,
   })
 
   console.log('loadUrl: ', loadUrl)

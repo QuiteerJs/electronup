@@ -1,7 +1,0 @@
-dist
-temp
-node_modules
-**/*.md
-docs/.vitepress/cache
-.github
-*.ejs

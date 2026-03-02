@@ -1,4 +1,4 @@
-import { arch, platform } from 'process'
+import process, { arch, platform } from 'node:process'
 
 export class Is {
   static get win() {
@@ -29,4 +29,3 @@ export class Is {
     return process.env.NODE_ENV === 'production'
   }
 }
-

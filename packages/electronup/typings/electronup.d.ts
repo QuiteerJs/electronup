@@ -1,21 +1,20 @@
-
-import type { Configuration } from 'electron-builder';
-import type { UserConfig } from 'vite';
-import type { Options } from 'tsup'
+import type { Configuration } from 'electron-builder'
+import type { UserConfig as Options } from 'tsdown'
+import type { UserConfig } from 'vite'
 
 export interface ViteConfig extends Omit<UserConfig, 'publicDir' | 'ssr'> { }
 
-export interface TsupConfig {
-  external?: (string | RegExp)[];
-  noExternal?: (string | RegExp)[];
+export interface TsdownConfig {
+  external?: (string | RegExp)[]
+  noExternal?: (string | RegExp)[]
 }
 
 export interface BuilderConfig extends Configuration { }
 
 export interface ElectronupConfig {
   viteConfig?: ViteConfig
-  tsupConfig?: TsupConfig
-  preloadTsup?: Options | Options[]
+  tsdownConfig?: TsdownConfig
+  preload?: Options | Options[]
   builderConfig: BuilderConfig
 
   /**
@@ -31,21 +30,21 @@ export interface ElectronupConfig {
   mainDir?: string
 
   /**
-  * 静态资源目录
-  * @default 'public'
-  */
+   * 静态资源目录
+   * @default 'public'
+   */
   publicDir?: string
 
   /**
-  * 动态库目录
-  * @default 'lib'
-  */
+   * 动态库目录
+   * @default 'lib'
+   */
   libDir?: string
 
   /**
-  * 资源构建输出目录
-  * @default 'dist'
-  */
+   * 资源构建输出目录
+   * @default 'dist'
+   */
   resourceDir?: string
 
   /**
@@ -64,12 +63,9 @@ export type ElectronupConfigFnObject = (env: ConfigEnv) => ElectronupConfig
 export type ElectronupConfigFnPromise = (env: ConfigEnv) => Promise<ElectronupConfig>
 export type ElectronupConfigFn = (env: ConfigEnv) => ElectronupConfig | Promise<ElectronupConfig>
 
-export type ElectronupConfigExport =
-  | ElectronupConfig
-  | Promise<ElectronupConfig>
-  | ElectronupConfigFnObject
-  | ElectronupConfigFnPromise
-  | ElectronupConfigFn
-
-
-
+export type ElectronupConfigExport
+  = | ElectronupConfig
+    | Promise<ElectronupConfig>
+    | ElectronupConfigFnObject
+    | ElectronupConfigFnPromise
+    | ElectronupConfigFn

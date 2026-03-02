@@ -1,11 +1,13 @@
+import type { Template } from './getData'
 import fs from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import minimist from 'minimist'
-import prompts from 'prompts'
+import * as prompts from '@clack/prompts'
 import ejs from 'ejs'
 import { blue, cyan, green, lightBlue, lightCyan, lightGreen, lightYellow, red, reset, yellow } from 'kolorist'
-import { type Template, getData } from './getData'
+import minimist from 'minimist'
+import { getData } from './getData'
 
 // Avoids autoconversion to number of the project name by defining that the args
 // non associated with an option ( _ ) needs to be parsed as a string. See #4606
@@ -34,12 +36,12 @@ const FRAMEWORKS: Framework[] = [
   {
     name: 'vanilla',
     display: 'Vanilla + TS',
-    color: yellow
+    color: yellow,
   },
   {
     name: 'vue',
     display: 'Vue + TS',
-    color: green
+    color: green,
   },
   {
     name: 'react',
@@ -49,29 +51,29 @@ const FRAMEWORKS: Framework[] = [
       {
         name: 'react',
         display: 'TypeScript',
-        color: lightBlue
+        color: lightBlue,
       },
       {
         name: 'react-swc',
         display: 'TypeScript + SWC',
-        color: blue
-      }
-    ]
+        color: blue,
+      },
+    ],
   },
   {
     name: 'solid',
     display: 'Solid + TS',
-    color: blue
-  }
+    color: blue,
+  },
 ]
 
 const TEMPLATES = FRAMEWORKS.map(
-  f => (f.variants && f.variants.map(v => v.name)) || [f.name]
+  f => (f.variants && f.variants.map(v => v.name)) || [f.name],
 ).reduce((a, b) => a.concat(b), [])
 
 const renameFiles: Record<string, string | undefined> = {
   _gitignore: '.gitignore',
-  _npmrc: '.npmrc'
+  _npmrc: '.npmrc',
 }
 
 const defaultTargetDir = 'electronup-project'
@@ -83,96 +85,118 @@ async function init() {
   let targetDir = argTargetDir || defaultTargetDir
   const getProjectName = () => (targetDir === '.' ? path.basename(path.resolve()) : targetDir)
 
-  let result: prompts.Answers<'projectName' | 'overwrite' | 'packageName' | 'framework' | 'variant' | 'isRegistry'>
+  let result = {} as any
 
   try {
-    result = await prompts(
-      [
-        // 没有输入项目名称触发
-        {
-          type: argTargetDir ? null : 'text',
-          name: 'projectName',
-          message: reset('Project name:'),
-          initial: defaultTargetDir,
-          onState: (state) => {
-            targetDir = formatTargetDir(state.value) || defaultTargetDir
-          }
-        },
-        // 存在当前目录或者目录为空触发选择项
-        // 提示文字
-        // 当前目录下创建项目模板
-        // 当前目录不为空 是否删除或者跳过
-        {
-          type: () => (!fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm'),
-          name: 'overwrite',
-          message: () => `${targetDir === '.' ? 'Current directory' : `Target directory "${targetDir}"`} is not empty. Remove existing files and continue?`
-        },
-        // 中止程序关节
-        {
-          type: (_, { overwrite }: { overwrite?: boolean }) => {
-            if (overwrite === false) {
-              // 终止当前程序
-              throw new Error(`${red('✖')} Operation cancelled`)
-            }
+    // 获取项目名称
+    let projectName = argTargetDir
+    if (!projectName) {
+      const projectNameResult = await prompts.text({
+        message: reset('Project name:'),
+        placeholder: defaultTargetDir,
+      })
 
-            return null
-          },
-          name: 'overwriteChecker'
-        },
-        // 验证输入的项目名称是否合法
-        // 合法 -> 跳过
-        // 不合法 -> 重新输入
-        {
-          type: () => (isValidPackageName(getProjectName()) ? null : 'text'),
-          name: 'packageName',
-          message: reset('Package name:'),
-          initial: () => toValidPackageName(getProjectName()),
-          validate: dir => isValidPackageName(dir) || 'Invalid package.json name'
-        },
-        // 选择预置模板
-        {
-          type: argTemplate && TEMPLATES.includes(argTemplate) ? null : 'select',
-          name: 'framework',
-          message: typeof argTemplate === 'string' && !TEMPLATES.includes(argTemplate)
-            ? reset(
-              `"${argTemplate}" isn't a valid template. Please choose from below: `
-            )
-            : reset('Select a framework:'),
-          initial: 0,
-          choices: FRAMEWORKS.map((framework) => {
-            const frameworkColor = framework.color
-            return {
-              title: frameworkColor(framework.display || framework.name),
-              value: framework
-            }
-          })
-        },
-        // 选择语言类型
-        {
-          type: (framework: Framework) => (framework && framework.variants ? 'select' : null),
-          name: 'variant',
-          message: reset('Select a variant:'),
-          choices: (framework: Framework) =>
-            framework.variants?.map((variant) => {
-              const variantColor = variant.color
-              return {
-                title: variantColor(variant.display || variant.name),
-                value: variant.name
-              }
-            })
-        },
-        {
-          type: 'confirm',
-          name: 'isRegistry',
-          message: '是否开启 npm 国内镜像源 ?'
-        }
-      ],
-      {
-        onCancel: () => {
-          throw new Error(`${red('✖')} Operation cancelled`)
-        }
+      if (prompts.isCancel(projectNameResult)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
       }
-    )
+
+      projectName = projectNameResult as string
+      targetDir = formatTargetDir(projectName) || defaultTargetDir
+    }
+
+    // 检查目录是否为空
+    let overwrite = false
+    if (fs.existsSync(targetDir) && !isEmpty(targetDir)) {
+      const overwriteResult = await prompts.confirm({
+        message: `${targetDir === '.' ? 'Current directory' : `Target directory "${targetDir}"`} is not empty. Remove existing files and continue?`,
+      })
+
+      if (prompts.isCancel(overwriteResult)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      overwrite = overwriteResult as boolean
+
+      if (!overwrite) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+    }
+
+    // 验证包名
+    let packageName = getProjectName()
+    if (!isValidPackageName(packageName)) {
+      const packageNameResult = await prompts.text({
+        message: reset('Package name:'),
+        placeholder: toValidPackageName(packageName),
+        validate: value => !isValidPackageName(value) ? 'Invalid package.json name' : undefined,
+      })
+
+      if (prompts.isCancel(packageNameResult)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      packageName = packageNameResult as string
+    }
+
+    // 选择框架
+    let framework: Framework | null = null
+    if (!argTemplate || !TEMPLATES.includes(argTemplate)) {
+      const frameworkResult = await prompts.select({
+        message: typeof argTemplate === 'string' && !TEMPLATES.includes(argTemplate)
+          ? reset(`"${argTemplate}" isn't a valid template. Please choose from below: `)
+          : reset('Select a framework:'),
+        options: FRAMEWORKS.map(fw => ({
+          label: fw.color(fw.display || fw.name),
+          value: fw,
+        })),
+      })
+
+      if (prompts.isCancel(frameworkResult)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      framework = frameworkResult as Framework
+    }
+    else {
+      framework = FRAMEWORKS.find(f => f.name === argTemplate) || null
+    }
+
+    // 选择变体
+    let variant = ''
+    if (framework && framework.variants) {
+      const variantResult = await prompts.select({
+        message: reset('Select a variant:'),
+        options: framework.variants.map(v => ({
+          label: v.color(v.display || v.name),
+          value: v.name,
+        })),
+      })
+
+      if (prompts.isCancel(variantResult)) {
+        throw new Error(`${red('✖')} Operation cancelled`)
+      }
+
+      variant = variantResult as string
+    }
+
+    // 是否使用国内镜像
+    const isRegistry = await prompts.confirm({
+      message: '是否开启 npm 国内镜像源 ?',
+    })
+
+    if (prompts.isCancel(isRegistry)) {
+      throw new Error(`${red('✖')} Operation cancelled`)
+    }
+
+    // 构建结果对象
+    result = {
+      projectName: targetDir,
+      overwrite,
+      packageName,
+      framework,
+      variant,
+      isRegistry,
+    }
   }
   catch (cancelled: any) {
     // eslint-disable-next-line no-console
@@ -196,7 +220,7 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
 
   // determine template
-  const template: string = variant || framework?.name || argTemplate
+  const template: string = variant || framework?.name || argTemplate || ''
 
   // 返回模板所在路径
   const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', 'template')
@@ -230,7 +254,7 @@ async function init() {
           name: packageName ?? getProjectName(),
           template,
           pkgManager,
-          isRegistry
+          isRegistry,
         }
 
         if (dest === 'electronup.config.ts' || dest === 'package.json' || dest === 'tsconfig.json') {
@@ -242,7 +266,7 @@ async function init() {
             importer: data?.importer ?? '',
             initializer: data?.initializer ?? '',
             dependencies: data && Object.entries(data.dependencies),
-            devDependencies: data && Object.entries(data.devDependencies)
+            devDependencies: data && Object.entries(data.devDependencies),
           }
         }
 
@@ -303,8 +327,8 @@ function copy(src: string, dest: string) {
 }
 
 // 验证项目名称是否合法
-function isValidPackageName(projectName: string) {
-  return /^(?:@[a-z\d\-*~][a-z\d\-*._~]*\/)?[a-z\d\-~][a-z\d\-._~]*$/.test(projectName)
+function isValidPackageName(projectName: string | undefined) {
+  return /^(?:@[a-z\d\-*~][a-z\d\-*._~]*\/)?[a-z\d\-~][a-z\d\-._~]*$/.test(projectName ?? '')
 }
 
 // 违法字符更换
@@ -350,7 +374,7 @@ function pkgFromUserAgent(userAgent: string | undefined) {
   const pkgSpecArr = pkgSpec.split('/')
   return {
     name: pkgSpecArr[0],
-    version: pkgSpecArr[1]
+    version: pkgSpecArr[1],
   }
 }
 

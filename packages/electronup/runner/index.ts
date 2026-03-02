@@ -1,2 +1,2 @@
-export { watch } from './watch'
 export { build } from './build'
+export { watch } from './watch'

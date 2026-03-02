@@ -1,4 +1,6 @@
-import type { Arch, Platform } from 'electron-builder'
+import type { Platform } from 'electron-builder'
+import process from 'node:process'
+import { Arch } from 'electron-builder'
 
 type Command = 'build' | 'serve'
 type Mode = 'development' | 'production' | 'test' | 'staging' | string
@@ -6,12 +8,12 @@ type Mode = 'development' | 'production' | 'test' | 'staging' | string
 class Store {
   static instance: Store
 
-  command: Command
-  config: string
-  mode: Mode
-  minify: boolean
+  command!: Command
+  config!: string
+  mode!: Mode
+  minify!: boolean
   port?: number
-  option: boolean
+  option!: boolean
   win?: true | 'ia32' | 'x64'
   mac?: true | 'x64' | 'arm64' | 'universal'
   linux?: true | 'x64' | 'arm64' | 'armv7l'
@@ -41,9 +43,19 @@ class Store {
     return process.platform === 'linux'
   }
 
-  get currentArch() {
-    return process.arch
+  get currentArch(): Arch {
+    switch (process.arch) {
+      case 'ia32':
+        return Arch.ia32
+      case 'x64':
+        return Arch.x64
+      case 'arm64':
+        return Arch.arm64
+      case 'arm':
+        return Arch.armv7l
+      default:
+        return Arch.x64
+    }
   }
 }
-
 export const store = Store.getInstance()

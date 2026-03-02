@@ -8,7 +8,7 @@ export default defineConfig({
   lang: 'en',
   head: [['link', { rel: 'icon', href: 'favicon.ico' }]],
   markdown: {
-    lineNumbers: true
+    lineNumbers: true,
   },
   lastUpdated: true,
   appearance: true,
@@ -18,11 +18,11 @@ export default defineConfig({
     lastUpdatedText: '最后更新时间',
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2023-08-present 安静'
+      copyright: 'Copyright © 2023-08-present 安静',
     },
     docFooter: {
       prev: '上一页',
-      next: '下一页'
+      next: '下一页',
     },
     nav: nav(),
     socialLinks: [{ icon: 'github', link: 'https://github.com/QuiteerJs/electronup' }],
@@ -30,12 +30,12 @@ export default defineConfig({
       '/about/': [
         {
           text: '关于',
-          items: [{ text: '文档配置', link: '/about/' }]
-        }
+          items: [{ text: '文档配置', link: '/about/' }],
+        },
       ],
-      ...introduceSidebar()
-    }
-  }
+      ...introduceSidebar(),
+    },
+  },
 })
 
 function nav() {
@@ -43,47 +43,47 @@ function nav() {
     {
       text: '指引',
       link: '/introduce/project',
-      activeMatch: '/introduce|main|renderer|config|builder/'
+      activeMatch: '/introduce|main|renderer|config|builder/',
     },
     {
       text: '关于',
       link: '/about/',
-      activeMatch: '/about/'
+      activeMatch: '/about/',
     },
     {
       text: '相关文档',
       items: [
         {
           text: 'electron',
-          link: 'https://www.electronjs.org/'
+          link: 'https://www.electronjs.org/zh/',
         },
         {
           text: 'vite',
-          link: 'https://cn.vitejs.dev/'
+          link: 'https://cn.vitejs.dev/',
         },
         {
-          text: 'tsup',
-          link: 'https://tsup.egoist.dev/'
+          text: 'tsdown',
+          link: 'https://tsdown.dev/zh-CN/',
         },
         {
           text: 'electron-builder',
-          link: 'https://www.electron.build/'
-        }
-      ]
+          link: 'https://www.electron.build/',
+        },
+      ],
     },
     {
       text: version,
       items: [
         {
           text: '组织',
-          link: 'https://github.com/QuiteerJs'
+          link: 'https://github.com/QuiteerJs',
         },
         {
           text: '友情连接/sky',
-          link: 'https://zh-sky.gitee.io/electron-vue-template-doc/'
-        }
-      ]
-    }
+          link: 'https://umbrella22.github.io/electron-vue-template-doc/',
+        },
+      ],
+    },
   ]
 }
 
@@ -96,8 +96,8 @@ function introduceSidebar() {
         { text: '快速上手', link: '/introduce/introduction' },
         { text: '目录', link: '/introduce/catalogue' },
         { text: '命令行界面', link: '/introduce/cli' },
-        { text: '配置', link: '/introduce/config' }
-      ]
+        { text: '配置', link: '/introduce/config' },
+      ],
     },
     {
       text: '插件',
@@ -107,18 +107,18 @@ function introduceSidebar() {
         { text: 'create-electronup', link: '/plugins/create-electronup' },
         { text: 'electron-ipc', link: '/plugins/electron-ipc' },
         { text: 'electron-preload', link: '/plugins/electron-preload' },
-        { text: 'electron-browser', link: '/plugins/electron-browser' }
-      ]
+        { text: 'electron-browser', link: '/plugins/electron-browser' },
+      ],
     },
     {
       text: 'API',
-      items: [{ text: 'API', link: '/api/' }]
-    }
+      items: [{ text: 'API', link: '/api/' }],
+    },
   ]
 
   return {
     '/introduce/': commonRoute,
     '/plugins/': commonRoute,
-    '/api/': commonRoute
+    '/api/': commonRoute,
   }
 }

@@ -1,7 +1,7 @@
-import { resolve } from 'path'
 import type { CliOptions } from 'electron-builder'
-import { readJSON } from 'fs-extra'
 import type { BuilderConfig, ElectronupConfig } from '../typings/electronup'
+import { resolve } from 'node:path'
+import { readJSON } from 'fs-extra'
 import { DefaultDirs, store } from '../utils'
 
 /**
@@ -28,7 +28,7 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
     productName: packages.name,
     protocols: {
       name: packages.name,
-      schemes: ['deeplink']
+      schemes: ['deeplink'],
     },
     nsis: {
       oneClick: false,
@@ -39,16 +39,15 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
       runAfterFinish: true,
       createDesktopShortcut: true,
       createStartMenuShortcut: true,
-      artifactName: `${packages.name} \${arch} Setup ${packages.version}.\${ext}`
+      artifactName: `${packages.name} \${arch} Setup ${packages.version}.\${ext}`,
     },
     files: [`${allConfig.resourceDir || DefaultDirs.resourceDir}/**/*`],
     extraFiles: [allConfig.libDir || DefaultDirs.libDir],
     directories: {
-      output: allConfig.outDir || config.directories?.output || DefaultDirs.outDir
+      output: allConfig.outDir || config.directories?.output || DefaultDirs.outDir,
     },
-    ...config
+    ...config,
   }
 
   return { targets: store.targets, config: defaultConfig }
 }
-

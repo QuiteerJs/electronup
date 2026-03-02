@@ -20,7 +20,7 @@ onMounted(() => {
             lineDashOffset: 0,
             fill: 'transparent',
             stroke: '#c4d7d6',
-            lineWidth: 1
+            lineWidth: 1,
           },
           keyframeAnimation: {
             duration: 2000,
@@ -31,27 +31,27 @@ onMounted(() => {
                 style: {
                   fill: 'transparent',
                   lineDashOffset: 200,
-                  lineDash: [200, 0]
-                }
+                  lineDash: [200, 0],
+                },
               },
               {
               // Stop for a while.
                 percent: 0.8,
                 style: {
-                  fill: 'transparent'
-                }
+                  fill: 'transparent',
+                },
               },
               {
                 percent: 1,
                 style: {
-                  fill: '#c4d7d6'
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
+                  fill: '#c4d7d6',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
   })
 })
 </script>

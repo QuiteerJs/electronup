@@ -1,6 +1,6 @@
-import { resolve } from 'path'
 import type { UserConfig } from 'vite'
 import type { ElectronupConfig, ViteConfig } from '../typings/electronup'
+import { resolve } from 'node:path'
 import { DefaultDirs, store } from '../utils'
 
 export function getViteConfig(config: ViteConfig, allConfig: ElectronupConfig) {
@@ -11,13 +11,12 @@ export function getViteConfig(config: ViteConfig, allConfig: ElectronupConfig) {
     ...config,
     build: {
       ...config?.build,
-      minify: minify && 'esbuild',
-      outDir: resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir)
+      minify: !!minify,
+      outDir: resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir),
     },
     root: allConfig.renderDir || DefaultDirs.renderDir,
-    publicDir: resolve(root, allConfig.publicDir || DefaultDirs.publicDir)
+    publicDir: resolve(root, allConfig.publicDir || DefaultDirs.publicDir),
   }
 
   return defaultConfig
 }
-

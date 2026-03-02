@@ -21,9 +21,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "files": [
+    "dist",
     "index.js",
-    "template",
-    "dist"
+    "template"
   ],
   "engines": {
     "node": ">= 18"
@@ -35,14 +35,13 @@
     "update-version": "bumpp package.json"
   },
   "devDependencies": {
+    "@clack/prompts": "^1.0.1",
     "@types/ejs": "^3.1.2",
     "@types/minimist": "^1.2.2",
-    "@types/prompts": "^2.4.4",
-    "ejs": "^3.1.9",
-    "execa": "^7.2.0",
+    "ejs": "^4.0.1",
+    "execa": "^9.6.1",
     "kolorist": "^1.8.0",
     "minimist": "^1.2.8",
-    "prompts": "^2.4.2",
-    "unbuild": "^1.2.1"
+    "unbuild": "^3.6.1"
   }
 }

@@ -4,7 +4,7 @@ title: 配置
 
 # {{ $frontmatter.title }}
 
-[electronup cli](https://github.com/QuiteerJs/electronup) 集成并内置了 [vite](https://cn.vitejs.dev/) , [tsup](https://tsup.egoist.dev/) , [electron-builder](https://www.electron.build/) ,并没有加以魔改，只是在**其三**之上做了一些预置配置，除了一些关键性的路径配置，您完全可以传入相同的参数将其覆盖，配置属于您自己的配置。
+[electronup cli](https://github.com/QuiteerJs/electronup) 集成并内置了 [vite](https://cn.vitejs.dev/) , [tsdown](https://github.com/sxzz/tsdown) , [electron-builder](https://www.electron.build/) ,并没有加以魔改，只是在**其三**之上做了一些预置配置，除了一些关键性的路径配置，您完全可以传入相同的参数将其覆盖，配置属于您自己的配置。
 
 [electronup cli](https://github.com/QuiteerJs/electronup) 有且只导出了一个帮助开发者提供代码提示的 **api** ：[defineConfig](/api/)，在编写 `electronup.config.ts` 时提供正确的引导。
 
@@ -38,7 +38,7 @@ title: 配置
 ::: tip
 以上路径都是基于根目录下，
 最终会和根目录路径拼接，
-以上路径在 vite tsup electron-builder 中配置不会生效。
+以上路径在 vite tsdown electron-builder 中配置不会生效。
 :::
 
 ## vite
@@ -84,11 +84,11 @@ title: 配置
 
 [electronup 中的 vite 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/vite.ts)。
 
-## tsup
+## tsdown
 
 > 用于构建主进程代码，预置配置已满足大部分开发，故此暴露了少量的配置项。
 
-[tsup](https://tsup.egoist.dev/) 构建时，会同步注入用户配置的环境变量以保证双进程统一。
+[tsdown](https://github.com/sxzz/tsdown) 构建时，会同步注入用户配置的环境变量以保证双进程统一。
 
 ### `external`
 
@@ -100,7 +100,7 @@ title: 配置
 > 总是参与构建的 modules。
 > 以数组的形式配置。
 
-[electronup 中的 tsup 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/tsup.ts#L77)。
+[electronup 中的 tsdown 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/tsdown.ts#L77)。
 
 ## electron-builder
 
@@ -132,7 +132,7 @@ vite:
     outDir: /Users/quiteer/Documents/GitHub/electronup/template/react-project/dist/resource
   root: render
   publicDir: /Users/quiteer/Documents/GitHub/electronup/template/react-project/public
-tsup:
+tsdown:
   minify: false
   external:
     - electron

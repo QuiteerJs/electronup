@@ -38,7 +38,7 @@ features:
     title: vite
     details: 提供渲染进程热更新及构建发布
   - icon: 🛠️
-    title: tsup
+    title: tsdown
     details: 提供主进程代码热更新及构建发布
   - icon: 🛠️
     title: electron-builder

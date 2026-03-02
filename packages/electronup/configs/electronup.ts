@@ -1,34 +1,34 @@
-import type { UserConfig } from 'vite'
-import type { Options } from 'tsup'
 import type { CliOptions } from 'electron-builder'
+import type { UserConfig as TsdownUserConfig } from 'tsdown'
+import type { UserConfig } from 'vite'
 
-import { store } from '../utils'
 import type { ElectronupConfig } from '../typings/electronup'
+import { store } from '../utils'
 import { getBuilderConfig } from './builder'
-import { getTsupConfig } from './tsup'
+import { getTsdownConfig } from './tsdown'
 import { getViteConfig } from './vite'
 
-interface InitConfig extends Omit<ElectronupConfig, 'viteConfig' | 'tsupConfig' | 'preloadTsup' | 'builderConfig'> {
+interface InitConfig extends Omit<ElectronupConfig, 'viteConfig' | 'tsdownConfig' | 'preload' | 'builderConfig'> {
   vite: UserConfig
-  tsup: Options
-  preload?: Options | Options[]
+  tsdown: TsdownUserConfig
+  preload?: TsdownUserConfig | TsdownUserConfig[]
   builder?: CliOptions
 }
 
 export async function getElectronupConfig(config: ElectronupConfig) {
-  const { viteConfig, tsupConfig, preloadTsup, builderConfig, ...dirConfig } = config
+  const { viteConfig, tsdownConfig, preload, builderConfig, ...dirConfig } = config
 
   const vite = getViteConfig(viteConfig || {}, config)
-  const tsup = getTsupConfig(tsupConfig || {}, config)
+  const tsdown = getTsdownConfig(tsdownConfig || {}, config)
 
-  const initConfig: InitConfig = { vite, tsup }
+  const initConfig: InitConfig = { vite, tsdown }
 
   if (store.command === 'build') {
     const builder = await getBuilderConfig(builderConfig, config)
     initConfig.builder = builder
   }
 
-  preloadTsup && (initConfig.preload = preloadTsup)
+  preload && (initConfig.preload = preload)
 
   return { ...dirConfig, ...initConfig }
 }

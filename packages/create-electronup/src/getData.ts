@@ -8,23 +8,23 @@ export function getData(template: Template) {
         initializer: '',
         dependencies: { },
         devDependencies: {},
-        jsx: 'preserve'
+        jsx: 'preserve',
       }
     case 'vue':
       return {
         importer: 'import vue from \'@vitejs/plugin-vue\'',
         initializer: 'vue()',
         dependencies: {
-          echarts: '^5.4.2'
+          echarts: '^5.4.2',
         },
         devDependencies: {
           '@vitejs/plugin-vue': '^5.0.3',
           'pinia': '^2.1.7',
           'vue': '^3.4.15',
           'vue-router': '^4.2.5',
-          'vue-tsc': '^1.8.1'
+          'vue-tsc': '^1.8.1',
         },
-        jsx: 'preserve'
+        jsx: 'preserve',
       }
     case 'react':
       return {
@@ -32,16 +32,16 @@ export function getData(template: Template) {
         initializer: 'react()',
         dependencies: {
           'react': '^18.2.0',
-          'react-dom': '^18.2.0'
+          'react-dom': '^18.2.0',
         },
         devDependencies: {
           '@types/react': '^18.2.18',
           '@types/react-dom': '^18.2.7',
           '@vitejs/plugin-react': '^4.0.4',
           'eslint-plugin-react-hooks': '^4.6.0',
-          'eslint-plugin-react-refresh': '^0.4.3'
+          'eslint-plugin-react-refresh': '^0.4.3',
         },
-        jsx: 'react-jsx'
+        jsx: 'react-jsx',
       }
     case 'react-swc':
       return {
@@ -49,28 +49,28 @@ export function getData(template: Template) {
         initializer: 'reactSwc()',
         dependencies: {
           'react': '^18.2.0',
-          'react-dom': '^18.2.0'
+          'react-dom': '^18.2.0',
         },
         devDependencies: {
           '@types/react': '^18.2.18',
           '@types/react-dom': '^18.2.7',
           '@vitejs/plugin-react-swc': '^3.3.2',
           'eslint-plugin-react-hooks': '^4.6.0',
-          'eslint-plugin-react-refresh': '^0.4.3'
+          'eslint-plugin-react-refresh': '^0.4.3',
         },
-        jsx: 'react-jsx'
+        jsx: 'react-jsx',
       }
     case 'solid':
       return {
         importer: 'import solid from \'vite-plugin-solid\'',
         initializer: 'solid()',
         dependencies: {
-          'solid-js': '^1.7.9'
+          'solid-js': '^1.7.9',
         },
         devDependencies: {
-          'vite-plugin-solid': '^2.7.0'
+          'vite-plugin-solid': '^2.7.0',
         },
-        jsx: 'preserve'
+        jsx: 'preserve',
       }
   }
 }

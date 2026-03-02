@@ -1,7 +1,7 @@
 import type { ConfigEnv } from 'electronup'
 import { defineConfig } from 'electronup'
 import builderConfig from './builder.config'
-import tsupConfig from './tsup.config'
+import tsdownConfig from './tsdown.config'
 import viteConfig from './vite.config'
 
 /**
@@ -22,7 +22,7 @@ export default defineConfig((env: ConfigEnv) => {
   console.log('defineConfig env: ', env)
   return {
     builderConfig,
-    tsupConfig,
-    viteConfig
+    tsdownConfig,
+    viteConfig,
   }
 })

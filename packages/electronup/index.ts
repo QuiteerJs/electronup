@@ -12,4 +12,4 @@ export function defineConfig(config: ElectronupConfigExport): ElectronupConfigEx
   return config
 }
 
-export type { ElectronupConfig, ViteConfig, ConfigEnv, TsupConfig, BuilderConfig } from './typings/electronup'
+export type { BuilderConfig, ConfigEnv, ElectronupConfig, TsdownConfig, ViteConfig } from './typings/electronup'

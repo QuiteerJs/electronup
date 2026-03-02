@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { resolve } from 'node:path'
 import fs from 'node:fs'
+import { resolve } from 'node:path'
 import { cac } from 'cac'
 import { version } from './package.json'
+import { build, watch } from './runner'
 import { getConfig } from './transform'
 import { DefaultDirs, store } from './utils'
-import { build, watch } from './runner'
 
 interface Options {
   m?: string
@@ -62,9 +62,14 @@ cli
   .option('--linux', '[x64 | arm64 | armv7l] 构建 linux 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型')
   .action(async (configFile: undefined | string, options: BuildOptions) => {
     const {
-      mode, minify, option,
-      win, mac, linux,
-      dir, asar
+      mode,
+      minify,
+      option,
+      win,
+      mac,
+      linux,
+      dir,
+      asar,
     } = options
 
     const configOption = await getConfig(configFile)

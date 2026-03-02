@@ -1,11 +1,23 @@
 {
-  "extends": "@quiteer/ts-config/tsconfig.web.json",
   "compilerOptions": {
+    "target": "esnext",
+    "jsx": "preserve",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "declaration": false,
+    "importHelpers": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
     "ignoreDeprecations": "5.0"
   },
-  "include": [
-    "typings/*.d.ts",
-    "render/**/*"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "include": ["typings/*.d.ts", "render/**/*"]
 }

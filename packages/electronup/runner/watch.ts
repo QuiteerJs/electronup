@@ -1,13 +1,12 @@
+import type { ElectronupConfig } from '../typings/electronup'
 import { getPortPromise } from 'portfinder'
 import { createServer } from 'vite'
-import { build } from 'tsup'
-import type { ElectronupConfig } from '../typings/electronup'
 import { electronupConfig } from '../transform'
 import { store } from '../utils'
 
 export async function watch(options: ElectronupConfig) {
   const p = await getPortPromise({
-    port: Number(store.port)
+    port: Number(store.port),
   })
 
   store.port = p
@@ -18,6 +17,6 @@ export async function watch(options: ElectronupConfig) {
 
   viteDevServer.listen(p).then(viteDevServer.printUrls)
 
-  build(initConfig.tsup)
+  const { build } = await import('tsdown')
+  build(initConfig.tsdown)
 }
-

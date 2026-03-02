@@ -31,5 +31,5 @@ import type { BuilderConfig } from 'electronup'
 // }
 
 export default {
-  asar: false
+  asar: false,
 } as BuilderConfig

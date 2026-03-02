@@ -1,4 +1,5 @@
-import { resolve } from 'path'
+import { resolve } from 'node:path'
+import process from 'node:process'
 import { Is } from './is'
 
 export class Common {

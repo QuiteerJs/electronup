@@ -1,7 +1,7 @@
 # electronup
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE) ![](https://img.shields.io/github/stars/QuiteerJs/electronup) ![](https://img.shields.io/github/forks/QuiteerJs/electronup)
 
-> electronup 是一个集成 Vite4.x、tsup6.x、electron-builder24.x 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
+> electronup 是一个集成 Vite4.x、tsdown、electron-builder24.x 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
 
 ## 文档地址
 
@@ -24,7 +24,7 @@ pnpm add electronup -D
 ## 特性
 
 - **多框架支持** : 使用 `create-electronup` 询问式创建项目模板 , 内置 `vue3` ， `react` ，`solid` 等项目模板。
-- **Vite + tsup** : 双进程热更新 , 快速开发(主进程代码修改会触发软件重启)。
+- **Vite + tsdown** : 双进程热更新 , 快速开发(主进程代码修改会触发软件重启)。
 - **统一的环境变量** : `dotenv` 加载 , 构建时注入 , 双进程拥有相同的环境变量。
 - **模式构建** : 默认识别当前代码运行的平台输出打包程序 。
 - **可选构建功能提示** : 你将获得可选范围内支持的功能提示 , 选项式自定义构建输出。
@@ -41,7 +41,7 @@ pnpm add electronup -D
 > 已安装 18.0 或更高版本的 Node.js
 
 
-因为使用了 tsup 构建主进程代码，所以该命令行及脚手架只支持 TypeScript ，不支持 JavaScript。
+因为使用了 tsdown 构建主进程代码，所以该命令行及脚手架只支持 TypeScript ，不支持 JavaScript。
 
 ## 示例
 
