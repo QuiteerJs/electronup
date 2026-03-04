@@ -1,7 +1,7 @@
 import type { CliOptions } from 'electron-builder'
 import type { BuilderConfig, ElectronupConfig } from '../typings/electronup'
 import { resolve } from 'node:path'
-import { readJSON } from 'fs-extra'
+import fsExtra from 'fs-extra'
 import { DefaultDirs, store } from '../utils'
 
 /**
@@ -20,6 +20,7 @@ import { DefaultDirs, store } from '../utils'
 // const linuxTargets = Platform.LINUX.createTarget(linuxTargetFormats, Arch.armv7l, Arch.arm64, Arch.x64)
 
 export async function getBuilderConfig(config: BuilderConfig, allConfig: ElectronupConfig): Promise<CliOptions> {
+  const { readJSON } = fsExtra
   const packages = await readJSON(resolve(store.root, 'package.json'))
 
   const defaultConfig: CliOptions['config'] = {

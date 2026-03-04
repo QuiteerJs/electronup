@@ -1,7 +1,11 @@
 ## 变更日志
 
 ### 其他
-#### 2026-03-04 `✏️ 2+` `➕ 0+` `🗑️ 0+`
+#### 2026-03-04 `✏️ 3+` `➕ 0+` `🗑️ 0+`
+- 🔧  **chore** `release`: v0.2.3
+  > **🕒  15:31** · `➕1` / `➖1`
+  > `👤 张爱民`  <p602985@yeah.net> ([`e2d44bf`](https://github.com/QuiteerJs/electronup/commit/e2d44bf412eb8813dcc90a19d8804cd37ddd6869))
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/e2d44bf412eb8813dcc90a19d8804cd37ddd6869/packages/electronup/package.json)
 - 🔧  **chore** `release`: v0.2.2
   > **🕒  14:26** · `➕3` / `➖3`
   > `👤 张爱民`  <p602985@yeah.net> ([`5a610ac`](https://github.com/QuiteerJs/electronup/commit/5a610ac720b8f63695f82b216a92b21815ecd38c))
@@ -245,7 +249,33 @@
   - ✏️ [`package.json`](https://github.com/QuiteerJs/electronup/blob/21757aa77714a8759f0586970f82eccd385453fa/package.json)
 
 ### 修复
-#### 2026-03-04 `✏️ 2+` `➕ 0+` `🗑️ 0+`
+#### 2026-03-04 `✏️ 25+` `➕ 0+` `🗑️ 0+`
+- 🐛  **fix** `release`: 修复electron构建
+  > **🕒  14:26** · `➕60` / `➖33`
+  > `👤 张爱民`  <p602985@yeah.net> ([`777fd02`](https://github.com/QuiteerJs/electronup/commit/777fd0236348d56d96507513b7c39b0a1ac01183))
+  - ✏️ [`CHANGELOG.md`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/CHANGELOG.md)
+  - ✏️ [`CHANGELOG_TIMELINE.md`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/CHANGELOG_TIMELINE.md)
+  - ✏️ [`eslint.config.js`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/eslint.config.js)
+  - ✏️ [`packages/electronup/cli.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/cli.ts)
+  - ✏️ [`packages/electronup/configs/builder.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/configs/builder.ts)
+  - ✏️ [`packages/electronup/configs/electronup.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/configs/electronup.ts)
+  - ✏️ [`packages/electronup/configs/tsdown.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/configs/tsdown.ts)
+  - ✏️ [`packages/electronup/configs/vite.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/configs/vite.ts)
+  - ✏️ [`packages/electronup/dev.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/dev.ts)
+  - ✏️ [`packages/electronup/index.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/index.ts)
+  - ✏️ [`packages/electronup/runner/build.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/runner/build.ts)
+  - ✏️ [`packages/electronup/runner/index.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/runner/index.ts)
+  - ✏️ [`packages/electronup/runner/watch.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/runner/watch.ts)
+  - ✏️ [`packages/electronup/transform/getConfig.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/transform/getConfig.ts)
+  - ✏️ [`packages/electronup/transform/getExportConfig.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/transform/getExportConfig.ts)
+  - ✏️ [`packages/electronup/transform/index.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/transform/index.ts)
+  - ✏️ [`packages/electronup/typings/electronup.d.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/typings/electronup.d.ts)
+  - ✏️ [`packages/electronup/utils/dirs.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/utils/dirs.ts)
+  - ✏️ [`packages/electronup/utils/index.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/utils/index.ts)
+  - ✏️ [`packages/electronup/utils/store.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/utils/store.ts)
+  - ✏️ [`packages/electronup/tsconfig.json`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/tsconfig.json)
+  - ✏️ [`packages/electronup/tsdown.config.ts`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/packages/electronup/tsdown.config.ts)
+  - ✏️ [`pnpm-workspace.yaml`](https://github.com/QuiteerJs/electronup/blob/777fd0236348d56d96507513b7c39b0a1ac01183/pnpm-workspace.yaml)
 - 🐛  **fix** `release`: 修改默认导出
   > **🕒  10:23** · `➕444` / `➖2`
   > `👤 张爱民`  <p602985@yeah.net> ([`1024385`](https://github.com/QuiteerJs/electronup/commit/102438579207519978637da01c09703af0553c33))

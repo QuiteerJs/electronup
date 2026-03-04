@@ -1,13 +1,14 @@
 import type { ElectronupConfig } from '../typings/electronup'
 import { join } from 'node:path'
 import { parserConfig } from '@quiteer/parser-config'
-import { pathExists } from 'fs-extra'
+import fsExtra from 'fs-extra'
 import { store } from '../utils'
 
 const NOT_FOUND = '找不到 electronup.config.ts | electronup.config.js | electronup.config.json , 请在根目录下添加配置文件 , 或显式的指定配置文件路径（相对于根目录）'
 const PARSING_FAILED = '找到了配置文件,但解析配置文件失败！'
 
 async function configPath(filePath: string | undefined) {
+  const { pathExists } = fsExtra
   const { root } = store
 
   if (filePath)

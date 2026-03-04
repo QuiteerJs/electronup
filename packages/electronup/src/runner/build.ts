@@ -4,7 +4,7 @@ import process from 'node:process'
 import * as prompts from '@clack/prompts'
 
 import { Arch, build as builder, Platform } from 'electron-builder'
-import { writeFile } from 'fs-extra'
+import fsExtra from 'fs-extra'
 import { blue, green, red, yellow } from 'kolorist'
 import { build as viteBuild } from 'vite'
 import { stringify } from 'yaml'
@@ -108,6 +108,7 @@ const platformSelect: PlatformSelect[] = [
 ]
 
 export async function build(options: ElectronupConfig) {
+  const { writeFile } = fsExtra
   if (store.option) {
     try {
       const isMinify = await prompts.confirm({
