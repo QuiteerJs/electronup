@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+
 import fs from 'node:fs'
 import { resolve } from 'node:path'
 import { cac } from 'cac'
-import { version } from './package.json'
+import { version } from '../package.json'
 import { build, watch } from './runner'
 import { getConfig } from './transform'
 import { DefaultDirs, store } from './utils'

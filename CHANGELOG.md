@@ -1,7 +1,11 @@
 ## 变更日志
 
 ### 其他
-#### 2026-03-04 `✏️ 1+` `➕ 0+` `🗑️ 0+`
+#### 2026-03-04 `✏️ 2+` `➕ 0+` `🗑️ 0+`
+- 🔧  **chore** `release`: v0.2.2
+  > **🕒  14:26** · `➕3` / `➖3`
+  > `👤 张爱民`  <p602985@yeah.net> ([`5a610ac`](https://github.com/QuiteerJs/electronup/commit/5a610ac720b8f63695f82b216a92b21815ecd38c))
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/5a610ac720b8f63695f82b216a92b21815ecd38c/packages/electronup/package.json)
 - 🔧  **chore** `release`: v0.2.1
   > **🕒  10:23** · `➕1` / `➖1`
   > `👤 张爱民`  <p602985@yeah.net> ([`4f04b35`](https://github.com/QuiteerJs/electronup/commit/4f04b35cef81c7626a35ccbe1584a6df4f54f862))
@@ -240,6 +244,20 @@
   > `👤 quiteer`  <p602985@yeah.net> ([`21757aa`](https://github.com/QuiteerJs/electronup/commit/21757aa77714a8759f0586970f82eccd385453fa))
   - ✏️ [`package.json`](https://github.com/QuiteerJs/electronup/blob/21757aa77714a8759f0586970f82eccd385453fa/package.json)
 
+### 修复
+#### 2026-03-04 `✏️ 2+` `➕ 0+` `🗑️ 0+`
+- 🐛  **fix** `release`: 修改默认导出
+  > **🕒  10:23** · `➕444` / `➖2`
+  > `👤 张爱民`  <p602985@yeah.net> ([`1024385`](https://github.com/QuiteerJs/electronup/commit/102438579207519978637da01c09703af0553c33))
+  - ✏️ [`CHANGELOG.md`](https://github.com/QuiteerJs/electronup/blob/102438579207519978637da01c09703af0553c33/CHANGELOG.md)
+  - ✏️ [`CHANGELOG_TIMELINE.md`](https://github.com/QuiteerJs/electronup/blob/102438579207519978637da01c09703af0553c33/CHANGELOG_TIMELINE.md)
+
+#### 2026-03-02 `✏️ 1+` `➕ 0+` `🗑️ 0+`
+- 🐛  **fix** `other`: action 配置
+  > **🕒  18:08** · `➕10` / `➖10`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`23a868b`](https://github.com/QuiteerJs/electronup/commit/23a868bc0cffda12e6d469c6cfd709fc8228aa0a))
+  - ✏️ [`.github/workflows/deploy.yml`](https://github.com/QuiteerJs/electronup/blob/23a868bc0cffda12e6d469c6cfd709fc8228aa0a/.github/workflows/deploy.yml)
+
 ### 构建
 #### 2026-03-04 `✏️ 4+` `➕ 0+` `🗑️ 0+`
 - 🏗️  **build** `deps`: 依赖审计
@@ -249,10 +267,3 @@
   - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/b483a19d359b477bc9a4a5c503a23a8dbd59df23/packages/electronup/package.json)
   - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/b483a19d359b477bc9a4a5c503a23a8dbd59df23/pnpm-lock.yaml)
   - ✏️ [`pnpm-workspace.yaml`](https://github.com/QuiteerJs/electronup/blob/b483a19d359b477bc9a4a5c503a23a8dbd59df23/pnpm-workspace.yaml)
-
-### 修复
-#### 2026-03-02 `✏️ 1+` `➕ 0+` `🗑️ 0+`
-- 🐛  **fix** `other`: action 配置
-  > **🕒  18:08** · `➕10` / `➖10`
-  > `👤 Quiteer`  <p602985@yeah.net> ([`23a868b`](https://github.com/QuiteerJs/electronup/commit/23a868bc0cffda12e6d469c6cfd709fc8228aa0a))
-  - ✏️ [`.github/workflows/deploy.yml`](https://github.com/QuiteerJs/electronup/blob/23a868bc0cffda12e6d469c6cfd709fc8228aa0a/.github/workflows/deploy.yml)

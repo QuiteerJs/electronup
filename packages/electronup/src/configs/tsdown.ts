@@ -109,7 +109,8 @@ function startElectron(mainPath: string) {
     }, 5000)
   }
 
-  electronProcess = spawn(electron as any, [mainPath])
+  const env = { ...process.env, ...injectEnv() }
+  electronProcess = spawn(electron as any, [mainPath], { env })
 
   electronProcess.stdout.on('data', removeJunk)
 

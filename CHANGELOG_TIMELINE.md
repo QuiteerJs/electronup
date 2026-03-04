@@ -1,6 +1,15 @@
 ## 变更日志
 
-### 2026-03-04 `✏️ 5+` `➕ 0+` `🗑️ 0+`
+### 2026-03-04 `✏️ 8+` `➕ 0+` `🗑️ 0+`
+- 🔧  **chore** `release`: v0.2.2
+  > **🕒  14:26** · `➕3` / `➖3`
+  > `👤 张爱民`  <p602985@yeah.net> ([`5a610ac`](https://github.com/QuiteerJs/electronup/commit/5a610ac720b8f63695f82b216a92b21815ecd38c))
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/5a610ac720b8f63695f82b216a92b21815ecd38c/packages/electronup/package.json)
+- 🐛  **fix** `release`: 修改默认导出
+  > **🕒  10:23** · `➕444` / `➖2`
+  > `👤 张爱民`  <p602985@yeah.net> ([`1024385`](https://github.com/QuiteerJs/electronup/commit/102438579207519978637da01c09703af0553c33))
+  - ✏️ [`CHANGELOG.md`](https://github.com/QuiteerJs/electronup/blob/102438579207519978637da01c09703af0553c33/CHANGELOG.md)
+  - ✏️ [`CHANGELOG_TIMELINE.md`](https://github.com/QuiteerJs/electronup/blob/102438579207519978637da01c09703af0553c33/CHANGELOG_TIMELINE.md)
 - 🔧  **chore** `release`: v0.2.1
   > **🕒  10:23** · `➕1` / `➖1`
   > `👤 张爱民`  <p602985@yeah.net> ([`4f04b35`](https://github.com/QuiteerJs/electronup/commit/4f04b35cef81c7626a35ccbe1584a6df4f54f862))

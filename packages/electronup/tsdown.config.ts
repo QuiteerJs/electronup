@@ -2,7 +2,7 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig([
   {
-    entry: ['index.ts'],
+    entry: ['src/index.ts'],
     outDir: 'dist/client',
     // format: ['esm', 'cjs'],
     dts: true,
@@ -10,7 +10,7 @@ export default defineConfig([
     clean: true,
   },
   {
-    entry: { electronup: 'cli.ts' },
+    entry: { electronup: 'src/cli.ts' },
     outDir: 'dist/bin',
     // format: ['cjs'],
     minify: false,

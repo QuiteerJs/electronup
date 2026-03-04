@@ -3,7 +3,13 @@ shellEmulator: true
 trustPolicy: no-downgrade
 
 packages:
-  - 'packages/*'
-  - 'playground/*'
+  - packages/*
+  - playground/*
+
 overrides:
   vitepress@1.6.4>vite: 5.4.14
+
+onlyBuiltDependencies:
+  - electron
+  - esbuild
+  - simple-git-hooks
