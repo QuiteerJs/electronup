@@ -5,6 +5,7 @@ trustPolicy: no-downgrade
 packages:
   - packages/*
   - playground/*
+  - template
 
 overrides:
   vitepress@1.6.4>vite: 5.4.14

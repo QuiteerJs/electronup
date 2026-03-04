@@ -5,7 +5,7 @@ import * as prompts from '@clack/prompts'
 
 import { Arch, build as builder, Platform } from 'electron-builder'
 import fsExtra from 'fs-extra'
-import { blue, green, red, yellow } from 'kolorist'
+import pc from 'picocolors'
 import { build as viteBuild } from 'vite'
 import { stringify } from 'yaml'
 import { electronupConfig } from '../transform'
@@ -37,17 +37,17 @@ const platformSelect: PlatformSelect[] = [
         return Platform.WINDOWS.createTarget(store.dir, ...archs)
       return Platform.WINDOWS.createTarget(store.dir, Arch.ia32, Arch.x64)
     },
-    color: blue,
+    color: pc.blue,
     disabled: !(store.isMac || store.isWin),
     archs: [{
       name: 'x64',
       arch: Arch.x64,
       disabled: store.currentArch === Arch.ia32,
-      color: blue,
+      color: pc.blue,
     }, {
       name: 'ia32',
       arch: Arch.ia32,
-      color: blue,
+      color: pc.blue,
       disabled: false,
     }],
   },
@@ -60,22 +60,22 @@ const platformSelect: PlatformSelect[] = [
       return Platform.MAC.createTarget(store.dir, ...archs)
     },
     disabled: !store.isMac,
-    color: green,
+    color: pc.green,
     archs: [{
       name: 'x64',
       arch: Arch.x64,
       disabled: false,
-      color: green,
+      color: pc.green,
     }, {
       name: 'arm64',
       arch: Arch.arm64,
       disabled: false,
-      color: green,
+      color: pc.green,
     }, {
       name: 'universal',
       arch: Arch.universal,
       disabled: false,
-      color: green,
+      color: pc.green,
     }],
   },
   {
@@ -87,22 +87,22 @@ const platformSelect: PlatformSelect[] = [
         return Platform.LINUX.createTarget(store.dir, store.currentArch)
       return Platform.LINUX.createTarget(store.dir, ...archs)
     },
-    color: yellow,
+    color: pc.yellow,
     archs: [{
       name: 'x64',
       arch: Arch.x64,
       disabled: false,
-      color: yellow,
+      color: pc.yellow,
     }, {
       name: 'arm64',
       arch: Arch.arm64,
       disabled: false,
-      color: yellow,
+      color: pc.yellow,
     }, {
       name: 'armv7l',
       arch: Arch.armv7l,
       disabled: false,
-      color: yellow,
+      color: pc.yellow,
     }],
   },
 ]
@@ -112,19 +112,19 @@ export async function build(options: ElectronupConfig) {
   if (store.option) {
     try {
       const isMinify = await prompts.confirm({
-        message: green('是否压缩代码?'),
+        message: pc.green('是否压缩代码?'),
       })
 
       if (prompts.isCancel(isMinify)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       const isPackage = await prompts.confirm({
-        message: blue('是否生成安装包?'),
+        message: pc.blue('是否生成安装包?'),
       })
 
       if (prompts.isCancel(isPackage)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       const platform = await prompts.select({
@@ -137,7 +137,7 @@ export async function build(options: ElectronupConfig) {
       })
 
       if (prompts.isCancel(platform)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       const selectedPlatform = platform as PlatformSelect
@@ -151,7 +151,7 @@ export async function build(options: ElectronupConfig) {
       })
 
       if (prompts.isCancel(arch)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       store.minify = isMinify

@@ -1,17 +1,16 @@
-import type { Template } from './getData'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 import * as prompts from '@clack/prompts'
-import ejs from 'ejs'
-import { blue, cyan, green, lightBlue, lightCyan, lightGreen, lightYellow, red, reset, yellow } from 'kolorist'
-import minimist from 'minimist'
-import { getData } from './getData'
+import degit from 'degit'
+import mri from 'mri'
+import pc from 'picocolors'
+
+const remote = 'https://github.com/QuiteerJs/electronup-template.git'
 
 // Avoids autoconversion to number of the project name by defining that the args
 // non associated with an option ( _ ) needs to be parsed as a string. See #4606
-const argv = minimist<{
+const argv = mri<{
   t?: string
   template?: string
 }>(process.argv.slice(2), { string: ['_'] })
@@ -35,46 +34,41 @@ interface FrameworkVariant {
 const FRAMEWORKS: Framework[] = [
   {
     name: 'vanilla',
-    display: 'Vanilla + TS',
-    color: yellow,
+    display: 'Vanilla',
+    color: pc.yellow,
   },
   {
     name: 'vue',
-    display: 'Vue + TS',
-    color: green,
+    display: 'Vue',
+    color: pc.green,
   },
   {
     name: 'react',
-    display: 'React + TS',
-    color: cyan,
+    display: 'React',
+    color: pc.cyan,
     variants: [
       {
         name: 'react',
         display: 'TypeScript',
-        color: lightBlue,
+        color: pc.blue,
       },
       {
         name: 'react-swc',
         display: 'TypeScript + SWC',
-        color: blue,
+        color: pc.blue,
       },
     ],
   },
   {
     name: 'solid',
-    display: 'Solid + TS',
-    color: blue,
+    display: 'Solid',
+    color: pc.blue,
   },
 ]
 
 const TEMPLATES = FRAMEWORKS.map(
   f => (f.variants && f.variants.map(v => v.name)) || [f.name],
 ).reduce((a, b) => a.concat(b), [])
-
-const renameFiles: Record<string, string | undefined> = {
-  _gitignore: '.gitignore',
-  _npmrc: '.npmrc',
-}
 
 const defaultTargetDir = 'electronup-project'
 
@@ -83,8 +77,6 @@ async function init() {
   const argTemplate = argv.template || argv.t
 
   let targetDir = argTargetDir || defaultTargetDir
-  const getProjectName = () => (targetDir === '.' ? path.basename(path.resolve()) : targetDir)
-
   let result = {} as any
 
   try {
@@ -92,12 +84,12 @@ async function init() {
     let projectName = argTargetDir
     if (!projectName) {
       const projectNameResult = await prompts.text({
-        message: reset('Project name:'),
+        message: pc.reset('项目名称：'),
         placeholder: defaultTargetDir,
       })
 
       if (prompts.isCancel(projectNameResult)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       projectName = projectNameResult as string
@@ -108,34 +100,18 @@ async function init() {
     let overwrite = false
     if (fs.existsSync(targetDir) && !isEmpty(targetDir)) {
       const overwriteResult = await prompts.confirm({
-        message: `${targetDir === '.' ? 'Current directory' : `Target directory "${targetDir}"`} is not empty. Remove existing files and continue?`,
+        message: `${targetDir === '.' ? '当前目录' : `目标目录 "${targetDir}"`} 不为空，是否清空继续？`,
       })
 
       if (prompts.isCancel(overwriteResult)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       overwrite = overwriteResult as boolean
 
       if (!overwrite) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
-    }
-
-    // 验证包名
-    let packageName = getProjectName()
-    if (!isValidPackageName(packageName)) {
-      const packageNameResult = await prompts.text({
-        message: reset('Package name:'),
-        placeholder: toValidPackageName(packageName),
-        validate: value => !isValidPackageName(value) ? 'Invalid package.json name' : undefined,
-      })
-
-      if (prompts.isCancel(packageNameResult)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
-      }
-
-      packageName = packageNameResult as string
     }
 
     // 选择框架
@@ -143,8 +119,8 @@ async function init() {
     if (!argTemplate || !TEMPLATES.includes(argTemplate)) {
       const frameworkResult = await prompts.select({
         message: typeof argTemplate === 'string' && !TEMPLATES.includes(argTemplate)
-          ? reset(`"${argTemplate}" isn't a valid template. Please choose from below: `)
-          : reset('Select a framework:'),
+          ? pc.reset(`"${argTemplate}" 不是有效模板，请从下方选择：`)
+          : pc.reset('请选择框架：'),
         options: FRAMEWORKS.map(fw => ({
           label: fw.color(fw.display || fw.name),
           value: fw,
@@ -152,7 +128,7 @@ async function init() {
       })
 
       if (prompts.isCancel(frameworkResult)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       framework = frameworkResult as Framework
@@ -165,7 +141,7 @@ async function init() {
     let variant = ''
     if (framework && framework.variants) {
       const variantResult = await prompts.select({
-        message: reset('Select a variant:'),
+        message: pc.reset('请选择变体：'),
         options: framework.variants.map(v => ({
           label: v.color(v.display || v.name),
           value: v.name,
@@ -173,29 +149,18 @@ async function init() {
       })
 
       if (prompts.isCancel(variantResult)) {
-        throw new Error(`${red('✖')} Operation cancelled`)
+        throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
       variant = variantResult as string
-    }
-
-    // 是否使用国内镜像
-    const isRegistry = await prompts.confirm({
-      message: '是否开启 npm 国内镜像源 ?',
-    })
-
-    if (prompts.isCancel(isRegistry)) {
-      throw new Error(`${red('✖')} Operation cancelled`)
     }
 
     // 构建结果对象
     result = {
       projectName: targetDir,
       overwrite,
-      packageName,
       framework,
       variant,
-      isRegistry,
     }
   }
   catch (cancelled: any) {
@@ -206,7 +171,7 @@ async function init() {
 
   // 用户选择与提示相关联
   // user choice associated with prompts
-  const { framework, overwrite, packageName, variant, isRegistry } = result
+  const { framework, overwrite, variant } = result
 
   const root = path.join(cwd, targetDir)
 
@@ -222,79 +187,17 @@ async function init() {
   // determine template
   const template: string = variant || framework?.name || argTemplate || ''
 
-  // 返回模板所在路径
-  const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', 'template')
-
-  // 默认模板
-  const baseTemplateDir = path.resolve(templateDir, 'base')
-
   const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent)
   const pkgManager = pkgInfo ? pkgInfo.name : 'npm'
 
-  const writeTemplate = (dirPath: string, dir = '') => {
-    // 读取模板目录结构
-    const files = fs.readdirSync(dirPath)
-    // 遍历模板生成模板
-    for (const file of files) {
-      // 处理需要重命名的文件
-      let targetPath = path.join(root, dir, renameFiles[file] ?? file)
-      // 处理默认模板中 ejs 模板
-      if (file.endsWith('.ejs')) {
-        const filepath = path.resolve(dirPath, file)
-        const dest = file.replace(/\.ejs$/, '')
-        targetPath = path.join(root, dir, dest)
-
-        const writeTempl = (options: Record<string, any>) => {
-          const templateContent = fs.readFileSync(filepath, 'utf-8')
-          const content = ejs.render(templateContent, options)
-          fs.writeFileSync(targetPath, content)
-        }
-
-        let options: Record<string, any> = {
-          name: packageName ?? getProjectName(),
-          template,
-          pkgManager,
-          isRegistry,
-        }
-
-        if (dest === 'electronup.config.ts' || dest === 'package.json' || dest === 'tsconfig.json') {
-          const data = getData(template as Template)
-
-          options = {
-            ...options,
-            jsx: data?.jsx ?? '',
-            importer: data?.importer ?? '',
-            initializer: data?.initializer ?? '',
-            dependencies: data && Object.entries(data.dependencies),
-            devDependencies: data && Object.entries(data.devDependencies),
-          }
-        }
-
-        writeTempl(options)
-      }
-
-      // 直接copy
-      else { copy(path.join(dirPath, file), targetPath) }
-    }
-  }
+  const spinner = prompts.spinner()
+  spinner.start(`正在拉取模板：${template}`)
+  const emitter = degit(`${remote}#${template}`, { cache: false, force: overwrite })
+  await emitter.clone(root)
+  spinner.stop('模板拉取完成')
 
   // eslint-disable-next-line no-console
-  console.log(lightGreen(`\nScaffolding project in ${root}...`))
-
-  writeTemplate(baseTemplateDir)
-
-  // 生成render文件夹
-  const renderPath = path.join(root, 'render')
-  const currentfiles = path.resolve(templateDir, template === 'react-swc' ? 'react' : template)
-  if (fs.existsSync(renderPath))
-    emptyDir(renderPath)
-  else
-    fs.mkdirSync(renderPath, { recursive: true })
-  // 写入render目录
-  writeTemplate(currentfiles, 'render')
-
-  // eslint-disable-next-line no-console
-  console.log('\nDone. Now run: \n')
+  console.log('\n完成。请执行：\n')
 
   // 比对路径
   const cdProjectName = path.relative(cwd, root)
@@ -304,50 +207,19 @@ async function init() {
     const cdCommand = `\ncd ${cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName}\n`
 
     // eslint-disable-next-line no-console
-    console.log(lightGreen(cdCommand))
+    console.log(pc.green(cdCommand))
   }
 
   const inStallCommand = pkgManager === 'yarn' ? 'yarn' : `${pkgManager} install\n`
   // eslint-disable-next-line no-console
-  console.log(lightYellow(inStallCommand))
+  console.log(pc.yellow(inStallCommand))
   const devConmand = pkgManager === 'yarn' ? 'yarn dev' : `${pkgManager} run dev`
   // eslint-disable-next-line no-console
-  console.log(lightCyan(devConmand))
+  console.log(pc.cyan(devConmand))
 }
 
 function formatTargetDir(targetDir: string | undefined) {
   return targetDir?.trim().replace(/\/+$/g, '')
-}
-
-function copy(src: string, dest: string) {
-  const stat = fs.statSync(src)
-  if (stat.isDirectory())
-    copyDir(src, dest)
-  else fs.copyFileSync(src, dest)
-}
-
-// 验证项目名称是否合法
-function isValidPackageName(projectName: string | undefined) {
-  return /^(?:@[a-z\d\-*~][a-z\d\-*._~]*\/)?[a-z\d\-~][a-z\d\-._~]*$/.test(projectName ?? '')
-}
-
-// 违法字符更换
-function toValidPackageName(projectName: string) {
-  return projectName
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/^[._]/, '')
-    .replace(/[^a-z\d\-~]+/g, '-')
-}
-
-function copyDir(srcDir: string, destDir: string) {
-  fs.mkdirSync(destDir, { recursive: true })
-  for (const file of fs.readdirSync(srcDir)) {
-    const srcFile = path.resolve(srcDir, file)
-    const destFile = path.resolve(destDir, file)
-    copy(srcFile, destFile)
-  }
 }
 
 function isEmpty(path: string) {
