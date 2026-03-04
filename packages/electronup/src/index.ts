@@ -13,5 +13,3 @@ export function defineConfig(config: ElectronupConfigExport): ElectronupConfigEx
 }
 
 export type { BuilderConfig, ConfigEnv, ElectronupConfig, TsdownConfig, ViteConfig } from './typings/electronup'
-
-console.log('test :>> ')

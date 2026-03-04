@@ -1,6 +1,22 @@
 ## 变更日志
 
-### 2026-03-04 `✏️ 32+` `➕ 0+` `🗑️ 0+`
+### 2026-03-04 `✏️ 40+` `➕ 2+` `🗑️ 0+`
+- 🔧  **chore** `release`: v0.2.4
+  > **🕒  16:04** · `➕7` / `➖6`
+  > `👤 张爱民`  <p602985@yeah.net> ([`3d8abce`](https://github.com/QuiteerJs/electronup/commit/3d8abcef536e9238b1b52712e7708982455aaed4))
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/3d8abcef536e9238b1b52712e7708982455aaed4/packages/electronup/package.json)
+- 🐛  **fix** `release`: 修复构建报错
+  > **🕒  15:31** · `➕97` / `➖24`
+  > `👤 张爱民`  <p602985@yeah.net> ([`f6a8a52`](https://github.com/QuiteerJs/electronup/commit/f6a8a527090a1f08fa93348649f7f7ccaa83940e))
+  - ➕ [`.node-version`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/.node-version)
+  - ➕ [`packages/electronup/src/typings/env.d.ts`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/packages/electronup/src/typings/env.d.ts)
+  - ✏️ [`CHANGELOG.md`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/CHANGELOG.md)
+  - ✏️ [`CHANGELOG_TIMELINE.md`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/CHANGELOG_TIMELINE.md)
+  - ✏️ [`packages/electronup/src/configs/builder.ts`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/packages/electronup/src/configs/builder.ts)
+  - ✏️ [`packages/electronup/src/index.ts`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/packages/electronup/src/index.ts)
+  - ✏️ [`packages/electronup/src/runner/build.ts`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/packages/electronup/src/runner/build.ts)
+  - ✏️ [`packages/electronup/src/transform/getConfig.ts`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/packages/electronup/src/transform/getConfig.ts)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/f6a8a527090a1f08fa93348649f7f7ccaa83940e/pnpm-lock.yaml)
 - 🔧  **chore** `release`: v0.2.3
   > **🕒  15:31** · `➕1` / `➖1`
   > `👤 张爱民`  <p602985@yeah.net> ([`e2d44bf`](https://github.com/QuiteerJs/electronup/commit/e2d44bf412eb8813dcc90a19d8804cd37ddd6869))
