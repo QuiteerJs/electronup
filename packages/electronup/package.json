@@ -1,6 +1,6 @@
 {
   "name": "electronup",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "融合构建 electron 应用需要的构建工具,保留原有配置习惯的命令行工具 ",
   "author": "quiteer",
   "license": "MIT",
@@ -32,13 +32,13 @@
     "registry": "https://registry.npmjs.org/"
   },
   "exports": {
-    ".": "./index.ts"
+    ".": "./src/index.ts"
   },
   "main": "dist/client/index.mjs",
   "module": "dist/client/index.mjs",
   "types": "dist/client/index.d.mts",
   "bin": {
-    "electronup": "./dev.ts"
+    "electronup": "./src/dev.ts"
   },
   "files": [
     "dist"
