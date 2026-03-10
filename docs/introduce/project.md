@@ -6,7 +6,7 @@ title: 项目介绍
 
 ## 简介
 
-[electronup](https://github.com/QuiteerJs/electronup) 是一个集成 **Vite4.x**、**tsdown**、**electron-builder23.x** 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
+[electronup](https://github.com/QuiteerJs/electronup) 是一个集成 **Vite8.x**、**tsdown**、**electron-builder26.x** 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
 
 ::: warning
 因为使用了 tsdown 构建主进程代码，所以该命令行及脚手架只支持 `TypeScript` ，不支持 `JavaScript`。
@@ -39,7 +39,7 @@ title: 项目介绍
 - `Vite` , [下一代的前端工具链 , 为开发提供极速响应。](https://cn.vitejs.dev/)
 - `tsdown` , [这是构建TypeScript库的最简单、最快的方法。](https://github.com/sxzz/tsdown)
 - `Electron-Builder` , [一个完整的解决方案，打包和构建一个准备分发 electron 应用程序与“自动更新”的支持开箱即用。](https://www.electron.build/)
-- `适用于vite 的 web 框架` , [vue3.x](https://staging-cn.vuejs.org/)，[react16.x](https://zh-hans.react.dev/learn) 。。。
+- `适用于vite 的 web 框架` , [vue3.x](https://staging-cn.vuejs.org/)，[react18.x](https://zh-hans.react.dev/learn) 。。。
 - 更多相关 js 知识 ...
 
 
@@ -48,10 +48,11 @@ title: 项目介绍
 ```json
 {
   "dependencies": {
-    "electron-builder": "^23.6.0",
+    "electron": "^40.6.1",
+    "electron-builder": "^26.8.1",
     "tsdown": "^0.20.3",
-    "typescript": "^5.0.4",
-    "vite": "^4.4.9"
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0-beta.13"
   }
 }
 ```
