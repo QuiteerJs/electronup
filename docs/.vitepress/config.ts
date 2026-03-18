@@ -1,10 +1,14 @@
+import process from 'node:process'
 import { defineConfig } from 'vitepress'
 import { version } from '../../packages/electronup/package.json'
+
+// 判断是否在 Vercel 环境（Vercel 会注入 VERCEL 环境变量）
+const isVercel = Boolean(process.env.VERCEL)
 
 export default defineConfig({
   title: 'electronup中文文档',
   description: 'electron 的构建所需',
-  base: '/electronup/',
+  base: isVercel ? '/' : '/electronup/',
   lang: 'en',
   head: [['link', { rel: 'icon', href: 'favicon.ico' }]],
   markdown: {
@@ -74,6 +78,10 @@ function nav() {
     {
       text: version,
       items: [
+        {
+          text: '0.1.x',
+          link: 'https://electronup-git-1x-quiteer.vercel.app/',
+        },
         {
           text: '组织',
           link: 'https://github.com/QuiteerJs',
