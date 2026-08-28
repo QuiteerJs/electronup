@@ -1,0 +1,36 @@
+{
+  "name": "@quiteer/electron-menu",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "基于electron , 提供菜单创建与菜单项统一管理",
+  "author": "quiteer",
+  "license": "MIT",
+  "keywords": [
+    "electron",
+    "menu"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "tsdown -c test/tsdown.config.ts && node --test test/.out/menu.test.js",
+    "update-version": "bumpp package.json"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.14"
+  }
+}
