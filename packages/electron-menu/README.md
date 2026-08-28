@@ -189,11 +189,20 @@ item.target // 原生 MenuItem
 菜单仓库，可单独使用。持有引用本身是必要的——`Menu` 实例一旦被回收，已应用的菜单与已注册的快捷键都会失效。
 
 ```ts
-store.find((controller, name) => name.startsWith('context'))
-store.entries()
-store.remove(name)
-store.clear()
+store.size // 当前注册数量
+store.names() // 所有菜单名称
+store.list() // 所有原生 Menu 实例
+store.entries() // [name, controller][]
+store.get(name) // 按名取原生 Menu
+store.getController(name) // 按名取控制句柄
+store.find((controller, name) => name.startsWith('context')) // 按条件查找
+store.has(name) // 是否存在
+store.remove(name) // 摘除注册
+store.clear() // 清空注册表
+store.destroyAll() // 摘除全部注册
 ```
+
+菜单与窗口、托盘不同，`Menu` 没有销毁概念，所以这里的 `remove()` / `clear()` / `destroyAll()` 都只是摘除注册，不会动菜单本身。
 
 ## 平台差异
 
