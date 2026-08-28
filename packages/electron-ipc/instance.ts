@@ -24,16 +24,16 @@ class IpcOpt {
   }
 
   #window() {
-    ipcMain.on(EventKeys.WindowOptionsKey, (event: Electron.IpcMainEvent, type: IpcWindowOptions, args) => {
+    ipcMain.on(EventKeys.WindowOptionsKey, (event: Electron.IpcMainEvent, type: IpcWindowOptions, ...args: any[]) => {
       const performFunc = windowBus.get(type)
       if (performFunc instanceof Function)
-        return performFunc(event, args)
+        return performFunc(event, ...args)
     })
 
     ipcMain.handle(EventKeys.FileOptionsKey, (event: Electron.IpcMainInvokeEvent, type: IpcFileOptions, ...args: any[]) => {
       const performFunc = fileBus.get(type)
       if (performFunc instanceof Function)
-        return performFunc(event, args)
+        return performFunc(event, ...args)
 
       throw new Error('未查找到事件相应！')
     })

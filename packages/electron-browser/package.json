@@ -1,7 +1,7 @@
 {
   "name": "@quiteer/electron-browser",
   "version": "0.0.1",
-  "description": "基于electron , ",
+  "description": "基于electron , 提供浏览器窗口创建与窗口仓库管理",
   "author": "quiteer",
   "license": "MIT",
   "keywords": [
@@ -10,11 +10,16 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./index.js"
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     }
   },
-  "main": "./index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -25,6 +30,6 @@
     "update-version": "bumpp package.json"
   },
   "devDependencies": {
-    "tsup": "^6.4.0"
+    "tsup": "^8.5.1"
   }
 }

@@ -51,7 +51,7 @@ interface ExpandPreloadIpc {
   /**
    * 窗口全屏
    */
-  send(channel: '__window_options__', type: 'setFullScreen'): void
+  send(channel: '__window_options__', type: 'setFullScreen', flag: boolean): void
   /**
    * 设置窗口
    */

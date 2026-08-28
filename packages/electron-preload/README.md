@@ -42,25 +42,14 @@ const win = new BrowserWindow({
   - removeAllListeners
 
 - clipboard
-  - readText
-  - writeText
-  - readHTML
-  - writeHTML
-  - readImage
-  - writeImage
-  - readRTF
-  - writeRTF
-  - readBookmark
-  - writeBookmark
-  - readFindText
-  - writeFindText
   - clear
-  - availableFormats
   - has
   - read
-  - readBuffer
-  - writeBuffer
+  - readText
   - write
+  - writeText
+
+> clipboard 为异步 api (Promise) , 与新版 electron 保持一致
 
 - webFrame
   -  setZoomFactor
@@ -79,7 +68,6 @@ const win = new BrowserWindow({
   -  opener
   -  parent
   -  routingId
-  -  top
 
 
 ### 渲染进程中使用
@@ -96,7 +84,7 @@ console.log('window.$webFrame :>> ', window.$webFrame)
 ```ts
 interface Window {
   $ipc: import('@quiteer/electron-preload').PreloadIpc
-  $clipboard: import('@quiteer/electron-preload').PreLoadPath
+  $clipboard: import('@quiteer/electron-preload').PreloadClipboard
   $webFrame: import('@quiteer/electron-preload').PreloadWebFrame
 }
 ```

@@ -19,7 +19,7 @@ export interface PreloadWebFrame {
   /**
    * 描述  更改缩放等级。
    * @date 2022-11-11
-   * @param {any} level:number  缩放等级。
+   * @param {any} level:number 缩放等级。
    * @returns {any}
    */
   setZoomLevel(level: number): void
@@ -50,13 +50,13 @@ export interface PreloadWebFrame {
   setIsolatedWorldInfo(...args: Parameters<WebFrame['setIsolatedWorldInfo']>): void
   getResourceUsage(): ReturnType<WebFrame['getResourceUsage']>
   clearCache(): void
-  getFrameForSelector(selector: string): WebFrame
+  getFrameForSelector(selector: string): WebFrame | null
 
-  firstChild(): WebFrame['firstChild']
-  nextSibling(): WebFrame['nextSibling']
-  opener(): WebFrame['opener']
-  parent(): WebFrame['parent']
-  routingId(): WebFrame['routingId']
+  firstChild(): WebFrame | null
+  nextSibling(): WebFrame | null
+  opener(): WebFrame | null
+  parent(): WebFrame | null
+  routingId(): number
 }
 
 export const $webFrame: PreloadWebFrame = {
@@ -77,4 +77,3 @@ export const $webFrame: PreloadWebFrame = {
   parent: () => webFrame.parent,
   routingId: () => webFrame.routingId
 }
-

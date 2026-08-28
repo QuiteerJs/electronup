@@ -1,8 +1,4 @@
-import type { IpcRenderer } from 'electron'
 import { ipcRenderer } from 'electron'
-
-type IpcParameters<K extends keyof IpcRenderer> = Parameters<IpcRenderer[K]>
-type IpcReturnType<K extends keyof IpcRenderer> = ReturnType<IpcRenderer[K]>
 
 export interface PreloadIpc {
   send<T extends Array<any>>(channel: string, ...args: T): void
@@ -13,18 +9,17 @@ export interface PreloadIpc {
    * @returns {any}
    */
   sendSync<T extends Array<any>>(channel: string, ...args: T): any
-  invoke<T extends Array<any>, R = never>(channel: string, ...args: T): Promise<R>
-  on(...args: IpcParameters<'on'>): IpcReturnType<'on'>
-  once(...args: IpcParameters<'once'>): IpcReturnType<'once'>
-  removeAllListeners(channel: string): IpcReturnType<'removeAllListeners'>
+  invoke<T extends Array<any>, R = any>(channel: string, ...args: T): Promise<R>
+  on(channel: string, listener: (event: Electron.IpcRendererEvent, ...args: any[]) => void): Electron.IpcRenderer
+  once(channel: string, listener: (event: Electron.IpcRendererEvent, ...args: any[]) => void): Electron.IpcRenderer
+  removeAllListeners(channel?: string): Electron.IpcRenderer
 }
 
 export const $ipc: PreloadIpc = {
   send: (...args) => ipcRenderer.send(...args),
   sendSync: (...args) => ipcRenderer.sendSync(...args),
   invoke: (...args) => ipcRenderer.invoke(...args),
-  on: (channel, listener) => ipcRenderer.on(channel, listener),
+  on: (...args) => ipcRenderer.on(...args),
   once: (...args) => ipcRenderer.once(...args),
-  removeAllListeners: channel => ipcRenderer.removeAllListeners(channel)
+  removeAllListeners: (...args) => ipcRenderer.removeAllListeners(...args)
 }
-

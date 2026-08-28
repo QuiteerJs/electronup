@@ -11,28 +11,32 @@ function createBrowserWindow(options: Options): BackOptions {
 
   return new Proxy({ ...options, target: win }, {
     get(target, key: string, receiver) {
-      console.log(`getting ${key}!`)
       return Reflect.get(target, key, receiver)
     },
     set(target, key: string, value: any, receiver) {
       switch (key) {
-        case 'width':
-          win.setSize(value, win.getSize()[1])
+        case 'width': {
+          const [, height] = win.getSize()
+          win.setSize(value, height)
           break
-        case 'height':
-          win.setSize(win.getSize()[0], value)
+        }
+        case 'height': {
+          const [width] = win.getSize()
+          win.setSize(width, value)
           break
+        }
         case 'x':
-          win.setSize(win.getSize()[0], value)
+        case 'y': {
+          const [x, y] = win.getPosition()
+          win.setPosition(key === 'x' ? value : x, key === 'y' ? value : y)
           break
-        case 'y':
-          win.setSize(win.getSize()[0], value)
-          break
+        }
         case 'center':
-          win.setSize(win.getSize()[0], value)
+          if (value)
+            win.center()
           break
         case 'title':
-          win.setSize(win.getSize()[0], value)
+          win.setTitle(value)
           break
         case 'show':
           value ? win.show() : win.hide()
@@ -45,6 +49,9 @@ function createBrowserWindow(options: Options): BackOptions {
 }
 
 export const create = (store: WinStore<string>) => {
-  console.log('store: ', store)
-  return (options: Options) => createBrowserWindow(options)
+  return (options: Options): BackOptions => {
+    const back = createBrowserWindow(options)
+    store.setWin(options._name, back.target.id)
+    return back
+  }
 }

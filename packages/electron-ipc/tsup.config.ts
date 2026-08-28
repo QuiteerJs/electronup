@@ -10,7 +10,7 @@ export default defineConfig([{
   format: ['esm', 'cjs'],
   external: ['electron']
 }, {
-  name: 'electron-ipc',
+  name: 'electron-ipc-web',
   entry: ['event-enum/index.ts'],
   dts: true,
   outDir: 'web',
