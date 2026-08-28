@@ -1,7 +1,8 @@
 import { clipboard } from 'electron'
 
 export interface PreloadClipboard {
-  clear(): void
+  /** 清空剪贴板, type 仅 Linux 生效, 默认 'clipboard' */
+  clear(type?: 'clipboard' | 'selection'): void
   has(mimetype: string): Promise<boolean>
   read(): Promise<Electron.ClipboardItem[]>
   readText(): Promise<string>
@@ -10,7 +11,7 @@ export interface PreloadClipboard {
 }
 
 export const $clipboard: PreloadClipboard = {
-  clear: () => clipboard.clear(),
+  clear: (...args) => clipboard.clear(...args),
   has: (...args) => clipboard.has(...args),
   read: () => clipboard.read(),
   readText: () => clipboard.readText(),

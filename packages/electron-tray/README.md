@@ -84,7 +84,15 @@ trays.setState('main', 'sleep') // ❌ 类型报错
 | `title` | `getTitle()` | `setTitle()` |
 | `menu` | 当前 `Menu` 实例 | 传模板 / `Menu` / `null` 更新右键菜单 |
 
-其余属性与方法全部透传 `Tray`（方法已绑定 `this`），原始实例通过 `controller.target` 获取。
+其余属性与方法全部透传 `Tray`（方法已绑定 `this`），原始实例通过 `controller.target` 获取，`controller.raw` 是它的等价别名。
+
+句柄上另有三个补充方法：
+
+```ts
+tray.refreshMenu() // 按模板重建菜单, 返回新的 Menu
+tray.balloon({ title: '标题', content: '内容' }) // 仅 Windows, 返回是否弹出
+tray.destroy() // 销毁 + 从仓库摘除
+```
 
 ## 菜单
 
@@ -107,6 +115,21 @@ paused = true
 tray.refreshMenu() // 重新求值并 setContextMenu
 ```
 
+菜单也可以直接交给 [@quiteer/electron-menu](../menu) 管理，写 `menu` 即可换上：
+
+```ts
+import { menus } from '@quiteer/electron-menu'
+
+menus.create({
+  name: 'tray',
+  kind: 'context',
+  template: [{ id: 'quit', label: '退出', role: 'quit' }]
+})
+
+const tray = trays.create({ name: 'main', icon: 'tray.png' })
+tray.menu = menus.get('tray')!
+```
+
 ## 创建选项
 
 | 选项 | 类型 | 说明 |
@@ -116,6 +139,7 @@ tray.refreshMenu() // 重新求值并 setContextMenu
 | `initialState` | `string` | 初始状态，省略取第一个 key |
 | `tooltip` | `string` | 悬停提示 |
 | `title` | `string` | 图标旁文本（macOS） |
+| `titleOptions` | `TitleOptions` | `setTitle()` 的附加选项，如高亮色 |
 | `pressedIcon` | `TrayIconSource` | 按下态图标（macOS） |
 | `iconSize` | `Size` | 图标统一缩放尺寸 |
 | `templateIcon` | `boolean` | macOS 模板图模式 |
@@ -133,6 +157,8 @@ tray.refreshMenu() // 重新求值并 setContextMenu
 ```ts
 onClick(ctx, event, bounds, position) // click 带事件坐标
 onDoubleClick(ctx, event, bounds) // double-click / right-click / middle-click 无坐标
+onDropFiles(ctx, event, files) // 拖放文件, files 为路径数组（macOS）
+onBalloonClick(ctx) // 气泡类事件无附加参数
 ```
 
 `ctx` 含 `{ name, state, tray }`，其中 `tray` 是控制器自身，可直接改状态：

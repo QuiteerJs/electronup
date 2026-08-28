@@ -37,15 +37,11 @@ export interface PreloadWebFrame {
    */
   insertText(text: string): void
   /**
-   * 描述  在页面中执行 code。
-   * @date 2022-11-11
-   * @param {any} code:string
-   * @param {any} userGesture?:boolean
-   * @param {any} callback?:(result:any
-   * @param {any} error:Error
-   * @returns {any}
+   * 在页面中执行 code
+   *
+   * 注意: callback 无法跨越 contextBridge 传递, 请统一使用返回的 Promise
    */
-  executeJavaScript(code: string, userGesture?: boolean, callback?: (result: any, error: Error) => void): Promise<any>
+  executeJavaScript(code: string, userGesture?: boolean): Promise<any>
   executeJavaScriptInIsolatedWorld(...args: Parameters<WebFrame['executeJavaScriptInIsolatedWorld']>): Promise<any>
   setIsolatedWorldInfo(...args: Parameters<WebFrame['setIsolatedWorldInfo']>): void
   getResourceUsage(): ReturnType<WebFrame['getResourceUsage']>
@@ -64,8 +60,8 @@ export const $webFrame: PreloadWebFrame = {
   getZoomFactor: () => webFrame.getZoomFactor(),
   setZoomLevel: level => webFrame.setZoomLevel(level),
   getZoomLevel: () => webFrame.getZoomLevel(),
-  insertText: level => webFrame.insertText(level),
-  executeJavaScript: level => webFrame.executeJavaScript(level),
+  insertText: text => webFrame.insertText(text),
+  executeJavaScript: (code, userGesture) => webFrame.executeJavaScript(code, userGesture),
   executeJavaScriptInIsolatedWorld: (...args) => webFrame.executeJavaScriptInIsolatedWorld(...args),
   setIsolatedWorldInfo: (...args) => webFrame.setIsolatedWorldInfo(...args),
   getResourceUsage: () => webFrame.getResourceUsage(),

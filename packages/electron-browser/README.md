@@ -54,7 +54,15 @@ windows.get('setting') // ❌ 类型报错
 | `visible` | `isVisible()` | `show()` / `hide()` |
 | `centered` | — | 置 `true` 触发 `center()` |
 
-其余属性与方法全部透传 `BrowserWindow`（方法已绑定 `this`），原始实例通过 `controller.target` 获取。
+其余属性与方法全部透传 `BrowserWindow`（方法已绑定 `this`），原始实例通过 `controller.target` 获取，`controller.raw` 是它的等价别名。
+
+```ts
+const main = windows.getController('main')!
+
+main.webContents.send('ping') // 透传方法, 无需关心 this
+main.target // 原生 BrowserWindow
+main.name // 'main'
+```
 
 ## 创建选项
 
@@ -67,6 +75,14 @@ windows.get('setting') // ❌ 类型报错
 | `openDevTools` | `boolean` | 创建后立即打开开发者工具 |
 | `showOnReady` | `boolean` | 未显式 `show: true` 时，在 `ready-to-show` 后自动显示，默认 `true` |
 | `conflict` | `'focus' \| 'recreate' \| 'error'` | 同名窗口已存在时的策略，默认 `focus` |
+
+| 策略 | 行为 |
+| --- | --- |
+| `focus`（默认） | 沿用旧窗口并聚焦，直接返回原句柄，不会创建新窗口 |
+| `recreate` | 关闭旧窗口后重建 |
+| `error` | 直接抛错，适合「只允许单例」的窗口 |
+
+`register()` 同名注册时只覆盖映射，不会关闭旧窗口——外部创建的窗口生命周期由你自己负责。
 
 ## API
 
@@ -92,9 +108,22 @@ windows.get('setting') // ❌ 类型报错
 
 ```ts
 store.fromId(id) // 按窗口 id 反查句柄
-store.fromWebContents(webContents) // ipc 回调里定位来源窗口
-store.getName(win) // 按实例反查名称
+store.fromWebContents(webContents) // 按 webContents（或其 id）反查
+store.getName(win) // 按实例（或 id）反查名称
 store.entries() // [name, controller][]
 store.remove(name) // 摘除注册（不关闭窗口）
 store.clear() // 清空注册表
+store.closeAll() // 关闭全部（等待 closed 后清空）
+```
+
+`fromWebContents()` 用于在 ipc 回调里定位来源窗口，配合自己定义的业务通道很顺手：
+
+```ts
+import { ipcMain } from 'electron'
+import { windows } from '@quiteer/electron-browser'
+
+ipcMain.on('custom', (event) => {
+  const controller = windows.store.fromWebContents(event.sender)
+  controller?.target.webContents.send('custom:reply', controller.name)
+})
 ```

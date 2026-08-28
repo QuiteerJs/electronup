@@ -171,7 +171,18 @@ menus.create({ name: 'typo', template: [] }) // ❌ 类型报错
 菜单项句柄，读写属性直接作用于原生 `MenuItem`：
 `label` / `sublabel` / `enabled` / `visible` / `checked` / `accelerator` / `icon` / `toolTip` / `click`。
 
-外加 `target`（原生菜单项）、`path`（定位路径）、`update(patch)`（批量更新）。
+外加 `target`（原生菜单项，`raw` 为等价别名）、`path`（定位路径）、`update(patch)`（批量更新）。
+
+```ts
+const item = menus.item('app', 'file.new')!
+
+item.label = '新建文档'
+item.enabled = !busy
+item.update({ label: '新建', checked: true }) // 批量写
+item.target // 原生 MenuItem
+```
+
+`MenuManager` 上的 `update()` / `refresh()` / `apply()` / `popup()` / `closePopup()` / `destroy()` 统一返回 `boolean`，表示目标菜单是否存在。
 
 ### `MenuStore`
 
