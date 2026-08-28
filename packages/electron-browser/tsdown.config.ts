@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   name: 'electron-browser',
@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   clean: true,
   format: ['esm', 'cjs'],
-  external: ['electron']
+  deps: { neverBundle: ['electron'] }
 })

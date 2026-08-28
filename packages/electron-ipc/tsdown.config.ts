@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig([{
   name: 'electron-ipc',
@@ -8,7 +8,7 @@ export default defineConfig([{
   clean: true,
   minify: true,
   format: ['esm', 'cjs'],
-  external: ['electron']
+  deps: { neverBundle: ['electron'] }
 }, {
   name: 'electron-ipc-web',
   entry: ['event-enum/index.ts'],
@@ -18,5 +18,5 @@ export default defineConfig([{
   clean: true,
   minify: true,
   format: ['esm', 'cjs'],
-  external: ['electron']
+  deps: { neverBundle: ['electron'] }
 }])

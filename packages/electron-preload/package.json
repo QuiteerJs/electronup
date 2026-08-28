@@ -1,5 +1,6 @@
 {
   "name": "@quiteer/electron-preload",
+  "type": "module",
   "version": "1.0.0",
   "description": "基于electron , 提供预加载功能脚本",
   "author": "quiteer",
@@ -7,19 +8,19 @@
   "keywords": [
     "electron"
   ],
-  "main": "index.js",
-  "types": "./dist/preload.d.ts",
+  "main": "index.cjs",
+  "types": "./dist/preload.d.cts",
   "files": [
     "dist",
-    "index.js"
+    "index.cjs"
   ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup",
+    "dev": "tsdown --watch",
+    "build": "tsdown",
     "update-version": "bumpp package.json"
   }
 }
