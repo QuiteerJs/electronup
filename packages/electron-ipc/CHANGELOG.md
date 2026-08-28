@@ -6,7 +6,7 @@
 
 - **移除 CommonJS 产物**。包改为纯 ESM：`"type": "module"`，`exports` 只保留 `import` 条件。
   仍使用 CJS 主进程的项目，需要二选一：把主进程改为 ESM，或把本包交给打包器（electron-builder / vite / esbuild）一起编译。
-  直接 `require('@quiteer/electron-ipc')` 会抛 `ERR_REQUIRE_ESM`。
+  直接 `require('@quiteer/electron-ipc')` 会抛 `ERR_PACKAGE_PATH_NOT_EXPORTED`（`exports` 里没有 `require` 条件）。
 - **产物路径变化**：`dist/index.mjs`、`web/index.mjs` 不再产出，统一为 `dist/index.js` 与 `web/index.js`，类型文件为 `.d.ts`。
 
 ### 修复

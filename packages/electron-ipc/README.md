@@ -140,4 +140,4 @@ ipcMain.on('custom', (event) => {
 - 只需在主进程 `app.whenReady()` 之后 `init()`；重复 `init()` 会叠加 `ipcMain.on` 监听，建议与 `destroy()` 成对使用。
 - 窗口类操作只作用于发起调用的窗口，渲染进程无法指定其他窗口——这是刻意的约束。
 - 通道常量统一走 `EventKeys`，不要手写字符串，避免拼写漂移。
-- 包为 ESM-only，主进程需使用 ESM 或交由打包器处理。
+- 包为 ESM-only：主进程需使用 ESM，或交由打包器（electron-builder / vite / esbuild）一起编译。CJS 主进程直接 `require()` 会抛 `ERR_PACKAGE_PATH_NOT_EXPORTED`。
