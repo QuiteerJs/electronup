@@ -12,14 +12,14 @@ async function configPath(filePath: string | undefined) {
   const { root } = store
 
   if (filePath)
-    return join(root, filePath)
+    {return join(root, filePath)}
 
   const configList = ['ts', 'mjs', 'cjs', 'js'].map(suffix => `${join(root, 'electronup.config')}.${suffix}`)
 
   const index = (await Promise.all(configList.map(path => pathExists(path)))).findIndex(flag => flag)
 
   if (index > -1)
-    return configList[index]
+    {return configList[index]}
 
   throw new Error(NOT_FOUND)
 }
@@ -33,6 +33,6 @@ export async function getConfig(filePath: string | undefined): Promise<Electronu
   }
   catch (error) {
     console.error('error :>> ', error)
-    throw new Error(PARSING_FAILED)
+    throw new Error(PARSING_FAILED, { cause: error })
   }
 }

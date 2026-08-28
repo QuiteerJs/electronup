@@ -3,7 +3,8 @@ import process from 'node:process'
 import { Arch } from 'electron-builder'
 
 type Command = 'build' | 'serve'
-type Mode = 'development' | 'production' | 'test' | 'staging' | string
+/** 常用环境模式 , 其余自定义模式同为合法值 */
+type Mode = 'development' | 'production' | 'test' | 'staging' | (string & {})
 
 class Store {
   static instance: Store
@@ -23,7 +24,7 @@ class Store {
 
   static getInstance() {
     if (this.instance)
-      return this.instance
+      {return this.instance}
     return (this.instance = new Store())
   }
 

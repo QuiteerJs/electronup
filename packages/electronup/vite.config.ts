@@ -1,6 +1,7 @@
-import { defineConfig } from 'tsdown'
+import { defineConfig } from 'vite-plus';
 
-export default defineConfig([
+export default defineConfig({
+  pack: [
   {
     entry: ['src/index.ts'],
     outDir: 'dist/client',
@@ -16,4 +17,5 @@ export default defineConfig([
     minify: false,
     clean: true,
   },
-])
+],
+});

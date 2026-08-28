@@ -50,7 +50,7 @@ cli
     store.port = (port || 8090)
     store.minify = !!minify
 
-    watch(option)
+    await watch(option)
   })
 
 cli
@@ -88,7 +88,7 @@ cli
     store.mac = mac
     store.linux = linux
 
-    build(configOption)
+    await build(configOption)
   })
 
 cli.help()
@@ -97,8 +97,8 @@ cli.parse()
 
 function emptyDir(dir: string) {
   if (!fs.existsSync(dir))
-    return
+    {return}
 
   for (const file of fs.readdirSync(dir))
-    fs.rmSync(resolve(dir, file), { recursive: true, force: true })
+    {fs.rmSync(resolve(dir, file), { recursive: true, force: true })}
 }

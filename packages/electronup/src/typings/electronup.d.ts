@@ -1,5 +1,5 @@
 import type { Configuration } from 'electron-builder'
-import type { UserConfig as Options } from 'tsdown'
+import type { UserConfig as Options } from 'vite-plus/pack'
 import type { UserConfig } from 'vite'
 
 export interface ViteConfig extends Omit<UserConfig, 'publicDir' | 'ssr'> { }

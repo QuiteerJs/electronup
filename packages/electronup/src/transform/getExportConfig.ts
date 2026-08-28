@@ -16,7 +16,7 @@ async function exportElectronupConfig(config: ElectronupConfigExport): Promise<E
   }
 
   if (typeStr === 'object')
-    return config as ElectronupConfig
+    {return config as ElectronupConfig}
 
   throw new Error('electronup 配置错误,解析失败！')
 }

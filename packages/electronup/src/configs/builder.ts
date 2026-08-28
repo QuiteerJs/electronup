@@ -1,5 +1,6 @@
 import type { CliOptions } from 'electron-builder'
 import type { BuilderConfig, ElectronupConfig } from '../typings/electronup'
+import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import fsExtra from 'fs-extra'
 import { DefaultDirs, store } from '../utils'
@@ -23,7 +24,12 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
   const { readJSON } = fsExtra
   const packages = await readJSON(resolve(store.root, 'package.json'))
 
+  // pnpm 严格隔离下用户项目内解析不到 electron 模块 , 默认取 electronup 自身依赖的 electron 版本
+  const { electronVersion: userElectronVersion, ...restConfig } = config as BuilderConfig & { electronVersion?: string }
+  const electronVersion = userElectronVersion || getDependencyElectronVersion()
+
   const defaultConfig: CliOptions['config'] = {
+    electronVersion,
     asar: store.asar,
     appId: 'org.quiteer.electronup',
     productName: packages.name,
@@ -45,10 +51,20 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
     files: [`${allConfig.resourceDir || DefaultDirs.resourceDir}/**/*`],
     extraFiles: [allConfig.libDir || DefaultDirs.libDir],
     directories: {
-      output: allConfig.outDir || config.directories?.output || DefaultDirs.outDir,
+      output: allConfig.outDir || restConfig.directories?.output || DefaultDirs.outDir,
     },
-    ...config,
+    ...restConfig,
   }
 
   return { targets: store.targets, config: defaultConfig }
+}
+
+function getDependencyElectronVersion(): string | undefined {
+  try {
+    const require = createRequire(import.meta.url)
+    return (require('electron/package.json') as { version: string }).version
+  }
+  catch {
+    return undefined
+  }
 }

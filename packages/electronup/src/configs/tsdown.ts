@@ -1,5 +1,5 @@
 import type { ChildProcessWithoutNullStreams } from 'node:child_process'
-import type { UserConfig } from 'tsdown'
+import type { UserConfig } from 'vite-plus/pack'
 import type { ElectronupConfig, TsdownConfig } from '../typings/electronup'
 import { spawn } from 'node:child_process'
 import { resolve } from 'node:path'
@@ -29,8 +29,7 @@ const { parsed: defaultEnv } = getEnv({ path: defaultEnvPath })
 function getModeDev() {
   const path = `${defaultEnvPath}.${store.mode}`
   const { parsed, error } = getEnv({ path })
-  if (error)
-    throw new Error(`未能加载 .env.${store.mode} 下的环境变量,检查文件是否存在！`)
+  if (error) { throw new Error(`未能加载 .env.${store.mode} 下的环境变量,检查文件是否存在！`) }
 
   return {
     ...defaultEnv,
@@ -82,8 +81,7 @@ export function getTsdownConfig(config: TsdownConfig, allConfig: ElectronupConfi
     clean: false,
     env: injectEnv(),
     async onSuccess() {
-      if (isServe)
-        return startElectron(resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir, 'electron.mjs'))
+      if (isServe) { return startElectron(resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir, 'electron.mjs')) }
     },
   }
 
@@ -101,7 +99,9 @@ let manualRestart = false
 function startElectron(mainPath: string) {
   if (electronProcess) {
     manualRestart = true
-    electronProcess.pid && process.kill(electronProcess.pid)
+    if (electronProcess?.pid) {
+      process.kill(electronProcess.pid)
+    }
     electronProcess = null
 
     setTimeout(() => {
@@ -117,22 +117,22 @@ function startElectron(mainPath: string) {
   electronProcess.stderr.on('data', removeJunk)
 
   electronProcess.on('close', () => {
-    manualRestart || process.exit()
+    if (!manualRestart) {
+      process.exit()
+    }
   })
 }
 
 function removeJunk(chunk: string) {
-  if (/\d+-\d+-\d+ \d+:\d+:\d+\.\d+ Electron(?: Helper)?\[\d+:\d+\] /.test(chunk))
-    return false
-  if (/\[\d+:\d+\/|\d+\.\d+:ERROR:CONSOLE\(\d+\)\]/.test(chunk))
-    return false
-  if (/ALSA lib [a-z]+\.c:\d+:\([a-z_]+\)/.test(chunk))
-    return false
+  if (/\d+-\d+-\d+ \d+:\d+:\d+\.\d+ Electron(?: Helper)?\[\d+:\d+\] /.test(chunk)) { return false }
+  if (/\[\d+:\d+\/|\d+\.\d+:ERROR:CONSOLE\(\d+\)\]/.test(chunk)) { return false }
+  if (/ALSA lib [a-z]+\.c:\d+:\([a-z_]+\)/.test(chunk)) { return false }
 
   const data = chunk.toString().split(/\r?\n/)
   let log = ''
   data.forEach((line) => {
     log += `  ${line}\n`
   })
+  // oxlint-disable-next-line no-console
   console.info(log)
 }

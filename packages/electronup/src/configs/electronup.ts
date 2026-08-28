@@ -1,5 +1,5 @@
 import type { CliOptions } from 'electron-builder'
-import type { UserConfig as TsdownUserConfig } from 'tsdown'
+import type { UserConfig as TsdownUserConfig } from 'vite-plus/pack'
 import type { UserConfig } from 'vite'
 
 import type { ElectronupConfig } from '../typings/electronup'
@@ -28,7 +28,9 @@ export async function getElectronupConfig(config: ElectronupConfig) {
     initConfig.builder = builder
   }
 
-  preload && (initConfig.preload = preload)
+  if (preload) {
+    initConfig.preload = preload
+  }
 
   return { ...dirConfig, ...initConfig }
 }

@@ -15,8 +15,8 @@ export async function watch(options: ElectronupConfig) {
 
   const viteDevServer = await createServer({ configFile: false, ...initConfig.vite })
 
-  viteDevServer.listen(p).then(viteDevServer.printUrls)
+  void viteDevServer.listen(p).then(() => viteDevServer.printUrls())
 
-  const { build } = await import('tsdown')
-  build(initConfig.tsdown)
+  const { build } = await import('vite-plus/pack')
+  await build(initConfig.tsdown)
 }

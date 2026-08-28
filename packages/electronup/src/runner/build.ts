@@ -34,7 +34,7 @@ const platformSelect: PlatformSelect[] = [
     platform: 'win32',
     createTarget: (archs: Arch[]) => {
       if (archs.length)
-        return Platform.WINDOWS.createTarget(store.dir, ...archs)
+        {return Platform.WINDOWS.createTarget(store.dir, ...archs)}
       return Platform.WINDOWS.createTarget(store.dir, Arch.ia32, Arch.x64)
     },
     color: pc.blue,
@@ -56,7 +56,7 @@ const platformSelect: PlatformSelect[] = [
     platform: 'darwin',
     createTarget: (archs: Arch[]) => {
       if (archs.length)
-        return Platform.MAC.createTarget(store.dir, store.currentArch)
+        {return Platform.MAC.createTarget(store.dir, store.currentArch)}
       return Platform.MAC.createTarget(store.dir, ...archs)
     },
     disabled: !store.isMac,
@@ -84,7 +84,7 @@ const platformSelect: PlatformSelect[] = [
     disabled: !(store.isMac || store.isLinux),
     createTarget: (archs: Arch[]) => {
       if (archs.length)
-        return Platform.LINUX.createTarget(store.dir, store.currentArch)
+        {return Platform.LINUX.createTarget(store.dir, store.currentArch)}
       return Platform.LINUX.createTarget(store.dir, ...archs)
     },
     color: pc.yellow,
@@ -140,7 +140,7 @@ export async function build(options: ElectronupConfig) {
         throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
-      const selectedPlatform = platform as PlatformSelect
+      const selectedPlatform = platform
       const arch = await prompts.multiselect({
         message: '请选择打包架构～',
         options: selectedPlatform.archs?.map(item => ({
@@ -156,7 +156,7 @@ export async function build(options: ElectronupConfig) {
 
       store.minify = isMinify
       store.dir = isPackage ? null : 'dir'
-      store.targets = selectedPlatform.createTarget(arch as Arch[])
+      store.targets = selectedPlatform.createTarget(arch)
     }
     catch (cancelled: any) {
       console.error('err: ', cancelled.message)
@@ -166,45 +166,45 @@ export async function build(options: ElectronupConfig) {
   else {
     if (store.isWin) {
       if (store.win === 'ia32')
-        store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)
+        {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)}
 
       else if (store.win === 'x64')
-        store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)
+        {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)}
 
       else
-        store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)
+        {store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)}
     }
 
     if (store.isMac) {
       if (store.win) {
         if (store.win === 'ia32')
-          store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)
+          {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)}
 
         else if (store.win === 'x64')
-          store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)
+          {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)}
 
         else
-          store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)
+          {store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)}
       }
       else if (store.mac) {
         if (store.mac === 'x64')
-          store.targets = Platform.MAC.createTarget(store.dir, Arch.x64)
+          {store.targets = Platform.MAC.createTarget(store.dir, Arch.x64)}
 
         else if (store.mac === 'arm64')
-          store.targets = Platform.MAC.createTarget(store.dir, Arch.arm64)
+          {store.targets = Platform.MAC.createTarget(store.dir, Arch.arm64)}
 
         else if (store.mac === 'universal')
-          store.targets = Platform.MAC.createTarget(store.dir, Arch.universal)
+          {store.targets = Platform.MAC.createTarget(store.dir, Arch.universal)}
 
         else
-          store.targets = Platform.MAC.createTarget(store.dir, store.currentArch)
+          {store.targets = Platform.MAC.createTarget(store.dir, store.currentArch)}
       }
       else if (store.linux) {
         if (store.linux === true)
-          store.targets = Platform.LINUX.createTarget(store.dir)
+          {store.targets = Platform.LINUX.createTarget(store.dir)}
 
         else
-          store.targets = Platform.LINUX.createTarget(store.dir, store.currentArch)
+          {store.targets = Platform.LINUX.createTarget(store.dir, store.currentArch)}
       }
 
       else {
@@ -220,8 +220,8 @@ export async function build(options: ElectronupConfig) {
   const initConfig = await electronupConfig(options)
 
   await viteBuild(initConfig.vite)
-  const { build: tsBuild } = await import('tsdown')
-  await tsBuild(initConfig.tsdown)
+  const { build: packBuild } = await import('vite-plus/pack')
+  await packBuild(initConfig.tsdown)
 
   await builder(initConfig.builder)
 
