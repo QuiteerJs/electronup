@@ -10,29 +10,16 @@
   ],
   "exports": {
     ".": {
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      },
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      }
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./web": {
-      "require": {
-        "types": "./web/index.d.cts",
-        "default": "./web/index.cjs"
-      },
-      "import": {
-        "types": "./web/index.d.mts",
-        "default": "./web/index.mjs"
-      }
+      "types": "./web/index.d.ts",
+      "import": "./web/index.js"
     }
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.cts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist",
     "web"

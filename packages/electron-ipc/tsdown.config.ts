@@ -7,7 +7,8 @@ export default defineConfig([{
   splitting: false,
   clean: true,
   minify: true,
-  format: ['esm', 'cjs'],
+  format: 'esm',
+  fixedExtension: false,
   deps: { neverBundle: ['electron'] }
 }, {
   name: 'electron-ipc-web',
@@ -17,6 +18,7 @@ export default defineConfig([{
   splitting: false,
   clean: true,
   minify: true,
-  format: ['esm', 'cjs'],
+  format: 'esm',
+  fixedExtension: false,
   deps: { neverBundle: ['electron'] }
 }])

@@ -6,6 +6,7 @@ export default defineConfig({
   dts: true,
   splitting: false,
   clean: true,
-  format: ['esm', 'cjs'],
+  format: 'esm',
+  fixedExtension: false,
   deps: { neverBundle: ['electron'] }
 })
