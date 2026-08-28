@@ -116,6 +116,8 @@ function introduceSidebar() {
         { text: 'electron-ipc', link: '/plugins/electron-ipc' },
         { text: 'electron-preload', link: '/plugins/electron-preload' },
         { text: 'electron-browser', link: '/plugins/electron-browser' },
+        { text: 'electron-menu', link: '/plugins/electron-menu' },
+        { text: 'electron-tray', link: '/plugins/electron-tray' },
       ],
     },
     {
