@@ -2,17 +2,29 @@
   "name": "@quiteer/electron-preload",
   "type": "module",
   "version": "1.0.0",
-  "description": "基于electron , 提供预加载功能脚本",
+  "description": "基于electron , 提供预加载功能脚本, 暴露 $ipc / $clipboard / $webFrame 三组收敛 API",
   "author": "quiteer",
   "license": "MIT",
+  "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electron-modules.git",
+    "directory": "packages/preload"
+  },
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+  },
   "keywords": [
-    "electron"
+    "electron",
+    "preload"
   ],
   "main": "index.cjs",
-  "types": "./dist/preload.d.cts",
+  "types": "./index.d.cts",
   "files": [
+    "CHANGELOG.md",
     "dist",
-    "index.cjs"
+    "index.cjs",
+    "index.d.cts"
   ],
   "publishConfig": {
     "access": "public",

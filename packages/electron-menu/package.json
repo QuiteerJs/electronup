@@ -5,6 +5,15 @@
   "description": "基于electron , 提供菜单创建与菜单项统一管理",
   "author": "quiteer",
   "license": "MIT",
+  "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electron-modules.git",
+    "directory": "packages/menu"
+  },
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+  },
   "keywords": [
     "electron",
     "menu"
@@ -18,6 +27,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
+    "CHANGELOG.md",
     "dist"
   ],
   "publishConfig": {

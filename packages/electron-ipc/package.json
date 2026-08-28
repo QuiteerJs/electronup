@@ -1,12 +1,22 @@
 {
   "name": "@quiteer/electron-ipc",
   "type": "module",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "基于electron , 提供了一些 独立无副作用的 ipc 事件相关操作",
   "author": "quiteer",
   "license": "MIT",
+  "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/ipc",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electron-modules.git",
+    "directory": "packages/ipc"
+  },
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+  },
   "keywords": [
-    "electron"
+    "electron",
+    "ipc"
   ],
   "exports": {
     ".": {
@@ -21,6 +31,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
+    "CHANGELOG.md",
     "dist",
     "web"
   ],
