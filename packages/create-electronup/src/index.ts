@@ -92,7 +92,7 @@ async function init() {
         throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
-      projectName = projectNameResult as string
+      projectName = projectNameResult
       targetDir = formatTargetDir(projectName) || defaultTargetDir
     }
 
@@ -107,7 +107,7 @@ async function init() {
         throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
-      overwrite = overwriteResult as boolean
+      overwrite = overwriteResult
 
       if (!overwrite) {
         throw new Error(`${pc.red('✖')} Operation cancelled`)
@@ -131,7 +131,7 @@ async function init() {
         throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
-      framework = frameworkResult as Framework
+      framework = frameworkResult
     }
     else {
       framework = FRAMEWORKS.find(f => f.name === argTemplate) || null
@@ -152,7 +152,7 @@ async function init() {
         throw new Error(`${pc.red('✖')} Operation cancelled`)
       }
 
-      variant = variantResult as string
+      variant = variantResult
     }
 
     // 构建结果对象
@@ -164,7 +164,7 @@ async function init() {
     }
   }
   catch (cancelled: any) {
-    // eslint-disable-next-line no-console
+    // oxlint-disable-next-line no-console
     console.log(cancelled.message)
     return
   }
@@ -178,11 +178,11 @@ async function init() {
   // 存在目录
   // 清空目录
   if (overwrite)
-    emptyDir(root)
+    {emptyDir(root)}
   // 不存在
   // 创建目录
   else if (!fs.existsSync(root))
-    fs.mkdirSync(root, { recursive: true })
+    {fs.mkdirSync(root, { recursive: true })}
 
   // determine template
   const template: string = variant || framework?.name || argTemplate || ''
@@ -196,7 +196,7 @@ async function init() {
   await emitter.clone(root)
   spinner.stop('模板拉取完成')
 
-  // eslint-disable-next-line no-console
+  // oxlint-disable-next-line no-console
   console.log('\n完成。请执行：\n')
 
   // 比对路径
@@ -206,15 +206,15 @@ async function init() {
   if (root !== cwd) {
     const cdCommand = `\ncd ${cdProjectName.includes(' ') ? `"${cdProjectName}"` : cdProjectName}\n`
 
-    // eslint-disable-next-line no-console
+    // oxlint-disable-next-line no-console
     console.log(pc.green(cdCommand))
   }
 
   const inStallCommand = pkgManager === 'yarn' ? 'yarn' : `${pkgManager} install\n`
-  // eslint-disable-next-line no-console
+  // oxlint-disable-next-line no-console
   console.log(pc.yellow(inStallCommand))
   const devConmand = pkgManager === 'yarn' ? 'yarn dev' : `${pkgManager} run dev`
-  // eslint-disable-next-line no-console
+  // oxlint-disable-next-line no-console
   console.log(pc.cyan(devConmand))
 }
 
@@ -229,11 +229,11 @@ function isEmpty(path: string) {
 
 function emptyDir(dir: string) {
   if (!fs.existsSync(dir))
-    return
+    {return}
 
   for (const file of fs.readdirSync(dir)) {
     if (file === '.git')
-      continue
+      {continue}
 
     fs.rmSync(path.resolve(dir, file), { recursive: true, force: true })
   }
@@ -241,7 +241,7 @@ function emptyDir(dir: string) {
 
 function pkgFromUserAgent(userAgent: string | undefined) {
   if (!userAgent)
-    return undefined
+    {return undefined}
   const pkgSpec = userAgent.split(' ')[0]
   const pkgSpecArr = pkgSpec.split('/')
   return {

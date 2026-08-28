@@ -16,3 +16,4 @@ template/*
 !template/package.json
 
 /docs/.vitepress/cache
+.workbuddy/
