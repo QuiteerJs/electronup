@@ -1,5 +1,12 @@
 # @quiteer/electron-ipc
 
+## 3.0.1 (2026-08-29)
+
+### 文档
+
+- 修正 CJS `require()` 的错误码描述：原写 `ERR_REQUIRE_ESM`，实测为 `ERR_PACKAGE_PATH_NOT_EXPORTED`
+  （`exports` 未声明 `require` 条件）。CHANGELOG 与 README 两处同步修正。
+
 ## 3.0.0 (2026-08-29)
 
 ### 破坏性变更

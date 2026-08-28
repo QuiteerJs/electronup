@@ -1,7 +1,7 @@
 {
   "name": "@quiteer/electron-menu",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "基于electron , 提供菜单创建与菜单项统一管理",
   "author": "quiteer",
   "license": "MIT",

@@ -1,5 +1,14 @@
 # @quiteer/electron-menu
 
+## 0.0.2 (2026-08-29)
+
+### 文档
+
+- 补全 `MenuStore` 方法列表：`size` / `names()` / `list()` / `entries()` / `get()` /
+  `getController()` / `find()` / `has()` / `remove()` / `clear()` / `destroyAll()`。
+- 补充摘除语义：与窗口、托盘不同，`Menu` 没有销毁概念，
+  `remove()` / `clear()` / `destroyAll()` 都只摘除注册，不会改动菜单本身。
+
 ## 0.0.1 (2026-08-29)
 
 首次发布。
