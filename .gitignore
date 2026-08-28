@@ -16,4 +16,6 @@ template/*
 !template/package.json
 
 /docs/.vitepress/cache
+/docs/.vitepress/.temp
+/docs/.vitepress/dist
 .workbuddy/
