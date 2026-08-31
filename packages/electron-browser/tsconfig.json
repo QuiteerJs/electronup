@@ -1,4 +1,4 @@
 {
-  "extends": "@quiteer/ts-config/tsconfig.node.json",
+  "extends": "../../tsconfig.base.json",
   "include": ["src"]
 }

@@ -1,4 +1,5 @@
 {
-  "extends": "@quiteer/ts-config/tsconfig.node.json",
-  "include": ["*.ts", "*.d.ts", "enums", "ipcBus"]
+  "extends": "../../tsconfig.base.json",
+  "include": ["*.ts", "*.d.ts", "enums", "ipcBus"],
+  "exclude": ["vite.config.ts"]
 }
