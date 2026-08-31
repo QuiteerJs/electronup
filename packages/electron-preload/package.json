@@ -31,8 +31,11 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "dev": "tsdown --watch",
-    "build": "tsdown",
+    "dev": "vp pack --watch",
+    "build": "vp pack",
     "update-version": "bumpp package.json"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
   }
 }

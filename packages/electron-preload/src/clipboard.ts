@@ -11,7 +11,7 @@ export interface PreloadClipboard {
 }
 
 export const $clipboard: PreloadClipboard = {
-  clear: (...args) => clipboard.clear(...args),
+  clear: () => clipboard.clear(),
   has: (...args) => clipboard.has(...args),
   read: () => clipboard.read(),
   readText: () => clipboard.readText(),
