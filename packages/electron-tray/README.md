@@ -115,7 +115,7 @@ paused = true
 tray.refreshMenu() // 重新求值并 setContextMenu
 ```
 
-菜单也可以直接交给 [@quiteer/electron-menu](../menu) 管理，写 `menu` 即可换上：
+菜单也可以直接交给 [@quiteer/electron-menu](https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu) 管理，写 `menu` 即可换上：
 
 ```ts
 import { menus } from '@quiteer/electron-menu'

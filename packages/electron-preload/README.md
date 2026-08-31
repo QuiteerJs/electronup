@@ -101,7 +101,7 @@ interface Window {
 }
 ```
 
-配合 [@quiteer/electron-ipc](../ipc) 使用时，把它的通道类型一起叠上：
+配合 [@quiteer/electron-ipc](https://github.com/QuiteerJs/electron-modules/tree/main/packages/ipc) 使用时，把它的通道类型一起叠上：
 
 ```ts
 interface Window {
