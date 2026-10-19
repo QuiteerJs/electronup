@@ -10,6 +10,7 @@ import { build as viteBuild } from 'vite'
 import { stringify } from 'yaml'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
+import { resolveBuildTargets } from './targets'
 
 type ColorFunc = (str: string | number) => string
 interface PlatformSelect {
@@ -56,8 +57,8 @@ const platformSelect: PlatformSelect[] = [
     platform: 'darwin',
     createTarget: (archs: Arch[]) => {
       if (archs.length)
-        {return Platform.MAC.createTarget(store.dir, store.currentArch)}
-      return Platform.MAC.createTarget(store.dir, ...archs)
+        {return Platform.MAC.createTarget(store.dir, ...archs)}
+      return Platform.MAC.createTarget(store.dir, store.currentArch)
     },
     disabled: !store.isMac,
     color: pc.green,
@@ -84,8 +85,8 @@ const platformSelect: PlatformSelect[] = [
     disabled: !(store.isMac || store.isLinux),
     createTarget: (archs: Arch[]) => {
       if (archs.length)
-        {return Platform.LINUX.createTarget(store.dir, store.currentArch)}
-      return Platform.LINUX.createTarget(store.dir, ...archs)
+        {return Platform.LINUX.createTarget(store.dir, ...archs)}
+      return Platform.LINUX.createTarget(store.dir, store.currentArch)
     },
     color: pc.yellow,
     archs: [{
@@ -164,56 +165,17 @@ export async function build(options: ElectronupConfig) {
     }
   }
   else {
-    if (store.isWin) {
-      if (store.win === 'ia32')
-        {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)}
-
-      else if (store.win === 'x64')
-        {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)}
-
-      else
-        {store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)}
+    try {
+      store.targets = resolveBuildTargets({
+        win: store.win,
+        mac: store.mac,
+        linux: store.linux,
+        dir: store.dir,
+      })
     }
-
-    if (store.isMac) {
-      if (store.win) {
-        if (store.win === 'ia32')
-          {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.ia32)}
-
-        else if (store.win === 'x64')
-          {store.targets = Platform.WINDOWS.createTarget(store.dir, Arch.x64)}
-
-        else
-          {store.targets = Platform.WINDOWS.createTarget(store.dir, store.currentArch)}
-      }
-      else if (store.mac) {
-        if (store.mac === 'x64')
-          {store.targets = Platform.MAC.createTarget(store.dir, Arch.x64)}
-
-        else if (store.mac === 'arm64')
-          {store.targets = Platform.MAC.createTarget(store.dir, Arch.arm64)}
-
-        else if (store.mac === 'universal')
-          {store.targets = Platform.MAC.createTarget(store.dir, Arch.universal)}
-
-        else
-          {store.targets = Platform.MAC.createTarget(store.dir, store.currentArch)}
-      }
-      else if (store.linux) {
-        if (store.linux === true)
-          {store.targets = Platform.LINUX.createTarget(store.dir)}
-
-        else
-          {store.targets = Platform.LINUX.createTarget(store.dir, store.currentArch)}
-      }
-
-      else {
-        store.targets = Platform.MAC.createTarget(store.dir, store.currentArch)
-      }
-    }
-
-    else if (store.isLinux) {
-      store.targets = Platform.LINUX.createTarget(store.dir, Arch.armv7l)
+    catch (error: any) {
+      console.error('err: ', error.message)
+      process.exit(1)
     }
   }
 
