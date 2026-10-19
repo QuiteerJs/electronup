@@ -14,6 +14,14 @@ export interface BuilderConfig extends Configuration { }
 export interface ElectronupConfig {
   viteConfig?: ViteConfig
   tsdownConfig?: TsdownConfig
+
+  /**
+   * preload 脚本构建配置 ( tsdown ) , 可传单个配置或配置数组
+   *
+   * 预置项 : 默认 cjs 格式 ( Electron preload 要求 CommonJS ) ,
+   * 输出到 resourceDir 与主进程同目录 , 注入与主进程一致的环境变量 ,
+   * external 默认包含 electron
+   */
   preload?: Options | Options[]
   builderConfig: BuilderConfig
 

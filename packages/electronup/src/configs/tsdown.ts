@@ -41,7 +41,7 @@ function getModeDev() {
  * Description 插入环境变量
  * @returns {any}
  */
-function injectEnv() {
+export function injectEnv() {
   const { command, port } = store
 
   const env = getModeDev()

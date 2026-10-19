@@ -1,3 +1,4 @@
+/* oxlint-disable no-console, no-unused-vars */
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { Ipc } from '@quiteer/electron-ipc'
@@ -7,11 +8,14 @@ const loadUrl = process.env.NODE_ENV === 'development'
   ? `http://localhost:${process.env.RENDER_PORT}`
   : `file://${resolve(__dirname, 'index.html')}`
 
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
   Ipc.init()
   const win = new BrowserWindow({
     height: 700,
     width: 1000,
+    webPreferences: {
+      preload: resolve(__dirname, 'preload.cjs'),
+    },
   })
 
   console.log('loadUrl: ', loadUrl)
@@ -19,7 +23,7 @@ app.whenReady().then(() => {
   console.log('VITE_HELLO :>> ', process.env.VITE_HELLO)
   console.log('VITE_MODE_TEXT :>> ', process.env.VITE_MODE_TEXT)
 
-  win.loadURL(loadUrl)
+  void win.loadURL(loadUrl)
   win.webContents.openDevTools({ mode: 'right' })
   // appApiLogs()
 })

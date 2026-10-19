@@ -183,6 +183,8 @@ export async function build(options: ElectronupConfig) {
 
   await viteBuild(initConfig.vite)
   const { build: packBuild } = await import('vite-plus/pack')
+  for (const preloadConfig of initConfig.preload)
+    {await packBuild(preloadConfig)}
   await packBuild(initConfig.tsdown)
 
   await builder(initConfig.builder)
