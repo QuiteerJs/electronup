@@ -46,3 +46,29 @@ pnpm add electronup -D
 ## 示例
 
 > https://github.com/QuiteerJs/electronup/tree/main/playground/electronup-test
+
+## 自动更新
+
+内置了 `electron-updater` ，在主进程的 `app.whenReady()` 中初始化更新器：
+
+```ts
+import { initAutoUpdater } from 'electronup'
+
+app.whenReady().then(() => {
+  initAutoUpdater({ checkOnStart: true, autoDownload: true })
+})
+```
+
+发布配置写在 `electronup.config.ts` 的 `builderConfig` 中：
+
+```ts
+export default defineConfig({
+  builderConfig: {
+    publish: [{ provider: 'github', owner: 'your-org', repo: 'your-app' }],
+  },
+})
+```
+
+electron-builder 的 `publish` 配置决定更新源。开发环境会跳过检查；生产环境启动时自动检查。需要自定义更新 UI 时，可监听导出的 `autoUpdater` 的更新事件。
+
+> **打包注意** ：打包后的应用运行时需要能解析到 `electron-updater` 。请把它加入项目 `dependencies`（生产依赖，electron-builder 会自动打包），并在 `tsdownConfig.noExternal` 中加入 `'electronup'` 让更新器代码打进主进程产物。

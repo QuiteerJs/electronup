@@ -65,7 +65,8 @@
     "picocolors": "^1.1.1",
     "portfinder": "^1.0.38",
     "vite": "catalog:",
-    "yaml": "^2.8.2"
+    "yaml": "^2.8.2",
+    "electron-updater": "^6.6.2"
   },
   "devDependencies": {
     "vite-plus": "catalog:"

@@ -13,3 +13,6 @@ export function defineConfig(config: ElectronupConfigExport): ElectronupConfigEx
 }
 
 export type { BuilderConfig, ConfigEnv, ElectronupConfig, TsdownConfig, ViteConfig } from './typings/electronup'
+
+export { autoUpdater, checkForUpdates, initAutoUpdater } from './updater'
+export type { AutoUpdaterOptions } from './updater'
