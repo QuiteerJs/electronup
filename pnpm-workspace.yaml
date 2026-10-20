@@ -1,6 +1,9 @@
 shellEmulator: true
 
 trustPolicy: no-downgrade
+# semver@6.3.1 为 @electron/get 的合法依赖 , 发布时未附 provenance 被 no-downgrade 误判
+trustPolicyExclude:
+  - semver@6.3.1
 
 packages:
   - packages/*

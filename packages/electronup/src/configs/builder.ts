@@ -24,9 +24,9 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
   const { readJSON } = fsExtra
   const packages = await readJSON(resolve(store.root, 'package.json'))
 
-  // pnpm 严格隔离下用户项目内解析不到 electron 模块 , 默认取 electronup 自身依赖的 electron 版本
+  // pnpm 严格隔离下 electronup 包内解析不到 electron , 从用户项目根解析 ( electron 为 peer 依赖 )
   const { electronVersion: userElectronVersion, ...restConfig } = config as BuilderConfig & { electronVersion?: string }
-  const electronVersion = userElectronVersion || getDependencyElectronVersion()
+  const electronVersion = userElectronVersion || getProjectElectronVersion()
 
   const defaultConfig: CliOptions['config'] = {
     electronVersion,
@@ -59,10 +59,10 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
   return { targets: store.targets, config: defaultConfig }
 }
 
-function getDependencyElectronVersion(): string | undefined {
+function getProjectElectronVersion(): string | undefined {
   try {
-    const require = createRequire(import.meta.url)
-    return (require('electron/package.json') as { version: string }).version
+    const requireFromRoot = createRequire(resolve(store.root, 'package.json'))
+    return (requireFromRoot('electron/package.json') as { version: string }).version
   }
   catch {
     return undefined

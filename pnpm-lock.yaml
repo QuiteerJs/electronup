@@ -93,9 +93,6 @@ importers:
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
-      electron:
-        specifier: ^40.6.1
-        version: 40.6.1
       electron-builder:
         specifier: ^26.8.1
         version: 26.8.1
@@ -114,13 +111,13 @@ importers:
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@latest
         version: '@voidzero-dev/vite-plus-core@0.1.12(@types/node@25.3.3)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.12(@types/node@25.3.3)(@voidzero-dev/vite-plus-core@0.1.12(@types/node@25.3.3)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       yaml:
         specifier: ^2.8.2
         version: 2.8.2
     devDependencies:
-      vite-plus:
-        specifier: 'catalog:'
-        version: 0.1.12(@types/node@25.3.3)(@voidzero-dev/vite-plus-core@0.1.12(@types/node@25.3.3)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@latest
         version: '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.3.3)(@voidzero-dev/vite-plus-core@0.1.12(@types/node@25.3.3)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)'
@@ -149,6 +146,9 @@ importers:
       '@vitejs/plugin-vue-jsx':
         specifier: ^5.1.4
         version: 5.1.4(@types/node@25.3.3)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(typescript@5.9.3)(vue@3.5.29(typescript@5.9.3))(yaml@2.8.2)
+      electron:
+        specifier: ^40.6.1
+        version: 40.6.1
       electronup:
         specifier: workspace:^
         version: link:../../packages/electronup

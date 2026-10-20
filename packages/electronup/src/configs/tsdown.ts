@@ -2,10 +2,10 @@ import type { ChildProcessWithoutNullStreams } from 'node:child_process'
 import type { UserConfig } from 'vite-plus/pack'
 import type { ElectronupConfig, TsdownConfig } from '../typings/electronup'
 import { spawn } from 'node:child_process'
+import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { config as getEnv } from 'dotenv'
-import electron from 'electron'
 import { DefaultDirs, store } from '../utils'
 
 /**
@@ -88,6 +88,16 @@ export function getTsdownConfig(config: TsdownConfig, allConfig: ElectronupConfi
   return { ...defaultConfig }
 }
 
+/**
+ * Description  从用户项目根解析 electron 可执行文件路径
+ * Description  electron 为 peer 依赖 , pnpm 严格隔离下只能从用户项目解析
+ * @returns {any}
+ */
+function getElectronBinary(): string {
+  const requireFromRoot = createRequire(resolve(store.root, 'package.json'))
+  return requireFromRoot('electron') as unknown as string
+}
+
 let electronProcess: ChildProcessWithoutNullStreams | null
 let manualRestart = false
 
@@ -110,7 +120,7 @@ function startElectron(mainPath: string) {
   }
 
   const env = { ...process.env, ...injectEnv() }
-  electronProcess = spawn(electron as any, [mainPath], { env })
+  electronProcess = spawn(getElectronBinary(), [mainPath], { env })
 
   electronProcess.stdout.on('data', removeJunk)
 

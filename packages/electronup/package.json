@@ -50,27 +50,37 @@
     "test": "vp test run",
     "release": "qui r --tag-prefix electronup && vp pack && pnpm publish"
   },
+  "engines": {
+    "node": ">= 22"
+  },
   "peerDependencies": {
     "@types/node": ">= 22",
-    "node": ">= 22",
+    "electron": ">= 28",
     "vue": ">= 3"
+  },
+  "peerDependenciesMeta": {
+    "electron": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@clack/prompts": "^1.1.0",
     "@quiteer/parser-config": "^1.0.3",
     "cac": "^7.0.0",
     "dotenv": "^17.3.1",
-    "electron": "^40.6.1",
     "electron-builder": "^26.8.1",
+    "electron-updater": "^6.6.2",
     "fs-extra": "^11.3.3",
     "picocolors": "^1.1.1",
     "portfinder": "^1.0.38",
     "vite": "catalog:",
-    "yaml": "^2.8.2",
-    "electron-updater": "^6.6.2"
+    "vite-plus": "catalog:",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
-    "vite-plus": "catalog:",
     "vitest": "catalog:"
   }
 }
