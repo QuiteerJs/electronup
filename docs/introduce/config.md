@@ -82,7 +82,7 @@ title: 配置
 `publicDir` 只能通过外部的 `publicDir` 配置项覆盖。
 
 
-[electronup 中的 vite 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/vite.ts)。
+[electronup 中的 vite 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/src/configs/vite.ts)。
 
 ## tsdown
 
@@ -100,13 +100,37 @@ title: 配置
 > 总是参与构建的 modules。
 > 以数组的形式配置。
 
-[electronup 中的 tsdown 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/tsdown.ts#L77)。
+[electronup 中的 tsdown 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/src/configs/tsdown.ts)。
+
+## preload
+
+> 预加载脚本 ( preload ) 构建配置，接收单个配置对象或配置数组（多入口场景）。
+
+每个配置项为 [tsdown](https://github.com/sxzz/tsdown) 的用户配置，其中 `entry` 为必填项：
+
+```ts
+export default defineConfig({
+  preload: {
+    entry: { preload: resolve(__dirname, 'preload/index.ts') },
+  },
+})
+```
+
+预置行为：
+
+- 输出为 **CommonJS** 格式 ( `format: 'cjs'` ) —— Electron 的 preload 脚本要求 CommonJS ，输出文件为 `preload.cjs`。如你的 Electron 版本支持 ESM preload ，可显式传入 `format: 'esm'` 覆盖。
+- 输出目录与主进程一致 ( `resourceDir` )，在 `BrowserWindow` 的 `webPreferences.preload` 中直接引用 `preload.cjs` 即可。
+- `external` 默认包含 `electron`，环境变量与主进程注入一致。
+
+`dev` 与 `build` 命令都会在主进程构建前完成 preload 构建。
+
+[electronup 中的 preload 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/src/configs/preload.ts)。
 
 ## electron-builder
 
 > 预置配置皆可覆盖，路径类配置需要在外部配置。
 
-[electronup 中的 electron-builder 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/configs/builder.ts#L36)。
+[electronup 中的 electron-builder 详细配置查看](https://github.com/QuiteerJs/electronup/blob/main/packages/electronup/src/configs/builder.ts)。
 
 :::tip 提示
 命令行参数权重高于用户配置，请结合文档完成构建配置。

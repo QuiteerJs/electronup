@@ -50,7 +50,7 @@ Options:
   --no-asar           asar false (default: true)
   --win [arch]        [ia32 | x64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包
   --mac [arch]        [x64 | arm64 | universal] 构建 mac 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型
-  --linux             [x64 | arm64 | armv7l] 构建 linux 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型
+  --linux [arch]      [x64 | arm64 | armv7l] 构建 linux 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型
   -m , --mode <mode>  [development | production | test | staging | ...] 环境模式
   --no-minify         使主进程和渲染进程代码不进行压缩  (default: true)
   -h, --help          Display this message
@@ -160,7 +160,7 @@ electronup build [config file]
 > 开启选项式构建 。
 
 > 传入此参数后 无需传入其他参数，都会以询问选择的方式记录选项
-> mac系统可以打三端的包，win 下只能打 win 的包
+> mac 系统可以打三端的包，linux 系统可以打 linux 与 win 的包，win 下只能打 win 的包
 > 因此当前系统为 mac 的话，询问选项会包含三端。
 
 ```bash
@@ -212,6 +212,7 @@ asar 包中的内容不可更改，所以 Node APIs 里那些可以用来修改�
 
 ::: warning 不传则输出 ia32 和 x64 的两个包 。
 对于 Windows 提供 x86 和 amd64 (x64) 版本的二进制文件。需要注意的是ARM 版本的 Windows 目前尚不支持 。
+未指定任何平台参数时 ( 即默认构建 ) 只输出当前操作系统架构的一个包。
 :::
 
 
@@ -222,6 +223,10 @@ asar 包中的内容不可更改，所以 Node APIs 里那些可以用来修改�
 - x64
 - arm64
 - universal
+
+::: warning 只能在 macOS 系统上构建
+electron-builder 不支持在 Windows / Linux 系统上构建 mac 包 ，传入 `--mac` 会直接报错。
+:::
 
 ::: tip 若不指定架构则默认当前操作系统的架构类型 。
 单架构包 ( x64 | arm64 ) ：指构建的应用程序包，只能运行 X64 或者 ARM64 指令集，在不匹配的硬件上不能运行。例如，在 Mac M1 芯片机器上构建的 ARM64 指令集应用程序，不能在 Mac Intel CPU的设备上运行。
@@ -238,8 +243,13 @@ asar 包中的内容不可更改，所以 Node APIs 里那些可以用来修改�
 - arm64
 - armv7l
 
+```bash
+electronup build --linux arm64
+```
+
 ::: warning 注意
 若不指定架构则默认当前操作系统的架构类型 。
+Windows 系统不支持构建 linux 包 ，传入 `--linux` 会直接报错。
 :::
 
 

@@ -1,7 +1,7 @@
 # electronup
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE) ![](https://img.shields.io/github/stars/QuiteerJs/electronup) ![](https://img.shields.io/github/forks/QuiteerJs/electronup)
 
-> electronup 是一个集成 Vite4.x、tsdown、electron-builder24.x 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
+> electronup 是一个集成 vite-plus ( Vite + tsdown )、electron-builder 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
 
 ## 文档地址
 
@@ -38,10 +38,12 @@ pnpm add electronup -D
 
 前提条件
 > 熟悉命令行
-> 已安装 18.0 或更高版本的 Node.js
+> 已安装 22.0 或更高版本的 Node.js
 
 
-因为使用了 tsdown 构建主进程代码，所以该命令行及脚手架只支持 TypeScript ，不支持 JavaScript。
+因为使用了 tsdown ( vite-plus ) 构建主进程代码，所以该命令行及脚手架只支持 TypeScript ，不支持 JavaScript。
+
+`electron` 由应用项目自行安装并选择版本 ( 建议 `>= 28` )，electronup 不会锁定或覆盖它。
 
 ## 示例
 

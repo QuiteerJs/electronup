@@ -6,10 +6,10 @@ title: 项目介绍
 
 ## 简介
 
-[electronup](https://github.com/QuiteerJs/electronup) 是一个集成 **Vite8.x**、**tsdown**、**electron-builder26.x** 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
+[electronup](https://github.com/QuiteerJs/electronup) 是一个集成 **vite-plus** ( vite + tsdown )、**electron-builder26.x** 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
 
 ::: warning
-因为使用了 tsdown 构建主进程代码，所以该命令行及脚手架只支持 `TypeScript` ，不支持 `JavaScript`。
+因为使用了 vite-plus ( tsdown ) 构建主进程代码，所以该命令行及脚手架只支持 `TypeScript` ，不支持 `JavaScript`。
 :::
 
 ## 特性
@@ -37,7 +37,7 @@ title: 项目介绍
 - `Electron` , [使用 JavaScript，HTML 和 CSS 构建跨平台的桌面应用程序。](https://www.electronjs.org/)
 - `Typescript` , [TypeScript 是 JavaScript 类型的超集，它可以编译成纯 JavaScript。](https://www.tslang.cn/index.html)
 - `Vite` , [下一代的前端工具链 , 为开发提供极速响应。](https://cn.vitejs.dev/)
-- `tsdown` , [这是构建TypeScript库的最简单、最快的方法。](https://github.com/sxzz/tsdown)
+- `vite-plus` , [统一的前端工具链 , 内置 vite 与 tsdown。](https://github.com/voidzero-dev/vite-plus)
 - `Electron-Builder` , [一个完整的解决方案，打包和构建一个准备分发 electron 应用程序与“自动更新”的支持开箱即用。](https://www.electron.build/)
 - `适用于vite 的 web 框架` , [vue3.x](https://staging-cn.vuejs.org/)，[react18.x](https://zh-hans.react.dev/learn) 。。。
 - 更多相关 js 知识 ...
@@ -45,17 +45,22 @@ title: 项目介绍
 
 ## 集成依赖
 
+electronup 内置了构建所需的 `vite-plus` 与 `electron-builder` 。应用项目只需声明自己需要的依赖：
+
 ```json
 {
-  "dependencies": {
+  "devDependencies": {
     "electron": "^40.6.1",
-    "electron-builder": "^26.8.1",
-    "tsdown": "^0.20.3",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.0-beta.13"
+    "electronup": "^0.3.0",
+    "typescript": "^5.9.3"
   }
 }
 ```
+
+::: tip
+`electron` 是应用自身的运行时依赖 , 由项目自行选择版本 ( 建议 `>= 28` ) , electronup 不会强制安装或覆盖。
+构建时 electronup 会自动读取项目内 `electron` 的版本 , 也可通过 `builderConfig.electronVersion` 显式指定。
+:::
 
 
 ##

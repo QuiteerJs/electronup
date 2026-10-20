@@ -9,7 +9,7 @@ title: 快速上手
 ## 创建模板
 
 ::: tip  基本要求
-在使用 `Electron` 进行开发之前，您需要安装 `Node.js` , 并确认 `node` 版本＞=18 。 建议您使用最新的 `LTS` 版本或官网当前长期维护版。
+在使用 `Electron` 进行开发之前，您需要安装 `Node.js` , 并确认 `node` 版本>=22 。 建议您使用最新的 `LTS` 版本或官网当前长期维护版。
 本地环境需要安装 [`npm` | `yarn 1.x` | `pnpm`] 、 `Git`。
 :::
 
@@ -39,6 +39,10 @@ pnpm create electronup
 
 
 这一指令将会安装并执行 [**create-electronup**](https://github.com/QuiteerJs/electronup/tree/main/packages/create-electronup)，它是 [**electronup**](https://github.com/QuiteerJs/electronup) 的项目模板脚手架工具。你将会看到一些模板选项提示,根据提示选择想要的模板即可完成创建。
+
+::: tip 模板来源
+模板不再内置在脚手架内 , 创建时通过 [degit](https://github.com/Rich-Harris/degit) 从 [electronup-template](https://github.com/QuiteerJs/electronup-template) 仓库的对应分支实时拉取 , 因此需要可访问 GitHub 的网络环境。
+:::
 
 ::: tip ps
 如果你想要在当前目录下创建项目，
