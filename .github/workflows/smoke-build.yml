@@ -40,7 +40,7 @@ jobs:
 
       - name: Smoke build ( dir target , current platform )
         working-directory: playground/electronup-test
-        run: pnpm exec electronup build --dir
+        run: node ../../packages/electronup/dist/bin/electronup.mjs build --dir
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
