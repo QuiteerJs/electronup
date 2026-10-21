@@ -14,34 +14,36 @@
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
     "template:run": "pnpm --filter './template/*' dev",
-    "lint": "vp lint .",
-    "lint:fix": "vp lint . --fix",
+    "lint": "vp lint . --ignore-pattern \"**/.vitepress/cache/**\"",
+    "lint:fix": "vp lint . --fix --ignore-pattern \"**/.vitepress/cache/**\"",
+    "typecheck": "tsc -p packages/electronup/tsconfig.json --noEmit",
+    "test": "pnpm --filter electronup test",
     "prepare": "simple-git-hooks",
     "upgrade:latest": "pnpm update --latest",
     "upgrade:interactive": "pnpm update --interactive --latest",
     "commit": "qui gc"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.6.1",
+    "@antfu/eslint-config": "^7.7.3",
     "@quiteer/scripts": "^0.1.6",
     "@quiteer/ts-config": "^0.0.7",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^25.3.1",
-    "eslint": "^10.0.3",
+    "@types/node": "^25.9.9",
+    "eslint": "^10.13.0",
     "eslint-plugin-markdown": "^5.1.0",
-    "lint-staged": "^16.2.7",
-    "simple-git-hooks": "^2.13.1",
-    "tsx": "^4.21.0",
+    "lint-staged": "^16.4.0",
+    "simple-git-hooks": "^2.14.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "unbuild": "^3.6.1",
     "vite-plus": "catalog:",
-    "vitepress": "1.6.4"
+    "vitepress": "2.0.0-alpha.20"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm qui gv",
     "pre-commit": "pnpm lint-staged"
   },
   "lint-staged": {
-    "*": "vp lint --fix"
+    "*.{js,jsx,ts,tsx,mjs,cjs,vue}": "vp lint --fix"
   }
 }

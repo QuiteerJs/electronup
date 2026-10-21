@@ -18,4 +18,5 @@ template/*
 /docs/.vitepress/cache
 /docs/.vitepress/.temp
 /docs/.vitepress/dist
+/.vitepress/cache
 .workbuddy/

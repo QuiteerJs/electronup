@@ -34,7 +34,7 @@
     "release": "qui r --tag-prefix create-electronup && unbuild && pnpm publish"
   },
   "devDependencies": {
-    "@clack/prompts": "^1.0.1",
+    "@clack/prompts": "^1.8.1",
     "degit": "^2.8.4",
     "mri": "^1.2.0",
     "picocolors": "^1.1.1",

@@ -1,9 +1,14 @@
 shellEmulator: true
 
 trustPolicy: no-downgrade
+# 发布超过 7 天的包放行信任检查 : 旧分支回补的安全补丁 ( 如 semver@5.7.2 ) 不会带 provenance ,
+# 这类补丁会从旧分支陆续发布 , trustPolicyExclude 需逐个列举版本而无法预知 , 故按发布时长放行 ; 7 天内新发布的版本仍受严格检查
+trustPolicyIgnoreAfter: 10080
 # semver@6.3.1 为 @electron/get 的合法依赖 , 发布时未附 provenance 被 no-downgrade 误判
+# chokidar@4.0.3 为 c12 的合法依赖 ( 维护者 paulmillr , 4.0.1 带 provenance 而 4.0.3 未走 CI 证明 )
 trustPolicyExclude:
   - semver@6.3.1
+  - chokidar@4.0.3
 
 packages:
   - packages/*
@@ -13,15 +18,24 @@ packages:
 overrides:
   vite: 'catalog:'
   vitest: 'catalog:'
+  # degit 在 2.8.4 ( 2021 ) 之后停更五年 , 又于 2026-05 / 2026-06 从旧 minor 分支重新发布 2.8.5 / 2.8.6 且无 provenance ,
+  # 与供应链劫持特征一致 , 固定到 2.8.4 ; 如需升级请先核实发布来源
+  degit: '2.8.4'
+  # vitepress 2 依赖 @docsearch ^4.7.0 , 但 4.7.1 触发了 trustPolicy no-downgrade , 固定到上一版本 4.7.0
+  '@docsearch/css': '4.7.0'
+  '@docsearch/js': '4.7.0'
+  '@docsearch/sidepanel-js': '4.7.0'
 
 onlyBuiltDependencies:
   - electron
   - esbuild
   - simple-git-hooks
+# vite-plus 1.x 已把 core / test 合并进主包 ( 自带 @voidzero-dev/vite-plus-core@1.3.0 与 vitest@5.0.5 ) ,
+# @voidzero-dev/vite-plus-test 自 0.1.24 后不再发布 , 故 vite / vitest 分别指向 core 与上游 vitest
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@latest
-  vitest: npm:@voidzero-dev/vite-plus-test@latest
-  vite-plus: latest
+  vite: npm:@voidzero-dev/vite-plus-core@^1.3.0
+  vitest: npm:vitest@5.0.5
+  vite-plus: ^1.3.0
 peerDependencyRules:
   allowAny:
     - vite
