@@ -92,7 +92,7 @@ window.$webFrame.setZoomFactor(1.2)
 | `firstChild()` / `nextSibling()` / `opener()` / `parent()` | 关联 frame，不存在时返回 `null` |
 | `routingId()` | 当前 frame 的路由 id |
 
-`firstChild` / `nextSibling` / `opener` / `parent` / `routingId` 在原生 `WebFrame` 上是属性，这里做成了方法——`WebFrame` 实例无法跨越 `contextBridge` 传递，只能取到值。
+`firstChild` / `nextSibling` / `opener` / `parent` 在原生 `WebFrame` 上是属性，`routingId` 是方法；这里统一做成了方法——`WebFrame` 实例无法跨越 `contextBridge` 传递，只能取到值。
 
 ## 类型提示
 

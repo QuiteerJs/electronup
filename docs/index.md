@@ -4,47 +4,42 @@ layout: home
 
 hero:
   name: "electronup"
-  text: "electron 的构建所需"
-  tagline: 简化配置文件 , package 瘦身 , 多种选项的 cli
+  text: "为 Electron 准备的构建工具链"
+  tagline: 一个配置文件，统管渲染进程、主进程、preload 与安装包
   image:
     src: /home.png
-    alt: quiteer
-    style:
+    alt: electronup
 
   actions:
     - theme: brand
       text: 开始使用
       link: /introduce/introduction
-    - text: 介绍
+    - text: 项目介绍
       link: /introduce/project
     - theme: alt
       text: GitHub
       link: https://github.com/QuiteerJs/electronup
-    - theme: alt
-      text: 友情连接/sky
-      link: https://zh-sky.gitee.io/electron-vue-template-doc/
 
 features:
   - icon: ⚡️
-    title: 立即响应
-    details: 双进程热更新 , 代码修改快速响应 ! 不再等待 (最多等一会会 ... )
+    title: 双进程开发
+    details: 渲染进程使用 Vite 热更新，主进程由 vite-plus pack 监听并自动重启 Electron。
   - icon: 🦾
-    title: 个性化打包
-    details: 人性化脚本配置 , 默认识别当前平台输出打包 , 选项式自定义配置打包
-  - icon: 🤺
-    title: 知根知底
-    details: 详尽的文档介绍 , 手摸手教学 ( 共同学习 )
-  - icon: 🛠️
-    title: vite
-    details: 提供渲染进程热更新及构建发布
-  - icon: 🛠️
-    title: tsdown
-    details: 提供主进程代码热更新及构建发布
-  - icon: 🛠️
-    title: electron-builder
-    details: 构建桌面端软件包所需,提供了一些可覆盖的预置配置
+    title: 一体化打包
+    details: 集成 vite-plus 与 electron-builder，渲染进程、主进程和 preload 一次构建完成。
+  - icon: 🎯
+    title: 按平台输出
+    details: 默认构建当前系统与架构，也可通过命令行或交互式向导选择平台和架构。
+  - icon: 🧩
+    title: 预置但可覆盖
+    details: 内置常用路径与 electron-builder 配置，保留原有构建工具的配置方式。
+  - icon: 🔧
+    title: TypeScript
+    details: 主进程与 preload 使用 vite-plus pack 构建，配置文件同样使用 TypeScript。
+  - icon: 📦
+    title: 自动更新
+    details: 内置 electron-updater 初始化与检查更新辅助方法，配合 electron-builder 发布配置使用。
 ---
-
 
 <style>
 :root {

@@ -2,52 +2,108 @@ import process from 'node:process'
 import { defineConfig } from 'vitepress'
 import { version } from '../../packages/electronup/package.json'
 
-// 判断是否在 Vercel 环境（Vercel 会注入 VERCEL 环境变量）
+// Vercel 会注入 VERCEL 环境变量，GitHub Pages 使用仓库子路径
 const isVercel = Boolean(process.env.VERCEL)
+const base = isVercel ? '/' : '/electronup/'
+
+const repo = 'https://github.com/QuiteerJs/electronup'
 
 export default defineConfig({
-  title: 'electronup中文文档',
-  description: 'electron 的构建所需',
-  base: isVercel ? '/' : '/electronup/',
-  lang: 'en',
-  head: [['link', { rel: 'icon', href: 'favicon.ico' }]],
+  base,
+  lang: 'zh-CN',
+  title: 'electronup 中文文档',
+  description: '融合 Vite、vite-plus pack 与 electron-builder 的 Electron 构建工具',
+  head: [['link', { rel: 'icon', href: `${base}favicon.ico` }]],
   markdown: {
     lineNumbers: true,
   },
   lastUpdated: true,
   appearance: true,
   themeConfig: {
-    siteTitle: 'electronup中文文档',
+    siteTitle: 'electronup',
     logo: '/favicon.ico',
-    lastUpdatedText: '最后更新时间',
+    socialLinks: [{ icon: 'github', link: repo }],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2023-08-present 安静',
+      copyright: 'Copyright © 2023-present 安静',
     },
+    editLink: {
+      pattern: `${repo}/edit/main/docs/:path`,
+      text: '在 GitHub 编辑此页',
+    },
+    lastUpdated: { text: '最后更新时间', formatOptions: { dateStyle: 'long', timeStyle: 'short', forceLocale: true } },
     docFooter: {
       prev: '上一页',
       next: '下一页',
     },
-    nav: nav(),
-    socialLinks: [{ icon: 'github', link: 'https://github.com/QuiteerJs/electronup' }],
-    sidebar: {
-      '/about/': [
-        {
-          text: '关于',
-          items: [{ text: '文档配置', link: '/about/' }],
+    outline: {
+      level: [2, 3],
+      label: '本页目录',
+    },
+    darkModeSwitchLabel: '深色模式',
+    lightModeSwitchTitle: '浅色模式',
+    returnToTopLabel: '返回顶部',
+    sidebarMenuLabel: '菜单',
+    langMenuLabel: '切换语言',
+    nav: zhNav(),
+    sidebar: sidebar(''),
+  },
+  locales: {
+    root: {
+      label: '简体中文',
+      lang: 'zh-CN',
+      title: 'electronup 中文文档',
+      description: '融合 Vite、vite-plus pack 与 electron-builder 的 Electron 构建工具',
+    },
+    en: {
+      label: 'English',
+      lang: 'en-US',
+      link: '/en/',
+      title: 'electronup Documentation',
+      description: 'An Electron build tool that combines Vite, vite-plus pack and electron-builder',
+      themeConfig: {
+        siteTitle: 'electronup',
+        editLink: {
+          pattern: `${repo}/edit/main/docs/:path`,
+          text: 'Edit this page on GitHub',
         },
-      ],
-      ...introduceSidebar(),
+        lastUpdated: { text: 'Last updated', formatOptions: { dateStyle: 'long', timeStyle: 'short', forceLocale: true } },
+        docFooter: {
+          prev: 'Previous page',
+          next: 'Next page',
+        },
+        outline: {
+          level: [2, 3],
+          label: 'On this page',
+        },
+        darkModeSwitchLabel: 'Dark mode',
+        lightModeSwitchTitle: 'Light mode',
+        returnToTopLabel: 'Return to top',
+        sidebarMenuLabel: 'Menu',
+        langMenuLabel: 'Change language',
+        nav: enNav(),
+        sidebar: sidebar('/en'),
+      },
     },
   },
 })
 
-function nav() {
+function zhNav() {
   return [
     {
       text: '指引',
       link: '/introduce/project',
-      activeMatch: '/introduce|main|renderer|config|builder/',
+      activeMatch: '/introduce/',
+    },
+    {
+      text: '插件',
+      link: '/plugins/',
+      activeMatch: '/plugins/',
+    },
+    {
+      text: 'API',
+      link: '/api/',
+      activeMatch: '/api/',
     },
     {
       text: '关于',
@@ -57,78 +113,105 @@ function nav() {
     {
       text: '相关文档',
       items: [
-        {
-          text: 'electron',
-          link: 'https://www.electronjs.org/zh/',
-        },
-        {
-          text: 'vite',
-          link: 'https://cn.vitejs.dev/',
-        },
-        {
-          text: 'tsdown',
-          link: 'https://tsdown.dev/zh-CN/',
-        },
-        {
-          text: 'electron-builder',
-          link: 'https://www.electron.build/',
-        },
+        { text: 'electron', link: 'https://www.electronjs.org/zh/' },
+        { text: 'vite', link: 'https://cn.vitejs.dev/' },
+        { text: 'vite-plus pack', link: 'https://viteplus.dev/guide/pack' },
+        { text: 'electron-builder', link: 'https://www.electron.build/' },
       ],
     },
     {
       text: version,
       items: [
-        {
-          text: '0.1.x',
-          link: 'https://electronup-git-1x-quiteer.vercel.app/',
-        },
-        {
-          text: '组织',
-          link: 'https://github.com/QuiteerJs',
-        },
-        {
-          text: '友情连接/sky',
-          link: 'https://umbrella22.github.io/electron-vue-template-doc/',
-        },
+        { text: '0.1.x 文档', link: 'https://electronup-git-1x-quiteer.vercel.app/' },
+        { text: 'GitHub 组织', link: 'https://github.com/QuiteerJs' },
+        { text: '友情链接 / sky', link: 'https://umbrella22.github.io/electron-vue-template-doc/' },
       ],
     },
   ]
 }
 
-function introduceSidebar() {
-  const commonRoute = [
+function enNav() {
+  return [
     {
-      text: '介绍',
+      text: 'Guide',
+      link: '/en/introduce/project',
+      activeMatch: '/en/introduce/',
+    },
+    {
+      text: 'Plugins',
+      link: '/en/plugins/',
+      activeMatch: '/en/plugins/',
+    },
+    {
+      text: 'API',
+      link: '/en/api/',
+      activeMatch: '/en/api/',
+    },
+    {
+      text: 'About',
+      link: '/en/about/',
+      activeMatch: '/en/about/',
+    },
+    {
+      text: 'Resources',
       items: [
-        { text: '项目介绍', link: '/introduce/project' },
-        { text: '快速上手', link: '/introduce/introduction' },
-        { text: '目录', link: '/introduce/catalogue' },
-        { text: '命令行界面', link: '/introduce/cli' },
-        { text: '配置', link: '/introduce/config' },
+        { text: 'electron', link: 'https://www.electronjs.org/' },
+        { text: 'vite', link: 'https://vite.dev/' },
+        { text: 'vite-plus pack', link: 'https://viteplus.dev/guide/pack' },
+        { text: 'electron-builder', link: 'https://www.electron.build/' },
       ],
     },
     {
-      text: '插件',
+      text: version,
       items: [
-        { text: '插件总览', link: '/plugins/' },
-        { text: 'parser-config', link: '/plugins/parser-config' },
-        { text: 'create-electronup', link: '/plugins/create-electronup' },
-        { text: 'electron-ipc', link: '/plugins/electron-ipc' },
-        { text: 'electron-preload', link: '/plugins/electron-preload' },
-        { text: 'electron-browser', link: '/plugins/electron-browser' },
-        { text: 'electron-menu', link: '/plugins/electron-menu' },
-        { text: 'electron-tray', link: '/plugins/electron-tray' },
+        { text: '0.1.x docs', link: 'https://electronup-git-1x-quiteer.vercel.app/' },
+        { text: 'GitHub organization', link: 'https://github.com/QuiteerJs' },
+      ],
+    },
+  ]
+}
+
+function sidebar(prefix: '' | '/en') {
+  const common = [
+    {
+      text: prefix ? 'Guide' : '介绍',
+      items: [
+        { text: prefix ? 'Overview' : '项目介绍', link: `${prefix}/introduce/project` },
+        { text: prefix ? 'Getting started' : '快速上手', link: `${prefix}/introduce/introduction` },
+        { text: prefix ? 'Project structure' : '目录介绍', link: `${prefix}/introduce/catalogue` },
+        { text: prefix ? 'CLI' : '命令行界面', link: `${prefix}/introduce/cli` },
+        { text: prefix ? 'Configuration' : '配置', link: `${prefix}/introduce/config` },
+        { text: prefix ? 'Auto update' : '自动更新', link: `${prefix}/introduce/auto-update` },
+      ],
+    },
+    {
+      text: prefix ? 'Plugins' : '插件',
+      items: [
+        { text: prefix ? 'Plugin overview' : '插件总览', link: `${prefix}/plugins/` },
+        { text: 'parser-config', link: `${prefix}/plugins/parser-config` },
+        { text: 'create-electronup', link: `${prefix}/plugins/create-electronup` },
+        { text: 'electron-ipc', link: `${prefix}/plugins/electron-ipc` },
+        { text: 'electron-preload', link: `${prefix}/plugins/electron-preload` },
+        { text: 'electron-browser', link: `${prefix}/plugins/electron-browser` },
+        { text: 'electron-menu', link: `${prefix}/plugins/electron-menu` },
+        { text: 'electron-tray', link: `${prefix}/plugins/electron-tray` },
       ],
     },
     {
       text: 'API',
-      items: [{ text: 'API', link: '/api/' }],
+      items: [{ text: prefix ? 'API reference' : 'API', link: `${prefix}/api/` }],
     },
   ]
 
   return {
-    '/introduce/': commonRoute,
-    '/plugins/': commonRoute,
-    '/api/': commonRoute,
+    [`${prefix}/introduce/`]: common,
+    [`${prefix}/plugins/`]: common,
+    [`${prefix}/api/`]: common,
+    [`${prefix}/about/`]: [
+      {
+        text: prefix ? 'About' : '关于',
+        items: [{ text: prefix ? 'About this site' : '关于本文档', link: `${prefix}/about/` }],
+      },
+    ],
   }
 }

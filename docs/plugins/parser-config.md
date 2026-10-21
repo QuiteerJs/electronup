@@ -11,17 +11,18 @@ title: parser-config
 ```bash
 npm i @quiteer/parser-config -D
 ```
+
 ```bash
 yarn add @quiteer/parser-config -D
 ```
+
 ```bash
 pnpm add @quiteer/parser-config -D
 ```
 
-
 ## 使用
 
-`configPath` : 传入具体路径或者所在目录路径，configPath 的 默认路径为当前命令行启动路径 （指定 ·configName· 参数时可传入undefined） 
+`configPath` : 传入具体路径或者所在目录路径，configPath 的 默认路径为当前命令行启动路径 （指定 ·configName· 参数时可传入undefined）
 
 `configName` : 可选，传入参数后，无需指定具体参数，传入目录路径即可，自动匹配不同后缀的配置文件
 
@@ -60,14 +61,15 @@ const test = async () => {
   const rootConfig = await parserConfig(undefined, 'config')
   console.log('rootConfig: ', rootConfig)
 
-  const elctornup = await parserConfig(undefined, 'electronup.config')
-  console.log('elctornup: ', JSON.stringify(elctornup))
+  const electronup = await parserConfig(undefined, 'electronup.config')
+  console.log('electronup: ', JSON.stringify(electronup))
 }
 test()
 ```
 
-## 暴露的api
-``` ts
+## 暴露的 API
+
+```ts
 /**
  * 描述
  * @param {any} configPath:string  需要读取配置的路径

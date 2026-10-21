@@ -1,11 +1,14 @@
 # electronup
-[![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE) ![](https://img.shields.io/github/stars/QuiteerJs/electronup) ![](https://img.shields.io/github/forks/QuiteerJs/electronup)
 
-> electronup 是一个集成 vite-plus ( Vite + tsdown )、electron-builder 的桌面端构建工具，一个配置文件完成多环境多目标的构建包。
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
-## 文档地址
+> 融合 Vite、vite-plus pack（vp pack）与 electron-builder 的 Electron 构建工具，一个配置文件完成多环境、多目标的构建与打包。
 
-文档地址 ：https://quiteerjs.github.io/electronup
+## 文档
+
+- 中文文档：https://quiteerjs.github.io/electronup/
+- English docs：https://quiteerjs.github.io/electronup/en/
+- 仓库根目录还提供 [English README](../../README.en.md)。
 
 ## 安装
 
@@ -21,42 +24,52 @@ yarn add electronup -D
 pnpm add electronup -D
 ```
 
+## 环境要求
+
+- Node.js `>= 22`
+- Electron `>= 28`（作为可选对等依赖，由应用项目自行安装）
+- 主进程与 preload 入口使用 TypeScript；因为使用 vite-plus pack 构建主进程，当前不支持 JavaScript 主进程入口。
+
 ## 特性
 
-- **多框架支持** : 使用 `create-electronup` 询问式创建项目模板 , 内置 `vue3` ， `react` ，`solid` 等项目模板。
-- **Vite + tsdown** : 双进程热更新 , 快速开发(主进程代码修改会触发软件重启)。
-- **统一的环境变量** : `dotenv` 加载 , 构建时注入 , 双进程拥有相同的环境变量。
-- **模式构建** : 默认识别当前代码运行的平台输出打包程序 。
-- **可选构建功能提示** : 你将获得可选范围内支持的功能提示 , 选项式自定义构建输出。
-- **TypeScript** : 应用程序级 `JavaScript` 的语言。
-- **集中管理路径** : 解决双进程资源路径的问题。
-- **预置配置** : 内置了很多可以覆盖的构建工具配置。
-- **单文件配置** : 只需一个 **electronup.config.ts** 即可管理项目的运行构建。
-- **多插件** : 作者会继续开发更多无副作用的独立插件，如：创建窗口，预加载，ipc通信，更新等等。
+- **多框架模板**：`create-electronup` 支持 `vanilla`、`vue`、`react`、`react-swc`、`solid`。
+- **双进程开发**：渲染进程 Vite HMR；主进程由 vite-plus pack 监听并自动重启 Electron。
+- **统一环境变量**：根目录 `.env` / `.env.{mode}` 由 dotenv 读取，主进程与 preload 直接使用，渲染进程可使用 `VITE_` 前缀变量。
+- **平台感知**：默认构建当前系统与架构，也可通过命令行或交互式向导选择平台和架构。
+- **单文件配置**：`electronup.config.ts` 管理路径、Vite、pack、preload 与 electron-builder。
+- **预置可覆盖**：内置常用路径与 electron-builder 配置，保留原工具的配置习惯。
 
-## 声明
+## 快速使用
 
-前提条件
-> 熟悉命令行
-> 已安装 22.0 或更高版本的 Node.js
+```ts
+// electronup.config.ts
+import { resolve } from 'node:path'
+import { defineConfig } from 'electronup'
 
+export default defineConfig({
+  preload: {
+    entry: { preload: resolve(__dirname, 'preload/index.ts') },
+  },
+})
+```
 
-因为使用了 tsdown ( vite-plus ) 构建主进程代码，所以该命令行及脚手架只支持 TypeScript ，不支持 JavaScript。
-
-`electron` 由应用项目自行安装并选择版本 ( 建议 `>= 28` )，electronup 不会锁定或覆盖它。
-
-## 示例
-
-> https://github.com/QuiteerJs/electronup/tree/main/playground/electronup-test
+```json
+{
+  "scripts": {
+    "dev": "electronup --no-minify",
+    "build": "electronup build"
+  }
+}
+```
 
 ## 自动更新
 
-内置了 `electron-updater` ，在主进程的 `app.whenReady()` 中初始化更新器：
+内置 `electron-updater`，在主进程 `app.whenReady()` 中初始化：
 
 ```ts
 import { initAutoUpdater } from 'electronup'
 
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
   initAutoUpdater({ checkOnStart: true, autoDownload: true })
 })
 ```
@@ -71,6 +84,14 @@ export default defineConfig({
 })
 ```
 
-electron-builder 的 `publish` 配置决定更新源。开发环境会跳过检查；生产环境启动时自动检查。需要自定义更新 UI 时，可监听导出的 `autoUpdater` 的更新事件。
+electron-builder 的 `publish` 配置决定更新源。开发环境会跳过检查；生产环境会在启动时自动检查。需要自定义更新 UI 时，监听导出的 `autoUpdater` 事件即可。
 
-> **打包注意** ：打包后的应用运行时需要能解析到 `electron-updater` 。请把它加入项目 `dependencies`（生产依赖，electron-builder 会自动打包），并在 `tsdownConfig.noExternal` 中加入 `'electronup'` 让更新器代码打进主进程产物。
+> **打包注意**：打包后的应用运行时需要能解析到 `electron-updater`。请把它加入项目 `dependencies`（生产依赖，electron-builder 会自动打包），并在 `packConfig.noExternal` 中加入 `'electronup'`，让更新辅助代码打进主进程产物。
+
+## 示例
+
+> https://github.com/QuiteerJs/electronup/tree/main/playground/electronup-test
+
+## License
+
+[MIT](./LICENSE)
