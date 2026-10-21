@@ -1,4 +1,4 @@
-import type { TsdownConfig } from 'electronup'
+import type { PackConfig } from 'electronup'
 
 /**
  * 框架内置的配置
@@ -18,4 +18,4 @@ import type { TsdownConfig } from 'electronup'
 // env: injectEnv() 自动注入 .env 文件内的环境变量
 // }
 
-export default {} as TsdownConfig
+export default {} as PackConfig

@@ -17,6 +17,8 @@ interface PlatformSelect {
   name: string
   platform: 'win32' | 'darwin' | 'linux'
   disabled: boolean
+  /** 平台不可用时的原因提示 */
+  disabledHint?: string
   createTarget: (archs: Arch[]) => Map<Platform, Map<Arch, Array<string>>>
   color: ColorFunc
   archs?: Framework[]
@@ -40,6 +42,7 @@ const platformSelect: PlatformSelect[] = [
     },
     color: pc.blue,
     disabled: !(store.isMac || store.isWin),
+    disabledHint: '仅支持在 macOS / Windows 上构建',
     archs: [{
       name: 'x64',
       arch: Arch.x64,
@@ -61,6 +64,7 @@ const platformSelect: PlatformSelect[] = [
       return Platform.MAC.createTarget(store.dir, store.currentArch)
     },
     disabled: !store.isMac,
+    disabledHint: '仅支持在 macOS 上构建',
     color: pc.green,
     archs: [{
       name: 'x64',
@@ -83,6 +87,7 @@ const platformSelect: PlatformSelect[] = [
     name: 'Linux',
     platform: 'linux',
     disabled: !(store.isMac || store.isLinux),
+    disabledHint: '仅支持在 macOS / Linux 上构建',
     createTarget: (archs: Arch[]) => {
       if (archs.length)
         {return Platform.LINUX.createTarget(store.dir, ...archs)}
@@ -110,87 +115,144 @@ const platformSelect: PlatformSelect[] = [
 
 export async function build(options: ElectronupConfig) {
   const { writeFile } = fsExtra
-  if (store.option) {
-    try {
-      const isMinify = await prompts.confirm({
-        message: pc.green('是否压缩代码?'),
-      })
 
-      if (prompts.isCancel(isMinify)) {
-        throw new Error(`${pc.red('✖')} Operation cancelled`)
+  // --web 只构建渲染进程 , 不涉及打包平台与架构 , 跳过目标解析与交互式向导
+  if (!store.web) {
+    if (store.option)
+      {await resolveInteractiveOptions()}
+    else {
+      try {
+        store.targets = resolveBuildTargets({
+          win: store.win,
+          mac: store.mac,
+          linux: store.linux,
+          dir: store.dir,
+        })
       }
-
-      const isPackage = await prompts.confirm({
-        message: pc.blue('是否生成安装包?'),
-      })
-
-      if (prompts.isCancel(isPackage)) {
-        throw new Error(`${pc.red('✖')} Operation cancelled`)
+      catch (error: any) {
+        console.error('err: ', error.message)
+        process.exit(1)
       }
-
-      const platform = await prompts.select({
-        message: '请选择构建模式 ~',
-        options: platformSelect.map(item => ({
-          label: item.color(item.name),
-          value: item,
-          disabled: item.disabled,
-        })),
-      })
-
-      if (prompts.isCancel(platform)) {
-        throw new Error(`${pc.red('✖')} Operation cancelled`)
-      }
-
-      const selectedPlatform = platform
-      const arch = await prompts.multiselect({
-        message: '请选择打包架构～',
-        options: selectedPlatform.archs?.map(item => ({
-          label: item.color(item.name),
-          value: item.arch,
-          disabled: item.disabled,
-        })) || [],
-      })
-
-      if (prompts.isCancel(arch)) {
-        throw new Error(`${pc.red('✖')} Operation cancelled`)
-      }
-
-      store.minify = isMinify
-      store.dir = isPackage ? null : 'dir'
-      store.targets = selectedPlatform.createTarget(arch)
-    }
-    catch (cancelled: any) {
-      console.error('err: ', cancelled.message)
-      process.exit(1)
-    }
-  }
-  else {
-    try {
-      store.targets = resolveBuildTargets({
-        win: store.win,
-        mac: store.mac,
-        linux: store.linux,
-        dir: store.dir,
-      })
-    }
-    catch (error: any) {
-      console.error('err: ', error.message)
-      process.exit(1)
     }
   }
 
   const initConfig = await electronupConfig(options)
 
   await viteBuild(initConfig.vite)
+
+  // --web 到此为止 : 不构建 preload / 主进程 , 也不执行 electron-builder
+  if (store.web)
+    {return}
+
   const { build: packBuild } = await import('vite-plus/pack')
   for (const preloadConfig of initConfig.preload)
     {await packBuild(preloadConfig)}
-  await packBuild(initConfig.tsdown)
+  await packBuild(initConfig.pack)
 
   await builder(initConfig.builder)
 
+  const outDir = path.resolve(store.root, options.outDir || DefaultDirs.outDir)
   await writeFile(
-    path.resolve(store.root, options.outDir || DefaultDirs.outDir, 'electronup-effective-config.yaml'),
+    path.resolve(outDir, 'electronup-effective-config.yaml'),
     stringify(JSON.parse(JSON.stringify(initConfig))),
   )
+
+  if (store.option)
+    {prompts.outro(`${pc.green('构建完成')} ${pc.dim('产物目录：')} ${pc.cyan(outDir)}`)}
+}
+
+/** 取消交互式流程：给出友好提示后退出 */
+function ensure<T>(result: T | typeof prompts.CANCEL_SYMBOL): T {
+  if (prompts.isCancel(result)) {
+    prompts.cancel('已取消构建')
+    process.exit(0)
+  }
+  return result
+}
+
+/** 交互式打包向导：依次收集构建选项并写入 store */
+async function resolveInteractiveOptions() {
+  prompts.intro(`${pc.bgCyan(pc.black(' electronup '))} 交互式打包向导`)
+
+  const available = platformSelect
+    .filter(item => !item.disabled)
+    .map(item => item.color(item.name))
+    .join(pc.dim(' / '))
+
+  prompts.note(
+    [
+      '接下来将依次确认以下选项，直接回车即采用默认值：',
+      `${pc.dim('·')} 是否压缩代码`,
+      `${pc.dim('·')} 是否生成安装包`,
+      `${pc.dim('·')} 构建平台`,
+      `${pc.dim('·')} 打包架构`,
+      '',
+      `当前系统可构建的平台：${available}`,
+    ].join('\n'),
+    '打包向导',
+  )
+
+  const minify = ensure(await prompts.confirm({
+    message: '是否压缩代码？',
+    initialValue: store.minify,
+  }))
+
+  const isPackage = ensure(await prompts.confirm({
+    message: '是否生成安装包？',
+    initialValue: store.dir !== 'dir',
+  }))
+
+  const currentPlatformName = store.isWin ? 'win32' : store.isMac ? 'darwin' : 'linux'
+
+  const platform = ensure(await prompts.select<PlatformSelect>({
+    message: '请选择要构建的平台',
+    initialValue: platformSelect.find(item => item.platform === currentPlatformName && !item.disabled)
+      ?? platformSelect.find(item => !item.disabled),
+    options: platformSelect.map(item => ({
+      label: item.color(item.name),
+      value: item,
+      disabled: item.disabled,
+      hint: item.disabled
+        ? item.disabledHint
+        : item.platform === currentPlatformName ? '当前系统' : undefined,
+    })),
+  }))
+
+  const archs = ensure(await prompts.multiselect<Arch>({
+    message: `请选择 ${platform.name} 的打包架构（空格选择，回车确认）`,
+    required: true,
+    initialValues: (platform.archs ?? [])
+      .filter(item => !item.disabled && item.arch === store.currentArch)
+      .map(item => item.arch),
+    options: (platform.archs ?? []).map(item => ({
+      label: item.color(item.name),
+      value: item.arch,
+      disabled: item.disabled,
+      hint: item.disabled ? '当前系统架构不支持' : undefined,
+    })),
+  }))
+
+  prompts.note(
+    [
+      `${pc.dim('压缩代码：')}${minify ? '是' : '否'}`,
+      `${pc.dim('生成安装包：')}${isPackage ? '是' : '否'}`,
+      `${pc.dim('构建平台：')}${platform.name}`,
+      `${pc.dim('打包架构：')}${archs.join(' / ')}`,
+    ].join('\n'),
+    '构建配置确认',
+  )
+
+  const confirmed = ensure(await prompts.confirm({
+    message: '确认以上配置并开始构建？',
+    initialValue: true,
+  }))
+
+  if (!confirmed) {
+    prompts.cancel('已取消构建')
+    process.exit(0)
+  }
+
+  store.minify = minify
+  store.dir = isPackage ? null : 'dir'
+  store.targets = platform.createTarget(archs)
 }

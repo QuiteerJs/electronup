@@ -2,7 +2,7 @@ import type { UserConfig } from 'vite-plus/pack'
 import type { ElectronupConfig } from '../typings/electronup'
 import { resolve } from 'node:path'
 import { DefaultDirs, store } from '../utils'
-import { injectEnv } from './tsdown'
+import { injectEnv } from './pack'
 
 /**
  * 归一化 preload 构建配置 , 补齐与主进程一致的预置项

@@ -20,6 +20,8 @@ class Store {
   linux?: true | 'x64' | 'arm64' | 'armv7l'
   dir?: 'dir' | null
   asar?: boolean
+  /** 只构建渲染进程 ( web ) , 跳过主进程 / preload 与 electron-builder */
+  web?: boolean
   targets?: Map<Platform, Map<Arch, string[]>>
 
   static getInstance() {

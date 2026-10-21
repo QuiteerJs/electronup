@@ -1,6 +1,6 @@
 import type { ChildProcessWithoutNullStreams } from 'node:child_process'
 import type { UserConfig } from 'vite-plus/pack'
-import type { ElectronupConfig, TsdownConfig } from '../typings/electronup'
+import type { ElectronupConfig, PackConfig } from '../typings/electronup'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
@@ -15,25 +15,22 @@ import { DefaultDirs, store } from '../utils'
  * @returns {any}
  */
 const defaultEnvPath = resolve(store.root, '.env')
-/**
- * Description  加载环境变量
- * @param {any} {path:defaultEnvPath}
- * @returns {any}
- */
-const { parsed: defaultEnv } = getEnv({ path: defaultEnvPath })
 
-/**
- * Description 加载默认环境变量及mode下的环境变量
- * @returns {any}
- */
-function getModeDev() {
-  const path = `${defaultEnvPath}.${store.mode}`
+/** 可选地加载一个 dotenv 文件 , 文件缺失时返回 {} 而不是报错 */
+function loadOptionalEnv(path: string): Record<string, string> {
   const { parsed, error } = getEnv({ path })
-  if (error) { throw new Error(`未能加载 .env.${store.mode} 下的环境变量,检查文件是否存在！`) }
+  if (error) { return {} }
+  return parsed ?? {}
+}
+
+/** 合并 .env + .env.{mode} 两层环境变量 , mode 文件缺失时仅使用默认层 */
+function getModeDev() {
+  const defaultEnv = loadOptionalEnv(defaultEnvPath)
+  const modeEnv = loadOptionalEnv(`${defaultEnvPath}.${store.mode}`)
 
   return {
     ...defaultEnv,
-    ...parsed,
+    ...modeEnv,
   }
 }
 
@@ -61,27 +58,29 @@ export function injectEnv() {
 
 /**
  * Description  主进程代码编译配置
- * @param {any} config:TsdownConfig
+ * @param {any} config:PackConfig
  * @param {any} allConfig:ElectronupConfig
  * @returns {any}
  */
-export function getTsdownConfig(config: TsdownConfig, allConfig: ElectronupConfig) {
+export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig) {
   const { command, root, minify } = store
   const isServe = command === 'serve'
 
   const defaultConfig: UserConfig = {
-    minify: minify === false ? false : isServe,
+    // 默认压缩 ( dev / build 一致 ) , 显式传 --no-minify 时关闭
+    minify: minify !== false && (minify === true || !isServe),
     external: ['electron', ...(config.external ?? [])],
     noExternal: config.noExternal,
     entry: { electron: resolve(root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts') },
     outDir: allConfig.resourceDir || DefaultDirs.resourceDir,
     watch: isServe,
-    // format: 'cjs',
+    // 主进程强制 CJS , 与 preload 保持一致 , Electron 主进程对 CJS 兼容性最好
+    format: 'cjs',
     dts: false,
     clean: false,
     env: injectEnv(),
     async onSuccess() {
-      if (isServe) { return startElectron(resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir, 'electron.mjs')) }
+      if (isServe) { return startElectron(resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir, 'electron.cjs')) }
     },
   }
 
@@ -89,13 +88,14 @@ export function getTsdownConfig(config: TsdownConfig, allConfig: ElectronupConfi
 }
 
 /**
- * Description  从用户项目根解析 electron 可执行文件路径
+ * Description 从用户项目根解析 electron 可执行文件路径
  * Description  electron 为 peer 依赖 , pnpm 严格隔离下只能从用户项目解析
  * @returns {any}
  */
 function getElectronBinary(): string {
   const requireFromRoot = createRequire(resolve(store.root, 'package.json'))
-  return requireFromRoot('electron') as unknown as string
+  // electron 在普通 Node 下的 module.exports 就是可执行文件路径
+  return requireFromRoot('electron')
 }
 
 let electronProcess: ChildProcessWithoutNullStreams | null
@@ -133,12 +133,20 @@ function startElectron(mainPath: string) {
   })
 }
 
-function removeJunk(chunk: string) {
-  if (/\d+-\d+-\d+ \d+:\d+:\d+\.\d+ Electron(?: Helper)?\[\d+:\d+\] /.test(chunk)) { return false }
-  if (/\[\d+:\d+\/|\d+\.\d+:ERROR:CONSOLE\(\d+\)\]/.test(chunk)) { return false }
-  if (/ALSA lib [a-z]+\.c:\d+:\([a-z_]+\)/.test(chunk)) { return false }
+/**
+ * 过滤 Electron 进程输出的固定格式噪音日志
+ *
+ * child_process 的 stdout / stderr 'data' 事件传入的 chunk 默认是 Buffer ,
+ * 旧实现 ( tsdown.ts ) 里先 chunk.toString() 再处理 ; 这里必须同样先转字符串 ,
+ * 否则 Electron 一旦有输出就会抛 `chunk.split is not a function`
+ */
+export function removeJunk(chunk: Buffer | string) {
+  const text = chunk.toString()
+  if (/\d+-\d+-\d+ \d+:\d+:\d+\.\d+ Electron(?: Helper)?\[\d+:\d+\] /.test(text)) { return }
+  if (/\[\d+:\d+\/|\d+\.\d+:ERROR:CONSOLE\(\d+\)\]/.test(text)) { return }
+  if (/ALSA lib [a-z]+\.c:\d+:\([a-z_]+\)/.test(text)) { return }
 
-  const data = chunk.toString().split(/\r?\n/)
+  const data = text.split(/\r?\n/)
   let log = ''
   data.forEach((line) => {
     log += `  ${line}\n`
