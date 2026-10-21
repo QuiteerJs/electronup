@@ -1,6 +1,295 @@
 ## 变更日志
 
-### 2026-03-04 `✏️ 47+` `➕ 2+` `🗑️ 0+`
+### 2026-10-21 `✏️ 48+` `➕ 29+` `🗑️ 0+`
+- 🔧  **chore** `agents`: 补充 AI 编程 agent 工程配置
+  > **🕒  15:54** · `➕212` / `➖1`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`cc36a79`](https://github.com/QuiteerJs/electronup/commit/cc36a7948788a45ddc97c1c2b2155a13f6c0ad49))
+  - ➕ [`.cursor/rules/electronup.mdc`](https://github.com/QuiteerJs/electronup/blob/cc36a7948788a45ddc97c1c2b2155a13f6c0ad49/.cursor/rules/electronup.mdc)
+  - ➕ [`.github/copilot-instructions.md`](https://github.com/QuiteerJs/electronup/blob/cc36a7948788a45ddc97c1c2b2155a13f6c0ad49/.github/copilot-instructions.md)
+  - ➕ [`AGENTS.md`](https://github.com/QuiteerJs/electronup/blob/cc36a7948788a45ddc97c1c2b2155a13f6c0ad49/AGENTS.md)
+  - ➕ [`CLAUDE.md`](https://github.com/QuiteerJs/electronup/blob/cc36a7948788a45ddc97c1c2b2155a13f6c0ad49/CLAUDE.md)
+  - ✏️ [`.vscode/extensions.json`](https://github.com/QuiteerJs/electronup/blob/cc36a7948788a45ddc97c1c2b2155a13f6c0ad49/.vscode/extensions.json)
+- ⚙️  **ci** `smoke`: 新增 Windows 自签名代码签名冒烟构建
+  > **🕒  15:54** · `➕47` / `➖1`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`90a6200`](https://github.com/QuiteerJs/electronup/commit/90a6200c910e1f0602bb7f13f37d99f71c7082ea))
+  - ✏️ [`.github/workflows/smoke-build.yml`](https://github.com/QuiteerJs/electronup/blob/90a6200c910e1f0602bb7f13f37d99f71c7082ea/.github/workflows/smoke-build.yml)
+- 📝  **docs** 重写文档站并补充完整英文文档与自动更新说明
+  > **🕒  15:54** · `➕3999` / `➖613`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`eca71b6`](https://github.com/QuiteerJs/electronup/commit/eca71b69f32648045910454608d57bdbb53e3fcb))
+  - ➕ [`README.en.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/README.en.md)
+  - ➕ [`docs/en/about/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/about/index.md)
+  - ➕ [`docs/en/api/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/api/index.md)
+  - ➕ [`docs/en/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/index.md)
+  - ➕ [`docs/en/introduce/auto-update.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/introduce/auto-update.md)
+  - ➕ [`docs/en/introduce/catalogue.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/introduce/catalogue.md)
+  - ➕ [`docs/en/introduce/cli.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/introduce/cli.md)
+  - ➕ [`docs/en/introduce/config.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/introduce/config.md)
+  - ➕ [`docs/en/introduce/introduction.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/introduce/introduction.md)
+  - ➕ [`docs/en/introduce/project.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/introduce/project.md)
+  - ➕ [`docs/en/plugins/create-electronup.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/create-electronup.md)
+  - ➕ [`docs/en/plugins/electron-browser.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/electron-browser.md)
+  - ➕ [`docs/en/plugins/electron-ipc.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/electron-ipc.md)
+  - ➕ [`docs/en/plugins/electron-menu.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/electron-menu.md)
+  - ➕ [`docs/en/plugins/electron-preload.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/electron-preload.md)
+  - ➕ [`docs/en/plugins/electron-tray.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/electron-tray.md)
+  - ➕ [`docs/en/plugins/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/index.md)
+  - ➕ [`docs/en/plugins/parser-config.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/en/plugins/parser-config.md)
+  - ➕ [`docs/introduce/auto-update.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/introduce/auto-update.md)
+  - ✏️ [`README.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/README.md)
+  - ✏️ [`docs/.vitepress/config.ts`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/.vitepress/config.ts)
+  - ✏️ [`docs/about/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/about/index.md)
+  - ✏️ [`docs/api/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/api/index.md)
+  - ✏️ [`docs/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/index.md)
+  - ✏️ [`docs/introduce/catalogue.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/introduce/catalogue.md)
+  - ✏️ [`docs/introduce/cli.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/introduce/cli.md)
+  - ✏️ [`docs/introduce/config.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/introduce/config.md)
+  - ✏️ [`docs/introduce/introduction.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/introduce/introduction.md)
+  - ✏️ [`docs/introduce/project.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/introduce/project.md)
+  - ✏️ [`docs/plugins/create-electronup.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/plugins/create-electronup.md)
+  - ✏️ [`docs/plugins/electron-preload.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/plugins/electron-preload.md)
+  - ✏️ [`docs/plugins/index.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/plugins/index.md)
+  - ✏️ [`docs/plugins/parser-config.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/docs/plugins/parser-config.md)
+  - ✏️ [`packages/create-electronup/README.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/packages/create-electronup/README.md)
+  - ✏️ [`packages/electronup/README.md`](https://github.com/QuiteerJs/electronup/blob/eca71b69f32648045910454608d57bdbb53e3fcb/packages/electronup/README.md)
+- ✨  **feat** `build`: 新增 --web 只构建渲染进程并迁移到 vite-plus pack
+  > **🕒  15:53** · `➕787` / `➖209`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`7131e47`](https://github.com/QuiteerJs/electronup/commit/7131e47fb7930b5889c924b9a985e35d82312649))
+  - ➕ [`packages/electronup/src/configs/builder.test.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/builder.test.ts)
+  - ➕ [`packages/electronup/src/configs/pack.test.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/pack.test.ts)
+  - ➕ [`packages/electronup/src/configs/preload.test.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/preload.test.ts)
+  - ➕ [`packages/electronup/src/configs/vite.test.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/vite.test.ts)
+  - ➕ [`packages/electronup/src/updater.proxy.test.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/updater.proxy.test.ts)
+  - ➕ [`packages/electronup/src/updater.test.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/updater.test.ts)
+  - ✏️ [`packages/electronup/src/cli.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/cli.ts)
+  - ✏️ [`packages/electronup/src/configs/builder.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/builder.ts)
+  - ✏️ [`packages/electronup/src/configs/electronup.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/electronup.ts)
+  - ✏️ [`packages/electronup/src/configs/tsdown.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/tsdown.ts)
+  - ✏️ [`packages/electronup/src/configs/preload.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/preload.ts)
+  - ✏️ [`packages/electronup/src/configs/vite.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/configs/vite.ts)
+  - ✏️ [`packages/electronup/src/index.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/index.ts)
+  - ✏️ [`packages/electronup/src/runner/build.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/runner/build.ts)
+  - ✏️ [`packages/electronup/src/runner/watch.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/runner/watch.ts)
+  - ✏️ [`packages/electronup/src/transform/getConfig.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/transform/getConfig.ts)
+  - ✏️ [`packages/electronup/src/typings/electronup.d.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/typings/electronup.d.ts)
+  - ✏️ [`packages/electronup/src/updater.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/updater.ts)
+  - ✏️ [`packages/electronup/src/utils/store.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/packages/electronup/src/utils/store.ts)
+  - ✏️ [`playground/electronup-test/build/electronup.config.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/build/electronup.config.ts)
+  - ✏️ [`playground/electronup-test/build/tsdown.config.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/build/tsdown.config.ts)
+  - ✏️ [`playground/electronup-test/build/vite.config.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/build/vite.config.ts)
+  - ✏️ [`playground/electronup-test/electronup.config.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/electronup.config.ts)
+  - ✏️ [`playground/electronup-test/package.json`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/package.json)
+  - ✏️ [`playground/electronup-test/render/main.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/render/main.ts)
+  - ✏️ [`playground/electronup-test/tsconfig.json`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/tsconfig.json)
+  - ✏️ [`playground/electronup-test/tsconfig.node.json`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/tsconfig.node.json)
+  - ✏️ [`playground/electronup-test/typings/global.d.ts`](https://github.com/QuiteerJs/electronup/blob/7131e47fb7930b5889c924b9a985e35d82312649/playground/electronup-test/typings/global.d.ts)
+- 🔧  **chore** `deps`: 升级依赖并加固 workspace 供应链策略
+  > **🕒  15:53** · `➕3475` / `➖3278`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`dcc0bc7`](https://github.com/QuiteerJs/electronup/commit/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5))
+  - ✏️ [`.gitignore`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/.gitignore)
+  - ✏️ [`package.json`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/package.json)
+  - ✏️ [`packages/create-electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/packages/create-electronup/package.json)
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/packages/electronup/package.json)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/pnpm-lock.yaml)
+  - ✏️ [`pnpm-workspace.yaml`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/pnpm-workspace.yaml)
+  - ✏️ [`template/package.json`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/template/package.json)
+  - ✏️ [`vite.config.ts`](https://github.com/QuiteerJs/electronup/blob/dcc0bc78b8bb988b6e38eb878be4eeedc481eab5/vite.config.ts)
+
+### 2026-10-20 `✏️ 15+` `➕ 1+` `🗑️ 0+`
+- ⚙️  **ci** `smoke`: 直接运行构建出的 dist 产物 ( 与发布物一致 , 规避 bin shim 差异 )
+  > **🕒  12:27** · `➕1` / `➖1`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`4813e57`](https://github.com/QuiteerJs/electronup/commit/4813e574e9b57101bd6df41ab08cf300df078524))
+  - ✏️ [`.github/workflows/smoke-build.yml`](https://github.com/QuiteerJs/electronup/blob/4813e574e9b57101bd6df41ab08cf300df078524/.github/workflows/smoke-build.yml)
+- 🔧  **chore** `release`: electronup v0.3.0
+  > **🕒  12:26** · `➕1` / `➖1`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`39b14f3`](https://github.com/QuiteerJs/electronup/commit/39b14f31afe52f22d58645ba384677291e8107b1))
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/39b14f31afe52f22d58645ba384677291e8107b1/packages/electronup/package.json)
+- 📝  **docs** 对齐文档与代码
+  > **🕒  10:06** · `➕129` / `➖91`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`aacff7f`](https://github.com/QuiteerJs/electronup/commit/aacff7febe419565463410d550d2271116de5a9f))
+  - ✏️ [`docs/introduce/catalogue.md`](https://github.com/QuiteerJs/electronup/blob/aacff7febe419565463410d550d2271116de5a9f/docs/introduce/catalogue.md)
+  - ✏️ [`docs/introduce/cli.md`](https://github.com/QuiteerJs/electronup/blob/aacff7febe419565463410d550d2271116de5a9f/docs/introduce/cli.md)
+  - ✏️ [`docs/introduce/config.md`](https://github.com/QuiteerJs/electronup/blob/aacff7febe419565463410d550d2271116de5a9f/docs/introduce/config.md)
+  - ✏️ [`docs/introduce/introduction.md`](https://github.com/QuiteerJs/electronup/blob/aacff7febe419565463410d550d2271116de5a9f/docs/introduce/introduction.md)
+  - ✏️ [`docs/introduce/project.md`](https://github.com/QuiteerJs/electronup/blob/aacff7febe419565463410d550d2271116de5a9f/docs/introduce/project.md)
+  - ✏️ [`packages/create-electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/aacff7febe419565463410d550d2271116de5a9f/packages/create-electronup/package.json)
+  - ✏️ [`packages/electronup/README.md`](https://github.com/QuiteerJs/electronup/blob/aacff7febe419565463410d550d2271116de5a9f/packages/electronup/README.md)
+- ⚙️  **ci** `smoke`: 新增三平台 build --dir 冒烟构建
+  > **🕒  10:02** · `➕58` / `➖0`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`c8a8fd5`](https://github.com/QuiteerJs/electronup/commit/c8a8fd5340f99bee57867dd16fd952c5499c7555))
+  - ➕ [`.github/workflows/smoke-build.yml`](https://github.com/QuiteerJs/electronup/blob/c8a8fd5340f99bee57867dd16fd952c5499c7555/.github/workflows/smoke-build.yml)
+- ♻️  **refactor** `deps`: electron 改为 optional peer 依赖 , vite-plus 移入 dependencies
+  > **🕒  10:01** · `➕42` / `➖18`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`3033518`](https://github.com/QuiteerJs/electronup/commit/30335185ae573323a077aee975eda0dd825bd3c9))
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/30335185ae573323a077aee975eda0dd825bd3c9/packages/electronup/package.json)
+  - ✏️ [`packages/electronup/src/configs/builder.ts`](https://github.com/QuiteerJs/electronup/blob/30335185ae573323a077aee975eda0dd825bd3c9/packages/electronup/src/configs/builder.ts)
+  - ✏️ [`packages/electronup/src/configs/tsdown.ts`](https://github.com/QuiteerJs/electronup/blob/30335185ae573323a077aee975eda0dd825bd3c9/packages/electronup/src/configs/tsdown.ts)
+  - ✏️ [`playground/electronup-test/package.json`](https://github.com/QuiteerJs/electronup/blob/30335185ae573323a077aee975eda0dd825bd3c9/playground/electronup-test/package.json)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/30335185ae573323a077aee975eda0dd825bd3c9/pnpm-lock.yaml)
+  - ✏️ [`pnpm-workspace.yaml`](https://github.com/QuiteerJs/electronup/blob/30335185ae573323a077aee975eda0dd825bd3c9/pnpm-workspace.yaml)
+
+### 2026-10-19 `✏️ 15+` `➕ 5+` `🗑️ 0+`
+- ✨  **feat** `preload`: 实现 preload 构建配置
+  > **🕒  18:59** · `➕53` / `➖9`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`3a8fcc0`](https://github.com/QuiteerJs/electronup/commit/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031))
+  - ➕ [`packages/electronup/src/configs/preload.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/packages/electronup/src/configs/preload.ts)
+  - ➕ [`playground/electronup-test/preload/index.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/playground/electronup-test/preload/index.ts)
+  - ✏️ [`packages/electronup/src/configs/electronup.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/packages/electronup/src/configs/electronup.ts)
+  - ✏️ [`packages/electronup/src/configs/tsdown.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/packages/electronup/src/configs/tsdown.ts)
+  - ✏️ [`packages/electronup/src/runner/build.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/packages/electronup/src/runner/build.ts)
+  - ✏️ [`packages/electronup/src/runner/watch.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/packages/electronup/src/runner/watch.ts)
+  - ✏️ [`packages/electronup/src/typings/electronup.d.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/packages/electronup/src/typings/electronup.d.ts)
+  - ✏️ [`playground/electronup-test/electronup.config.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/playground/electronup-test/electronup.config.ts)
+  - ✏️ [`playground/electronup-test/main/index.ts`](https://github.com/QuiteerJs/electronup/blob/3a8fcc03cd955fb514100d8d0c9d6e9b5059e031/playground/electronup-test/main/index.ts)
+- 🐛  **fix** `build`: 重构平台/架构 targets 解析并补充单元测试
+  > **🕒  18:52** · `➕245` / `➖388`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`85e6666`](https://github.com/QuiteerJs/electronup/commit/85e66666c5fd970ac7aa1ddf34e03d5fec10c720))
+  - ➕ [`packages/electronup/src/runner/targets.test.ts`](https://github.com/QuiteerJs/electronup/blob/85e66666c5fd970ac7aa1ddf34e03d5fec10c720/packages/electronup/src/runner/targets.test.ts)
+  - ➕ [`packages/electronup/src/runner/targets.ts`](https://github.com/QuiteerJs/electronup/blob/85e66666c5fd970ac7aa1ddf34e03d5fec10c720/packages/electronup/src/runner/targets.ts)
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/85e66666c5fd970ac7aa1ddf34e03d5fec10c720/packages/electronup/package.json)
+  - ✏️ [`packages/electronup/src/cli.ts`](https://github.com/QuiteerJs/electronup/blob/85e66666c5fd970ac7aa1ddf34e03d5fec10c720/packages/electronup/src/cli.ts)
+  - ✏️ [`packages/electronup/src/runner/build.ts`](https://github.com/QuiteerJs/electronup/blob/85e66666c5fd970ac7aa1ddf34e03d5fec10c720/packages/electronup/src/runner/build.ts)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/85e66666c5fd970ac7aa1ddf34e03d5fec10c720/pnpm-lock.yaml)
+- ✨  **feat** `updater`: 内置 electron-updater 自动更新器
+  > **🕒  18:40** · `➕781` / `➖18`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`00ad46f`](https://github.com/QuiteerJs/electronup/commit/00ad46fa69f185a6033cff3e545e29102c36ba18))
+  - ➕ [`packages/electronup/src/updater.ts`](https://github.com/QuiteerJs/electronup/blob/00ad46fa69f185a6033cff3e545e29102c36ba18/packages/electronup/src/updater.ts)
+  - ✏️ [`packages/electronup/README.md`](https://github.com/QuiteerJs/electronup/blob/00ad46fa69f185a6033cff3e545e29102c36ba18/packages/electronup/README.md)
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/00ad46fa69f185a6033cff3e545e29102c36ba18/packages/electronup/package.json)
+  - ✏️ [`packages/electronup/src/index.ts`](https://github.com/QuiteerJs/electronup/blob/00ad46fa69f185a6033cff3e545e29102c36ba18/packages/electronup/src/index.ts)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/00ad46fa69f185a6033cff3e545e29102c36ba18/pnpm-lock.yaml)
+
+### 2026-08-29 `✏️ 29+` `➕ 4+` `🗑️ 2+`
+- 📝  **docs** `plugins`: 同步 electron-modules 五个包的最新文档
+  > **🕒  02:09** · `➕511` / `➖372`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`b96b071`](https://github.com/QuiteerJs/electronup/commit/b96b07155c0d10609771ccd3dd0515bf20678aa9))
+  - ✏️ [`docs/plugins/electron-browser.md`](https://github.com/QuiteerJs/electronup/blob/b96b07155c0d10609771ccd3dd0515bf20678aa9/docs/plugins/electron-browser.md)
+  - ✏️ [`docs/plugins/electron-ipc.md`](https://github.com/QuiteerJs/electronup/blob/b96b07155c0d10609771ccd3dd0515bf20678aa9/docs/plugins/electron-ipc.md)
+  - ✏️ [`docs/plugins/electron-menu.md`](https://github.com/QuiteerJs/electronup/blob/b96b07155c0d10609771ccd3dd0515bf20678aa9/docs/plugins/electron-menu.md)
+  - ✏️ [`docs/plugins/electron-preload.md`](https://github.com/QuiteerJs/electronup/blob/b96b07155c0d10609771ccd3dd0515bf20678aa9/docs/plugins/electron-preload.md)
+  - ✏️ [`docs/plugins/electron-tray.md`](https://github.com/QuiteerJs/electronup/blob/b96b07155c0d10609771ccd3dd0515bf20678aa9/docs/plugins/electron-tray.md)
+  - ✏️ [`docs/plugins/index.md`](https://github.com/QuiteerJs/electronup/blob/b96b07155c0d10609771ccd3dd0515bf20678aa9/docs/plugins/index.md)
+- 🔧  **chore** `gitignore`: 忽略 vitepress 的 .temp 与 dist 构建产物
+  > **🕒  02:08** · `➕2` / `➖0`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`72d0403`](https://github.com/QuiteerJs/electronup/commit/72d0403207685159d7b00c0628c3058c33077e9d))
+  - ✏️ [`.gitignore`](https://github.com/QuiteerJs/electronup/blob/72d0403207685159d7b00c0628c3058c33077e9d/.gitignore)
+- 📝  **docs** `plugins`: 总览补充 electron-menu 与 electron-tray 条目
+  > **🕒  01:12** · `➕2` / `➖0`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`ad235c9`](https://github.com/QuiteerJs/electronup/commit/ad235c914d7029e698d4758c394a408f5321ce51))
+  - ✏️ [`docs/plugins/index.md`](https://github.com/QuiteerJs/electronup/blob/ad235c914d7029e698d4758c394a408f5321ce51/docs/plugins/index.md)
+- 📝  **docs** `plugins`: 新增 electron-menu 与 electron-tray 文档
+  > **🕒  01:08** · `➕539` / `➖1`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`9c9070c`](https://github.com/QuiteerJs/electronup/commit/9c9070c66f2522aeadae977c5e3bb591194e0e38))
+  - ➕ [`docs/plugins/electron-menu.md`](https://github.com/QuiteerJs/electronup/blob/9c9070c66f2522aeadae977c5e3bb591194e0e38/docs/plugins/electron-menu.md)
+  - ➕ [`docs/plugins/electron-tray.md`](https://github.com/QuiteerJs/electronup/blob/9c9070c66f2522aeadae977c5e3bb591194e0e38/docs/plugins/electron-tray.md)
+  - ✏️ [`docs/.vitepress/config.ts`](https://github.com/QuiteerJs/electronup/blob/9c9070c66f2522aeadae977c5e3bb591194e0e38/docs/.vitepress/config.ts)
+  - ✏️ [`docs/plugins/electron-browser.md`](https://github.com/QuiteerJs/electronup/blob/9c9070c66f2522aeadae977c5e3bb591194e0e38/docs/plugins/electron-browser.md)
+- ✨  **feat** `build`: 主进程与 CLI 构建迁移到 vite-plus pack
+  > **🕒  01:07** · `➕1213` / `➖1249`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`831a929`](https://github.com/QuiteerJs/electronup/commit/831a9294c0c0660cee0d951ab099631bd7204132))
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/package.json)
+  - ✏️ [`packages/electronup/src/cli.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/cli.ts)
+  - ✏️ [`packages/electronup/src/configs/builder.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/configs/builder.ts)
+  - ✏️ [`packages/electronup/src/configs/electronup.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/configs/electronup.ts)
+  - ✏️ [`packages/electronup/src/configs/tsdown.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/configs/tsdown.ts)
+  - ✏️ [`packages/electronup/src/configs/vite.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/configs/vite.ts)
+  - ✏️ [`packages/electronup/src/runner/build.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/runner/build.ts)
+  - ✏️ [`packages/electronup/src/runner/watch.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/runner/watch.ts)
+  - ✏️ [`packages/electronup/src/transform/getConfig.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/transform/getConfig.ts)
+  - ✏️ [`packages/electronup/src/transform/getExportConfig.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/transform/getExportConfig.ts)
+  - ✏️ [`packages/electronup/src/typings/electronup.d.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/typings/electronup.d.ts)
+  - ✏️ [`packages/electronup/src/utils/store.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/src/utils/store.ts)
+  - ✏️ [`packages/electronup/tsdown.config.ts`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/packages/electronup/tsdown.config.ts)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/pnpm-lock.yaml)
+  - ✏️ [`pnpm-workspace.yaml`](https://github.com/QuiteerJs/electronup/blob/831a9294c0c0660cee0d951ab099631bd7204132/pnpm-workspace.yaml)
+  - 🗑️ [~~`packages/electronup/src/typings/env.d.ts`~~](https://github.com/QuiteerJs/electronup/commit/831a9294c0c0660cee0d951ab099631bd7204132)
+- 🔧  **chore** `tooling`: lint 与格式化切换到 vite-plus (oxlint/oxfmt)
+  > **🕒  01:03** · `➕118` / `➖95`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`d2ac3c8`](https://github.com/QuiteerJs/electronup/commit/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b))
+  - ➕ [`.vscode/extensions.json`](https://github.com/QuiteerJs/electronup/blob/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b/.vscode/extensions.json)
+  - ➕ [`vite.config.ts`](https://github.com/QuiteerJs/electronup/blob/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b/vite.config.ts)
+  - ✏️ [`.gitignore`](https://github.com/QuiteerJs/electronup/blob/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b/.gitignore)
+  - ✏️ [`.vscode/settings.json`](https://github.com/QuiteerJs/electronup/blob/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b/.vscode/settings.json)
+  - ✏️ [`package.json`](https://github.com/QuiteerJs/electronup/blob/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b/package.json)
+  - ✏️ [`packages/create-electronup/src/index.ts`](https://github.com/QuiteerJs/electronup/blob/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b/packages/create-electronup/src/index.ts)
+  - 🗑️ [~~`eslint.config.js`~~](https://github.com/QuiteerJs/electronup/commit/d2ac3c82bf8f7b2b7c061b8a81e8c8de3271ef0b)
+
+### 2026-03-18 `✏️ 2+` `➕ 0+` `🗑️ 0+`
+- ⚙️  **ci** `projects`: vercel 适配
+  > **🕒  16:54** · `➕9` / `➖1`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`7e65d2c`](https://github.com/QuiteerJs/electronup/commit/7e65d2c49573fbd1961e944973778bb0a3764319))
+  - ✏️ [`docs/.vitepress/config.ts`](https://github.com/QuiteerJs/electronup/blob/7e65d2c49573fbd1961e944973778bb0a3764319/docs/.vitepress/config.ts)
+- ⚙️  **ci** `projects`: 升级脚本
+  > **🕒  15:54** · `➕1` / `➖1`
+  > `👤 张爱民`  <p602985@yeah.net> ([`b04d916`](https://github.com/QuiteerJs/electronup/commit/b04d916fe0332cd21e0d672e5ff92cb82557389a))
+  - ✏️ [`.github/workflows/deploy.yml`](https://github.com/QuiteerJs/electronup/blob/b04d916fe0332cd21e0d672e5ff92cb82557389a/.github/workflows/deploy.yml)
+
+### 2026-03-10 `✏️ 1+` `➕ 0+` `🗑️ 0+`
+- 📝  **docs** `projects`: 更新文档
+  > **🕒  17:53** · `➕6` / `➖5`
+  > `👤 张爱民`  <p602985@yeah.net> ([`297740f`](https://github.com/QuiteerJs/electronup/commit/297740fe7bca8f9be3c54d6993ea139d1143c1ee))
+  - ✏️ [`docs/introduce/project.md`](https://github.com/QuiteerJs/electronup/blob/297740fe7bca8f9be3c54d6993ea139d1143c1ee/docs/introduce/project.md)
+
+### 2026-03-04 `✏️ 56+` `➕ 4+` `🗑️ 46+`
+- ✨  **feat** `release`: 本地创建模板改为拉取仓库分支代码
+  > **🕒  18:34** · `➕182` / `➖1427`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`3c997b3`](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f))
+  - ➕ [`packages/create-electronup/src/types/degit.d.ts`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/packages/create-electronup/src/types/degit.d.ts)
+  - ➕ [`template/package.json`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/template/package.json)
+  - ✏️ [`.gitignore`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/.gitignore)
+  - ✏️ [`CHANGELOG.md`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/CHANGELOG.md)
+  - ✏️ [`CHANGELOG_TIMELINE.md`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/CHANGELOG_TIMELINE.md)
+  - ✏️ [`packages/create-electronup/index.js`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/packages/create-electronup/index.js)
+  - ✏️ [`packages/create-electronup/src/index.ts`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/packages/create-electronup/src/index.ts)
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/packages/electronup/package.json)
+  - ✏️ [`packages/electronup/src/runner/build.ts`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/packages/electronup/src/runner/build.ts)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/pnpm-lock.yaml)
+  - ✏️ [`pnpm-workspace.yaml`](https://github.com/QuiteerJs/electronup/blob/3c997b3b85b12f53bf6cc90c33eedf744be6041f/pnpm-workspace.yaml)
+  - 🗑️ [~~`packages/create-electronup/src/getData.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/.env`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/.env.development`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/.env.production`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/.eslintrc.cjs.ejs`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/.npmrc.ejs`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/.vscode/settings.json`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/LICENSE`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/README.md`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/_gitignore`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/electronup.config.ts.ejs`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/main/index.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/main/utils/common.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/main/utils/is.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/package.json.ejs`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/public/icon.png`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/public/vite.svg`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/tsconfig.json.ejs`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/tsconfig.node.json`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/typings/env.d.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/base/typings/global.d.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/react/App.css`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/react/App.tsx`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/react/assets/react.svg`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/react/index.css`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/react/index.html`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/react/main.tsx`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/solid/App.css`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/solid/App.tsx`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/solid/assets/solid.svg`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/solid/index.css`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/solid/index.html`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/solid/index.tsx`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vanilla/counter.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vanilla/index.html`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vanilla/main.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vanilla/style.css`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vanilla/typescript.svg`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/App.vue`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/assets/avatar.png`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/assets/vue.svg`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/index.html`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/loading/index.vue`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/main.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/store/index.ts`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
+  - 🗑️ [~~`packages/create-electronup/template/vue/styles/style.css`~~](https://github.com/QuiteerJs/electronup/commit/3c997b3b85b12f53bf6cc90c33eedf744be6041f)
 - 🔧  **chore** `release`: v0.2.0
   > **🕒  18:34** · `➕6` / `➖10`
   > `👤 Quiteer`  <p602985@yeah.net> ([`83bce6e`](https://github.com/QuiteerJs/electronup/commit/83bce6efc80da724e68ba8e918549e703fa8d17e))
