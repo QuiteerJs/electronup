@@ -1,0 +1,35 @@
+---
+description: electronup monorepo 的构建、测试、风格与易错点约定
+globs: ["**/*.ts", "**/*.vue", "**/*.md", "**/*.json", "**/*.yml", "**/*.yaml"]
+alwaysApply: true
+---
+
+# electronup 工程约定
+
+完整指南见仓库根目录 `AGENTS.md`，本节为 Cursor 常驻摘要。
+
+## 仓库结构
+- `packages/electronup`：核心 CLI / 构建工具（Vite + vite-plus pack + electron-builder）
+- `packages/create-electronup`：脚手架
+- `playground/electronup-test`：端到端示例（CI 冒烟构建使用）
+- `docs` / `docs/en`：中英双语文档（各 17 篇，需同步）
+- `.github/workflows/smoke-build.yml`：三平台 `--dir` 冒烟 + Windows 签名冒烟
+
+## 命令
+- `pnpm test`、`pnpm typecheck`、`pnpm lint`、`pnpm --filter electronup build`
+- 端到端：先构建，再在 `playground/electronup-test` 里用 `node ../../packages/electronup/dist/bin/electronup.mjs build --web|--dir`
+
+## 必须遵守
+- updater 惰性加载：模块顶层禁止 import `electron` / `electron-updater`，禁止直接读取 `autoUpdater` 属性。
+- cac 负向选项未传默认 `true`（`--no-minify` / `--no-asar`），CLI 层必须归一化；`store.asar` 默认保持 `undefined`。
+- 主进程 / preload 输出 CJS（`electron.cjs`、`preload*.cjs`），示例 `package.json#main` 指向 `dist/resource/electron.cjs`。
+- `electron` 是 optional peer，运行期从用户项目根 `createRequire` 解析。
+- `.env` / `.env.{mode}` 缺失时必须降级为空对象，不能抛错。
+- electron-builder 预置项（appId、mac dmg+zip、nsis perMachine=false、无默认 protocols、嵌套浅合并）不要随意改。
+- 路径一律 `node:path`，保持 Windows/macOS/Linux 兼容。
+
+## 风格与提交
+- 无分号、单引号、2 空格、LF；单行 `if (x) { return }`；`no-console` 仅允许 `console.error`（其他需 oxlint-disable 注释）。
+- 提交信息：`type(scope): 中文描述`（如 `feat(build): ...`）。
+- 不手工改 `pnpm-lock.yaml`；不提交 `dist/`、`.vitepress` 缓存、`*.tgz`、临时日志。
+- 行为变更补充同目录 `*.test.ts`；测试中不要启动 Electron。
