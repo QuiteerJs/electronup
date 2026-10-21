@@ -51,8 +51,54 @@ jobs:
           ls -R dist/out
           case "${{ runner.os }}" in
             Windows) test -f dist/out/win-unpacked/electronup-test.exe ;;
-            macOS)   test -d dist/out/mac-*/electronup-test.app ;;
+            # mac 输出目录随 runner 架构为 mac/ ( x64 ) 或 mac-arm64/ ( arm64 )
+            macOS)   test -d dist/out/mac*/electronup-test.app ;;
             Linux)   test -x dist/out/linux-unpacked/electronup-test ;;
             *) echo "unknown runner os" && exit 1 ;;
           esac
           echo "smoke build OK : ${{ runner.os }}"
+
+  sign-smoke:
+    name: signed build with self-signed cert (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build electronup CLI
+        run: pnpm --filter electronup build
+
+      - name: Generate self-signed code signing certificate
+        shell: powershell
+        run: |
+          $pfxPass = ConvertTo-SecureString 'electronup-smoke' -AsPlainText -Force
+          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=electronup-smoke' -CertStoreLocation Cert:\CurrentUser\My
+          Export-PfxCertificate -Cert $cert -FilePath "$env:RUNNER_TEMP/electronup-smoke.pfx" -Password $pfxPass | Out-Null
+
+      - name: Signed smoke build ( dir target )
+        working-directory: playground/electronup-test
+        run: node ../../packages/electronup/dist/bin/electronup.mjs build --dir
+        env:
+          CSC_LINK: ${{ runner.temp }}/electronup-smoke.pfx
+          CSC_KEY_PASSWORD: electronup-smoke
+
+      - name: Assert the packaged executable is signed
+        shell: powershell
+        working-directory: playground/electronup-test
+        run: |
+          $sig = Get-AuthenticodeSignature 'dist/out/win-unpacked/electronup-test.exe'
+          if ($null -eq $sig.SignerCertificate) { throw "expected a signed executable, got status: $($sig.Status)" }
+          Write-Host "Authenticode status: $($sig.Status)"
