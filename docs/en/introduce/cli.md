@@ -267,7 +267,7 @@ The first match wins. Explicit paths are resolved relative to the project root.
 | --- | --- | --- |
 | `resourceDir` | `dist/resource` | Renderer, main process and preload output |
 | `outDir` | `dist/out` | electron-builder installer output |
-| `electronup-effective-config.yaml` | under `outDir` | Effective config written after a build, useful for troubleshooting (not written for `--web`) |
+| `electronup-effective-config.yaml` | under the packaging output directory (`outDir`, or `builderConfig.directories.output` when set) | Effective config written after a build, useful for troubleshooting (not written for `--web`) |
 
 ::: warning Directories are cleared
 `electronup dev` clears the contents of `resourceDir`; `electronup build` clears `resourceDir` and `outDir` (`build --web` clears only `resourceDir`). Never point these options at source directories.

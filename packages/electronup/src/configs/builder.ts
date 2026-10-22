@@ -36,6 +36,15 @@ function defaultProductName(packages: { name: string, productName?: string }): s
   return packages.name.replace(/^@[^/]+\//, '').replace(/[\\/:*?"<>|\x00-\x1F]/g, '-')
 }
 
+/**
+ * electron-builder 的最终输出目录 ( 相对项目根 ) : builderConfig.directories.output 优先于 outDir
+ *
+ * 清理、electron-builder 输出与 electronup-effective-config.yaml 写入统一使用该目录
+ */
+export function getBuilderOutDir(builderConfig: BuilderConfig | undefined, outDir: string | undefined): string {
+  return builderConfig?.directories?.output || outDir || DefaultDirs.outDir
+}
+
 export async function getBuilderConfig(config: BuilderConfig, allConfig: ElectronupConfig): Promise<CliOptions> {
   const { readJSON } = fsExtra
   const packages = await readJSON(resolve(store.root, 'package.json'))
@@ -76,8 +85,8 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
     nsis: { ...nsis, ...restConfig.nsis },
     mac: { ...mac, ...restConfig.mac },
     directories: {
-      output: allConfig.outDir || DefaultDirs.outDir,
       ...restConfig.directories,
+      output: getBuilderOutDir(restConfig, allConfig.outDir),
     },
   }
 

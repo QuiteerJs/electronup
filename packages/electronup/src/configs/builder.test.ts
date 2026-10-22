@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import fsExtra from 'fs-extra'
 import { store, DefaultDirs } from '../utils'
 import type { BuilderConfig, ElectronupConfig } from '../typings/electronup'
-import { getBuilderConfig } from './builder'
+import { getBuilderConfig, getBuilderOutDir } from './builder'
 
 // mock: fs-extra.readJSON 返回固定 package.json
 vi.mock('fs-extra', () => ({
@@ -137,6 +137,12 @@ describe('getBuilderConfig', () => {
     const cfg = await getCfg({ directories: { buildResources: 'build-resources' } })
     expect(cfg.directories?.buildResources).toBe('build-resources')
     expect(cfg.directories?.output).toBe(DefaultDirs.outDir)
+  })
+
+  it('getBuilderOutDir : directories.output > outDir > 默认值', () => {
+    expect(getBuilderOutDir({ directories: { output: 'release' } }, 'dist/x')).toBe('release')
+    expect(getBuilderOutDir({}, 'dist/x')).toBe('dist/x')
+    expect(getBuilderOutDir(undefined, undefined)).toBe(DefaultDirs.outDir)
   })
 
   it('builderConfig.directories.output 优先于默认 outDir', async () => {

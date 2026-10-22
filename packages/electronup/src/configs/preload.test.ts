@@ -1,6 +1,6 @@
 import type { UserConfig } from 'vite-plus/pack'
 import { describe, expect, it, vi } from 'vitest'
-import { getPreloadConfigs } from './preload'
+import { getPreloadConfigs, withElectronExternal } from './preload'
 
 vi.spyOn(process, 'cwd').mockReturnValue('/fake/root')
 
@@ -61,5 +61,38 @@ describe('getPreloadConfigs', () => {
     )
     expect(withDefault.plugins).toEqual([expect.objectContaining({ name: 'electronup:global-process' })])
     expect(withUser.plugins).toEqual([expect.objectContaining({ name: 'electronup:global-process' }), userPlugin])
+  })
+})
+
+describe('preload external 始终保留 electron', () => {
+  const baseAllConfig = { resourceDir: 'dist/resource' }
+
+  it('external: [] 或自定义数组时仍包含 electron', () => {
+    const [empty, custom] = getPreloadConfigs(
+      [{ entry: 'a.ts', external: [] }, { entry: 'b.ts', external: ['foo', /^bar/] }],
+      baseAllConfig,
+    )
+    expect(empty.external).toEqual(['electron'])
+    expect(custom.external).toEqual(['electron', 'foo', /^bar/])
+  })
+
+  it('字符串 / 正则 / 函数形态', () => {
+    expect(withElectronExternal('foo')).toEqual(['electron', 'foo'])
+    expect(withElectronExternal(/^foo/)).toEqual(['electron', /^foo/])
+    const fn = withElectronExternal(id => id === 'foo') as (id: string, parentId: string | undefined, isResolved: boolean) => unknown
+    expect(fn('electron', undefined, false)).toBe(true)
+    expect(fn('foo', undefined, false)).toBe(true)
+    expect(fn('baz', undefined, false)).toBe(false)
+  })
+
+  it('用户使用 deps.neverBundle 时合并进 neverBundle , 不再设置 external', () => {
+    const [list, all] = getPreloadConfigs(
+      [{ entry: 'a.ts', deps: { neverBundle: ['foo'] } }, { entry: 'b.ts', deps: { neverBundle: true } }],
+      baseAllConfig,
+    )
+    expect(list.external).toBeUndefined()
+    expect(list.deps?.neverBundle).toEqual(['electron', 'foo'])
+    expect(all.external).toBeUndefined()
+    expect(all.deps?.neverBundle).toBe(true)
   })
 })

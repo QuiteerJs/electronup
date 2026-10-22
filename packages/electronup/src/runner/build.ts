@@ -8,6 +8,7 @@ import fsExtra from 'fs-extra'
 import pc from 'picocolors'
 import { build as viteBuild } from 'vite'
 import { stringify } from 'yaml'
+import { getBuilderOutDir } from '../configs/builder'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
 import { cleanOutputDirsOrExit } from './clean'
@@ -119,8 +120,6 @@ const platformSelect: PlatformSelect[] = [
  * 函数式导出必须先执行 , 否则读不到 resourceDir / outDir
  */
 export async function build(options: ElectronupConfig) {
-  const { writeFile } = fsExtra
-
   // 清理必须在目标解析 / 交互式向导之后 : 平台不支持、参数错误或用户取消时 , 上一次的产物保持不变
   // --web 只构建渲染进程 , 不涉及打包平台与架构 , 跳过目标解析与交互式向导
   if (!store.web) {
@@ -142,9 +141,12 @@ export async function build(options: ElectronupConfig) {
     }
   }
 
-  // --web 不产出安装包 , 只清空 resourceDir , 保留 outDir
+  // 打包输出目录以 builderConfig.directories.output 为准 , 清理与诊断文件写入都用它
+  const builderOutDir = getBuilderOutDir(options.builderConfig, options.outDir)
+
+  // --web 不产出安装包 , 只清空 resourceDir , 保留打包输出目录
   const cleanTargets = [options.resourceDir || DefaultDirs.resourceDir]
-  if (!store.web) { cleanTargets.push(options.outDir || DefaultDirs.outDir) }
+  if (!store.web) { cleanTargets.push(builderOutDir) }
   cleanOutputDirsOrExit(cleanTargets)
 
   const initConfig = await electronupConfig(options)
@@ -162,14 +164,23 @@ export async function build(options: ElectronupConfig) {
 
   await builder(initConfig.builder)
 
-  const outDir = path.resolve(store.root, options.outDir || DefaultDirs.outDir)
-  await writeFile(
-    path.resolve(outDir, 'electronup-effective-config.yaml'),
-    stringify(JSON.parse(JSON.stringify(initConfig))),
-  )
+  const outDir = path.resolve(store.root, builderOutDir)
+  await writeEffectiveConfig(path.resolve(outDir, 'electronup-effective-config.yaml'), initConfig)
 
   if (store.option)
     {prompts.outro(`${pc.green('构建完成')} ${pc.dim('产物目录：')} ${pc.cyan(outDir)}`)}
+}
+
+/**
+ * 写入实际生效配置 , 仅用于排查 : 目录不存在时自动创建 , 写入失败只告警 , 不影响构建结果
+ */
+export async function writeEffectiveConfig(file: string, config: unknown) {
+  try {
+    await fsExtra.outputFile(file, stringify(JSON.parse(JSON.stringify(config))))
+  }
+  catch (error: any) {
+    console.error(`${pc.yellow('warn')} 写入 ${file} 失败 , 不影响构建产物 : ${error.message}`)
+  }
 }
 
 /** 取消交互式流程：给出友好提示后退出 */

@@ -69,7 +69,7 @@ export default defineConfig({
 ::: warning Notes
 - Except for `libDir`, these paths are joined with the project root before use.
 - `renderDir`, `publicDir` and `mainDir` cannot be overridden inside Vite / vite-plus pack: setting `viteConfig.root`, `viteConfig.publicDir` or `packConfig.entry` has no effect (`packConfig` only exposes `external` / `noExternal`).
-- `electronup dev` clears `resourceDir`; `electronup build` clears both `resourceDir` and `outDir`. Never point them at source directories. A safety check runs first: if a directory is the project root or one of its parents, the home directory, a filesystem root, inside `node_modules` / `.git`, or is itself a symlink / junction, electronup exits with an error and deletes nothing.
+- `electronup dev` clears `resourceDir`; `electronup build` clears both `resourceDir` and the packaging output directory (`builderConfig.directories.output` when set, otherwise `outDir`). Never point them at source directories. A safety check runs first: if a directory is the project root or one of its parents, the home directory, a filesystem root, inside `node_modules` / `.git`, or is itself a symlink / junction, electronup exits with an error and deletes nothing.
 :::
 
 ## Vite
@@ -200,7 +200,7 @@ If your Electron version supports ESM preload, pass `format: 'esm'` in the item 
 | `nsis` | Non-one-click installer (`oneClick: false`), per-user install (`perMachine: false`), Simplified Chinese, install directory selectable, desktop and start menu shortcuts, etc. |
 | `files` | `${resourceDir}/**/*` |
 | `extraFiles` | `[libDir]` |
-| `directories.output` | Default from `outDir`; if `builderConfig.directories` is provided, your object wins |
+| `directories.output` | Defaults to `outDir`; when `builderConfig.directories.output` is set it wins, and cleanup and `electronup-effective-config.yaml` follow it |
 | `asar` | Only written as `false` when `--no-asar` is passed; otherwise electron-builder decides |
 | `targets` | Platform and architecture resolved from CLI flags or the interactive wizard |
 | `mac.target` | `['dmg', 'zip']`: `dmg` for distributing the installer, `zip` is required by electron-updater on macOS |
@@ -313,11 +313,13 @@ Rules:
 
 ## Effective config
 
-After every `electronup build`, the resolved config is written to:
+After every `electronup build`, the resolved config is written to the packaging output directory (`builderConfig.directories.output`, or `outDir` when not set):
 
 ```text
 ${outDir}/electronup-effective-config.yaml
 ```
+
+The file is only for troubleshooting; if writing it fails, electronup prints a warning and the build result and exit code are unaffected.
 
 `electronup build --web` only builds the renderer, so it does not produce this file.
 

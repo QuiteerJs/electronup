@@ -69,7 +69,7 @@ export default defineConfig({
 ::: warning 注意
 - 除 `libDir` 外，这些路径都会与项目根目录拼接后使用。
 - `renderDir`、`publicDir`、`mainDir` 在 Vite / vite-plus pack 内部无法直接覆盖：设置 `viteConfig.root`、`viteConfig.publicDir` 或 `packConfig.entry` 不会生效（`packConfig` 本身也只暴露 `external` / `noExternal`）。
-- `electronup dev` 会清空 `resourceDir`，`electronup build` 会清空 `resourceDir` 与 `outDir`，请不要把它们指到源码目录。清理前会做安全校验：指向项目根目录及其上级、用户主目录、文件系统根目录、`node_modules` / `.git`，或目录本身是符号链接 / junction 时，会直接报错且不删除任何内容。
+- `electronup dev` 会清空 `resourceDir`，`electronup build` 会清空 `resourceDir` 与打包输出目录（配置了 `builderConfig.directories.output` 时清空它，否则清空 `outDir`），请不要把它们指到源码目录。清理前会做安全校验：指向项目根目录及其上级、用户主目录、文件系统根目录、`node_modules` / `.git`，或目录本身是符号链接 / junction 时，会直接报错且不删除任何内容。
 :::
 
 ## Vite
@@ -200,7 +200,7 @@ export default defineConfig({
 | `nsis` | 非一键安装（`oneClick: false`）、当前用户安装（`perMachine: false`）、简体中文、允许选择安装目录、创建桌面与开始菜单快捷方式等 |
 | `files` | `${resourceDir}/**/*` |
 | `extraFiles` | `[libDir]` |
-| `directories.output` | `outDir` 的默认值；如果 `builderConfig.directories` 有配置，以你的配置为准 |
+| `directories.output` | 默认取 `outDir`；配置了 `builderConfig.directories.output` 时以它为准，清理与 `electronup-effective-config.yaml` 也随之使用该目录 |
 | `asar` | 只有显式传入 `--no-asar` 时才会写入 `false`，否则交给 electron-builder 决定 |
 | `targets` | 由命令行或交互式向导解析出的平台与架构 |
 | `mac.target` | `['dmg', 'zip']`：`dmg` 用于分发安装，`zip` 是 mac 端 electron-updater 更新所需的产物 |
@@ -313,11 +313,13 @@ electronup 使用 dotenv 读取项目根目录下的两层文件：
 
 ## 实际生效配置
 
-每次 `electronup build` 结束后，electronup 会把最终解析出的配置写入：
+每次 `electronup build` 结束后，electronup 会把最终解析出的配置写入打包输出目录（`builderConfig.directories.output`，未配置时为 `outDir`）：
 
 ```text
 ${outDir}/electronup-effective-config.yaml
 ```
+
+该文件仅用于排查，写入失败只会打印告警，不影响构建结果与退出码。
 
 `electronup build --web` 只构建渲染进程，不会生成该文件。
 

@@ -267,7 +267,7 @@ Windows 系统不能构建 Linux 包，传入 `--linux` 会直接报错。macOS 
 | --- | --- | --- |
 | `resourceDir` | `dist/resource` | 渲染进程、主进程、preload 的构建输出 |
 | `outDir` | `dist/out` | electron-builder 的安装包输出 |
-| `electronup-effective-config.yaml` | `outDir` 下 | 构建结束后写入的实际生效配置，便于排查问题（`--web` 不生成） |
+| `electronup-effective-config.yaml` | 打包输出目录下（默认 `outDir`，配置了 `builderConfig.directories.output` 时为该目录） | 构建结束后写入的实际生效配置，便于排查问题（`--web` 不生成） |
 
 ::: warning 目录会被清空
 `electronup dev` 启动时会清空 `resourceDir` 的内容；`electronup build` 会清空 `resourceDir` 与 `outDir` 的内容（`build --web` 只清空 `resourceDir`）。不要把这两个目录指向源码目录。
