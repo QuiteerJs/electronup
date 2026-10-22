@@ -176,7 +176,7 @@ Per-item defaults are listed below; fields in the item config override them:
 | Item | Default |
 | --- | --- |
 | Format | `cjs`; the output file name follows the entry key (`preload` → `preload.cjs`) |
-| Output dir | `resourceDir`; can be set per item with `outDir` |
+| Output dir | `resourceDir`; can be set per item with `outDir`. An `outDir` outside `resourceDir` is added to the default builder `files` automatically (include it yourself if you override `files`) and must stay inside the project root |
 | Env | Same as the main process; per-item `env` wins |
 | `external` | Includes `electron` |
 | `dts` / `clean` | `false` |
@@ -321,9 +321,9 @@ ${outDir}/electronup-effective-config.yaml
 
 The file is only for troubleshooting; if writing it fails, electronup prints a warning and the build result and exit code are unaffected.
 
-`electronup build --web` only builds the renderer, so it does not produce this file.
+`electronup build --web` only builds the renderer, so it does not produce this file, and it removes the one left by a previous packaging build so you do not read a config that no longer matches the output.
 
-It contains the merged `vite`, `pack`, `preload` and `builder` config and is handy for checking whether an option took effect. It may contain absolute paths and internal plugin objects, so treat it as a debugging artifact.
+It contains the merged `vite`, `pack`, `preload` and `builder` config (snapshotted before electron-builder runs) and is handy for checking whether an option took effect. The header records the electronup version, generation time and command; `plugins` only keep plugin names, functions show as `[Function name]`, regular expressions as literals, and `builder.targets` as platform / architecture names. It is not the complete runtime config and may contain absolute paths, so treat it as a debugging artifact.
 
 ## Full example
 

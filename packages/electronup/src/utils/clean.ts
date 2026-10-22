@@ -24,7 +24,7 @@ export interface CleanCheckResult {
 }
 
 /** child 与 parent 相同或位于 parent 之内 ( Windows 下大小写不敏感 , 由 path.relative 处理 ) */
-function isSameOrInside(parent: string, child: string) {
+export function isSameOrInside(parent: string, child: string) {
   const rel = path.relative(parent, child)
   if (rel === '') { return true }
   return rel !== '..' && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel)

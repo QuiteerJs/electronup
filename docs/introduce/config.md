@@ -176,7 +176,7 @@ export default defineConfig({
 | 项 | 默认值 |
 | --- | --- |
 | 格式 | `cjs`，输出文件名与入口 key 对应（例如 `preload` → `preload.cjs`） |
-| 输出目录 | 与主进程一致（`resourceDir`），也可在单项配置中指定 `outDir` |
+| 输出目录 | 与主进程一致（`resourceDir`），也可在单项配置中指定 `outDir`；`outDir` 位于 `resourceDir` 之外时会自动加入默认的 builder `files`（自定义 `files` 时需自行包含），且必须位于项目根目录之内 |
 | 环境变量 | 与主进程一致；单项配置中的 `env` 优先 |
 | `external` | 包含 `electron` |
 | `dts` / `clean` | `false` |
@@ -321,9 +321,9 @@ ${outDir}/electronup-effective-config.yaml
 
 该文件仅用于排查，写入失败只会打印告警，不影响构建结果与退出码。
 
-`electronup build --web` 只构建渲染进程，不会生成该文件。
+`electronup build --web` 只构建渲染进程，不会生成该文件，并会删除上一次打包留下的该文件，避免读到与当前产物不符的配置。
 
-它包含合并后的 `vite`、`pack`、`preload` 与 `builder` 配置，适合用来确认某个配置项是否生效。文件可能包含绝对路径和插件内部对象，仅建议用于排查问题。
+它包含合并后的 `vite`、`pack`、`preload` 与 `builder` 配置（在 electron-builder 执行前快照），适合用来确认某个配置项是否生效。文件头记录了 electronup 版本、生成时间与命令；`plugins` 只保留插件名称，函数显示为 `[Function name]`，正则显示为字面量，`builder.targets` 显示为平台 / 架构名称。它并非完整的运行时配置，且可能包含绝对路径，仅建议用于排查问题。
 
 ## 完整示例
 

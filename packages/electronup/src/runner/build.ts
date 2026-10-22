@@ -7,11 +7,11 @@ import { Arch, build as builder, Platform } from 'electron-builder'
 import fsExtra from 'fs-extra'
 import pc from 'picocolors'
 import { build as viteBuild } from 'vite'
-import { stringify } from 'yaml'
-import { getBuilderOutDir } from '../configs/builder'
+import { getBuilderOutDir, getPreloadFilePatterns } from '../configs/builder'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
 import { cleanOutputDirsOrExit } from './clean'
+import { EFFECTIVE_CONFIG_FILE, toPlainConfig, writeEffectiveConfig } from './effectiveConfig'
 import { resolveBuildTargets } from './targets'
 
 type ColorFunc = (str: string | number) => string
@@ -123,10 +123,17 @@ export async function build(options: ElectronupConfig) {
   // 清理必须在目标解析 / 交互式向导之后 : 平台不支持、参数错误或用户取消时 , 上一次的产物保持不变
   // --web 只构建渲染进程 , 不涉及打包平台与架构 , 跳过目标解析与交互式向导
   if (!store.web) {
-    if (store.option)
-      {await resolveInteractiveOptions()}
-    else {
-      try {
+    if (store.option) {
+      // 向导依赖终端交互 , 非 TTY 下 @clack/prompts 会直接结束进程且退出码为 0 , 必须提前报错
+      if (!process.stdin.isTTY) {
+        console.error('err: ', '交互式向导 ( -o ) 需要在终端 ( TTY ) 中运行 ; 非交互环境请去掉 -o , 改用 --win / --mac / --linux / --dir 等参数')
+        process.exit(1)
+      }
+      await resolveInteractiveOptions()
+    }
+
+    try {
+      if (!store.option) {
         store.targets = resolveBuildTargets({
           win: store.win,
           mac: store.mac,
@@ -134,15 +141,18 @@ export async function build(options: ElectronupConfig) {
           dir: store.dir,
         })
       }
-      catch (error: any) {
-        console.error('err: ', error.message)
-        process.exit(1)
-      }
+      // preload 输出目录无法打包时提前报错 , 避免清理之后才失败
+      getPreloadFilePatterns(options)
+    }
+    catch (error: any) {
+      console.error('err: ', error.message)
+      process.exit(1)
     }
   }
 
   // 打包输出目录以 builderConfig.directories.output 为准 , 清理与诊断文件写入都用它
   const builderOutDir = getBuilderOutDir(options.builderConfig, options.outDir)
+  const effectiveConfigFile = path.resolve(store.root, builderOutDir, EFFECTIVE_CONFIG_FILE)
 
   // --web 不产出安装包 , 只清空 resourceDir , 保留打包输出目录
   const cleanTargets = [options.resourceDir || DefaultDirs.resourceDir]
@@ -153,41 +163,42 @@ export async function build(options: ElectronupConfig) {
 
   await viteBuild(initConfig.vite)
 
-  // --web 到此为止 : 不构建 preload / 主进程 , 也不执行 electron-builder
-  if (store.web)
-    {return}
+  // --web 到此为止 : 不构建 preload / 主进程 , 也不执行 electron-builder ;
+  // 删除上一次打包留下的 effective config , 避免排查时读到与当前产物不符的配置
+  if (store.web) {
+    await fsExtra.remove(effectiveConfigFile).catch(() => {})
+    return
+  }
 
   const { build: packBuild } = await import('vite-plus/pack')
   for (const preloadConfig of initConfig.preload)
     {await packBuild(preloadConfig)}
   await packBuild(initConfig.pack)
 
+  // electron-builder 会原地改写配置 ( 如 files 变成 filter 结构 ) , 需在执行前做快照
+  const snapshot = toPlainConfig(initConfig)
+
   await builder(initConfig.builder)
 
   const outDir = path.resolve(store.root, builderOutDir)
-  await writeEffectiveConfig(path.resolve(outDir, 'electronup-effective-config.yaml'), initConfig)
+  await writeEffectiveConfig(effectiveConfigFile, snapshot)
 
   if (store.option)
     {prompts.outro(`${pc.green('构建完成')} ${pc.dim('产物目录：')} ${pc.cyan(outDir)}`)}
 }
 
 /**
- * 写入实际生效配置 , 仅用于排查 : 目录不存在时自动创建 , 写入失败只告警 , 不影响构建结果
+ * 取消交互式流程：给出友好提示后以非 0 退出 , 避免 CI / 脚本把“什么都没构建”当成成功
+ *
+ * Ctrl+C / Esc 使用 130 ( SIGINT 惯例 ) , 在确认步骤选择“否”使用 1
  */
-export async function writeEffectiveConfig(file: string, config: unknown) {
-  try {
-    await fsExtra.outputFile(file, stringify(JSON.parse(JSON.stringify(config))))
-  }
-  catch (error: any) {
-    console.error(`${pc.yellow('warn')} 写入 ${file} 失败 , 不影响构建产物 : ${error.message}`)
-  }
-}
+export const CANCEL_EXIT_CODE = 130
+export const DECLINE_EXIT_CODE = 1
 
-/** 取消交互式流程：给出友好提示后退出 */
 function ensure<T>(result: T | typeof prompts.CANCEL_SYMBOL): T {
   if (prompts.isCancel(result)) {
     prompts.cancel('已取消构建')
-    process.exit(0)
+    process.exit(CANCEL_EXIT_CODE)
   }
   return result
 }
@@ -259,7 +270,7 @@ async function resolveInteractiveOptions() {
       `${pc.dim('压缩代码：')}${minify ? '是' : '否'}`,
       `${pc.dim('生成安装包：')}${isPackage ? '是' : '否'}`,
       `${pc.dim('构建平台：')}${platform.name}`,
-      `${pc.dim('打包架构：')}${archs.join(' / ')}`,
+      `${pc.dim('打包架构：')}${archs.map(arch => Arch[arch]).join(' / ')}`,
     ].join('\n'),
     '构建配置确认',
   )
@@ -271,7 +282,7 @@ async function resolveInteractiveOptions() {
 
   if (!confirmed) {
     prompts.cancel('已取消构建')
-    process.exit(0)
+    process.exit(DECLINE_EXIT_CODE)
   }
 
   store.minify = minify

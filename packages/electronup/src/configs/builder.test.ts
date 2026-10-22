@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import fsExtra from 'fs-extra'
 import { store, DefaultDirs } from '../utils'
 import type { BuilderConfig, ElectronupConfig } from '../typings/electronup'
-import { getBuilderConfig, getBuilderOutDir } from './builder'
+import { getBuilderConfig, getBuilderOutDir, getPreloadFilePatterns } from './builder'
 
 // mock: fs-extra.readJSON 返回固定 package.json
 vi.mock('fs-extra', () => ({
@@ -168,5 +168,29 @@ describe('getBuilderConfig', () => {
   it('fs.readJSON 被正确调用', async () => {
     await getCfg()
     expect(fsExtra.readJSON).toHaveBeenCalled()
+  })
+
+  it('preload 输出到 resourceDir 之外 ( 项目内 ) 时加入默认 files', async () => {
+    const allConfig: ElectronupConfig = {
+      preload: [
+        { entry: 'a.ts' },
+        { entry: 'b.ts', outDir: 'dist/resource/sub' },
+        { entry: 'c.ts', outDir: 'custom-preload' },
+        { entry: 'd.ts', outDir: 'custom-preload' },
+      ],
+    }
+    expect(getPreloadFilePatterns(allConfig)).toEqual(['custom-preload/**/*'])
+    const cfg = await getCfg({}, allConfig)
+    expect(cfg.files).toEqual([`${DefaultDirs.resourceDir}/**/*`, 'custom-preload/**/*'])
+  })
+
+  it('preload 输出到项目根或项目外时报错', () => {
+    expect(() => getPreloadFilePatterns({ preload: { entry: 'a.ts', outDir: '.' } })).toThrow('项目根目录之内')
+    expect(() => getPreloadFilePatterns({ preload: { entry: 'a.ts', outDir: '../outside' } })).toThrow('项目根目录之内')
+  })
+
+  it('用户自定义 files 时整体覆盖默认值', async () => {
+    const cfg = await getCfg({ files: ['only/**/*'] }, { preload: { entry: 'a.ts', outDir: 'custom-preload' } })
+    expect(cfg.files).toEqual(['only/**/*'])
   })
 })

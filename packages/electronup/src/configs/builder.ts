@@ -1,9 +1,9 @@
 import type { CliOptions, Configuration } from 'electron-builder'
 import type { BuilderConfig, ElectronupConfig } from '../typings/electronup'
 import { createRequire } from 'node:module'
-import { resolve } from 'node:path'
+import { relative, resolve, sep } from 'node:path'
 import fsExtra from 'fs-extra'
-import { DefaultDirs, store } from '../utils'
+import { DefaultDirs, isSameOrInside, store } from '../utils'
 
 /**
  * 根据项目名生成一个默认 appId , 避免所有项目共用 org.quiteer.electronup
@@ -45,6 +45,35 @@ export function getBuilderOutDir(builderConfig: BuilderConfig | undefined, outDi
   return builderConfig?.directories?.output || outDir || DefaultDirs.outDir
 }
 
+/**
+ * preload 输出到 resourceDir 之外时 , 返回需要额外加入 builder files 的 glob ( 相对项目根 )
+ *
+ * electron-builder 按项目根的相对路径打包 , 主进程与 preload 的相对位置与开发时一致 ;
+ * 输出到项目根之外 ( 或就是项目根 ) 时无法打包 , 直接报错
+ */
+export function getPreloadFilePatterns(allConfig: ElectronupConfig): string[] {
+  const root = resolve(store.root)
+  const resourceDir = resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir)
+  const list = allConfig.preload == null ? [] : [allConfig.preload].flat()
+  const patterns = new Set<string>()
+
+  for (const item of list) {
+    if (!item.outDir)
+      {continue}
+
+    const dir = resolve(root, item.outDir)
+    if (isSameOrInside(resourceDir, dir))
+      {continue}
+
+    if (dir === root || !isSameOrInside(root, dir))
+      {throw new Error(`preload.outDir ( ${dir} ) 需要位于项目根目录之内 ( 且不能是项目根目录 ) , 否则无法打包进应用`)}
+
+    patterns.add(`${relative(root, dir).split(sep).join('/')}/**/*`)
+  }
+
+  return [...patterns]
+}
+
 export async function getBuilderConfig(config: BuilderConfig, allConfig: ElectronupConfig): Promise<CliOptions> {
   const { readJSON } = fsExtra
   const packages = await readJSON(resolve(store.root, 'package.json'))
@@ -75,7 +104,8 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
     electronVersion,
     appId: defaultAppId(packages.name),
     productName: defaultProductName(packages),
-    files: [`${allConfig.resourceDir || DefaultDirs.resourceDir}/**/*`],
+    // 用户自定义 files 时整体覆盖 , 需自行包含 resourceDir 与 preload 输出目录
+    files: [`${allConfig.resourceDir || DefaultDirs.resourceDir}/**/*`, ...getPreloadFilePatterns(allConfig)],
     extraFiles: [allConfig.libDir || DefaultDirs.libDir],
     // CLI 未传 --no-asar 时 store.asar 为 undefined , 不覆盖 builder 默认值
     ...(store.asar !== undefined ? { asar: store.asar } : {}),

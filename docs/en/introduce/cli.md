@@ -180,6 +180,8 @@ macOS `universal` and Linux `armv7l` require support on the target machines and 
 `-o` takes over platform, architecture, minification and `--dir`. Do not combine it with `--win`, `--mac` and so on.
 :::
 
+The wizard needs a terminal (TTY). In non-interactive environments such as CI or an IDE task runner, `-o` fails with exit code `1`; use `--win` / `--mac` / `--linux` / `--dir` instead. Cancelling with `Ctrl+C` / `Esc` exits with `130`, and answering "no" at the final confirmation exits with `1`; neither cleans nor builds anything.
+
 ### Directory only `--dir`
 
 ```bash
