@@ -50,6 +50,21 @@ describe('getBuilderConfig', () => {
     expect(cfg.appId).toBe('com.scope.name')
   })
 
+  it('scoped 包名的 productName 去掉 scope , NSIS 产物名使用 ${productName} 宏', async () => {
+    vi.mocked(fsExtra.readJSON).mockResolvedValueOnce({ name: '@scope/app', version: '1.2.3' })
+    const cfg = await getCfg()
+    expect(cfg.productName).toBe('app')
+    expect(cfg.nsis?.artifactName).toBe('${productName} ${arch} Setup ${version}.${ext}')
+  })
+
+  it('productName 优先级 : builderConfig > package.json productName > 包名', async () => {
+    expect((await getCfg()).productName).toBe('my-cool-app')
+    vi.mocked(fsExtra.readJSON).mockResolvedValueOnce({ name: '@scope/app', productName: 'My App', version: '1.2.3' })
+    expect((await getCfg()).productName).toBe('My App')
+    vi.mocked(fsExtra.readJSON).mockResolvedValueOnce({ name: '@scope/app', productName: 'My App', version: '1.2.3' })
+    expect((await getCfg({ productName: 'Custom' })).productName).toBe('Custom')
+  })
+
   it('含空格的包名把空格规整为点', async () => {
     vi.mocked(fsExtra.readJSON).mockResolvedValueOnce({ name: 'my cool app', version: '1.2.3' })
     const cfg = await getCfg()

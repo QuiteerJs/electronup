@@ -56,6 +56,28 @@ export function injectEnv() {
   }
 }
 
+const PROCESS_IMPORT = /^[ \t]*import\s+process\s+from\s*(['"])(?:node:)?process\1[ \t]*;?/gm
+
+/**
+ * 去掉用户源码中的 `import process from 'node:process'` ( 或 'process' ) , 让 process 回到全局引用
+ *
+ * env 注入基于 define ( process.env.X ) , 只匹配全局 process ; 带 import 时 Rolldown 会改写为
+ * `node_process.default.env.X` , define 匹配不到 . node:process 的默认导出就是全局 process , 运行时等价 .
+ * 用等长空白替换 , 不改变代码位置 , 无需 sourcemap
+ */
+export function globalProcessPlugin() {
+  return {
+    name: 'electronup:global-process',
+    transform(code: string, id: string) {
+      if (id.includes('node_modules') || !/\.[cm]?[jt]sx?$/.test(id) || !code.includes('process'))
+        {return null}
+
+      const next = code.replace(PROCESS_IMPORT, match => match.replace(/[^\r\n]/g, ' '))
+      return next === code ? null : { code: next, map: null }
+    },
+  }
+}
+
 /**
  * Description  主进程代码编译配置
  * @param {any} config:PackConfig
@@ -79,6 +101,7 @@ export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig) {
     dts: false,
     clean: false,
     env: injectEnv(),
+    plugins: [globalProcessPlugin()],
     async onSuccess() {
       if (isServe) { return startElectron(resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir, 'electron.cjs')) }
     },

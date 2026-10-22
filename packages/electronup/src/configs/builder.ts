@@ -22,6 +22,20 @@ function defaultAppId(pkgName: string): string {
   return safe ? `com.${safe}` : 'com.electronup'
 }
 
+/**
+ * 默认 productName : 优先 package.json 的 productName , 否则用去掉 scope 的包名
+ *
+ * scoped 包名 @scope/app 直接作为 productName 时 , NSIS 会把 / 当作目录分隔符导致构建失败 ,
+ * 且与 sanitize 后的可执行文件名 ( @scopeapp.exe ) 、卸载显示名不一致
+ */
+function defaultProductName(packages: { name: string, productName?: string }): string {
+  if (packages.productName)
+    {return packages.productName}
+
+  // oxlint-disable-next-line no-control-regex
+  return packages.name.replace(/^@[^/]+\//, '').replace(/[\\/:*?"<>|\x00-\x1F]/g, '-')
+}
+
 export async function getBuilderConfig(config: BuilderConfig, allConfig: ElectronupConfig): Promise<CliOptions> {
   const { readJSON } = fsExtra
   const packages = await readJSON(resolve(store.root, 'package.json'))
@@ -39,7 +53,8 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
     runAfterFinish: true,
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
-    artifactName: `${packages.name} \${arch} Setup ${packages.version}.\${ext}`,
+    // 使用 electron-builder 宏 : ${productName} 展开为 sanitize 后的名称 , 与可执行文件名一致 , 且跟随用户设置的 productName
+    artifactName: '${productName} ${arch} Setup ${version}.${ext}',
   }
 
   // mac 端 electron-updater 依赖 zip 更新包 , dmg 用于分发安装
@@ -50,7 +65,7 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
   const defaultConfig: CliOptions['config'] = {
     electronVersion,
     appId: defaultAppId(packages.name),
-    productName: packages.name,
+    productName: defaultProductName(packages),
     files: [`${allConfig.resourceDir || DefaultDirs.resourceDir}/**/*`],
     extraFiles: [allConfig.libDir || DefaultDirs.libDir],
     // CLI 未传 --no-asar 时 store.asar 为 undefined , 不覆盖 builder 默认值

@@ -308,6 +308,7 @@ Rules:
 - `NODE_ENV` is written by electronup: `development` in dev, `production` in build.
 - In dev, `RENDER_PORT` holds the actual Vite port.
 - The renderer only sees `VITE_`-prefixed variables (`import.meta.env`); the main process and preload scripts see all variables (`process.env`).
+- For the main process and preload, variables are inlined at build time as `process.env.X`. Both the global `process` and `import process from 'node:process'` (or `'process'`) work; `import { env } from 'node:process'` or other local names (such as `import proc from 'node:process'`) are not inlined.
 - Finer-grained files such as `.env.local` are not supported.
 
 ## Effective config

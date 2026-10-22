@@ -308,6 +308,7 @@ electronup 使用 dotenv 读取项目根目录下的两层文件：
 - `NODE_ENV` 由 electronup 写入：`dev` 为 `development`，`build` 为 `production`。
 - `dev` 模式下额外注入 `RENDER_PORT`，值为 Vite 实际监听的端口。
 - 渲染进程只能读取 `VITE_` 前缀的变量（`import.meta.env`），主进程与 preload 可以读取全部变量（`process.env`）。
+- 主进程与 preload 的变量在构建时以 `process.env.X` 的形式内联，全局 `process` 与 `import process from 'node:process'`（或 `'process'`）两种写法都支持；`import { env } from 'node:process'` 或其他本地名（如 `import proc from 'node:process'`）不会被内联。
 - 不支持 `.env.local` 等更细的层级。
 
 ## 实际生效配置

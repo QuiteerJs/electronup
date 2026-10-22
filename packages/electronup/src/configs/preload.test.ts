@@ -52,4 +52,14 @@ describe('getPreloadConfigs', () => {
     // preload.ts 最后用 resolve(root, config.outDir || ...) 强制处理 outDir
     expect(result[0].outDir).toMatch(/custom[\\/]out$/)
   })
+
+  it('默认挂载 globalProcessPlugin , 并保留用户 plugins', () => {
+    const userPlugin = { name: 'user-plugin' }
+    const [withDefault, withUser] = getPreloadConfigs(
+      [{ entry: 'preload/a.ts' }, { entry: 'preload/b.ts', plugins: [userPlugin] }],
+      baseAllConfig,
+    )
+    expect(withDefault.plugins).toEqual([expect.objectContaining({ name: 'electronup:global-process' })])
+    expect(withUser.plugins).toEqual([expect.objectContaining({ name: 'electronup:global-process' }), userPlugin])
+  })
 })

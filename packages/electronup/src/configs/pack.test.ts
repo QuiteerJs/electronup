@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
-import { getPackConfig, injectEnv, removeJunk } from './pack'
+import { getPackConfig, globalProcessPlugin, injectEnv, removeJunk } from './pack'
 import { store, DefaultDirs } from '../utils'
 
 vi.spyOn(process, 'cwd').mockReturnValue('/fake/root')
@@ -127,5 +127,32 @@ describe('getPackConfig', () => {
     expect(cfg.entry).toMatchObject({
       electron: expect.stringMatching(new RegExp(`${DefaultDirs.mainDir}[\\\\/]index\\.ts$`)),
     })
+  })
+})
+
+describe('globalProcessPlugin ( import process 时 env 仍可内联 )', () => {
+  const plugin = globalProcessPlugin()
+  const transform = (code: string, id: string) => plugin.transform(code, id)
+
+  it('去掉 node:process / process 的默认导入 , 且不改变代码位置', () => {
+    const code = `import process from 'node:process'\nimport process from "process";\nconsole.log(process.env.NODE_ENV)\n`
+    const result = transform(code, '/src/main/index.ts')!
+    expect(result.code).not.toMatch(/import\s+process/)
+    expect(result.code).toContain('console.log(process.env.NODE_ENV)')
+    expect(result.code.length).toBe(code.length)
+    expect(result.code.split('\n')).toHaveLength(code.split('\n').length)
+  })
+
+  it('不处理 node_modules、非脚本文件与其他导入形式', () => {
+    const code = `import process from 'node:process'\n`
+    expect(transform(code, '/proj/node_modules/foo/index.js')).toBeNull()
+    expect(transform(code, '/src/style.css')).toBeNull()
+    expect(transform(`import { env } from 'node:process'\n`, '/src/main/index.ts')).toBeNull()
+    expect(transform(`import processLike from 'node:process'\n`, '/src/main/index.ts')).toBeNull()
+  })
+
+  it('主进程配置默认挂载该插件', () => {
+    const cfg = getPackConfig({}, {})
+    expect(cfg.plugins).toEqual([expect.objectContaining({ name: 'electronup:global-process' })])
   })
 })
