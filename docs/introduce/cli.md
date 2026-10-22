@@ -50,7 +50,7 @@ Options:
   --dir               只生成目录
   --web               只构建渲染进程 ( web ) , 不构建主进程 / preload , 也不生成安装包
   --no-asar           asar false (default: true)
-  --win [arch]        [ia32 | x64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包
+  --win [arch]        [ia32 | x64 | arm64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包
   --mac [arch]        [x64 | arm64 | universal] 构建 mac 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型
   --linux [arch]      [x64 | arm64 | armv7l] 构建 linux 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型
   -m , --mode <mode>  [development | production | test | staging | ...] 环境模式
@@ -137,6 +137,8 @@ electronup --port 3000
 
 端口被占用时会自动向后寻找可用端口，并把最终端口通过 `RENDER_PORT` 环境变量注入主进程。
 
+端口必须是 `1`–`65535` 之间的整数；传入 `abc`、`0`、空字符串或超出范围的值会直接报错并以 `1` 退出，不会静默回退为默认端口。
+
 ## `electronup build`
 
 构建安装包。未指定平台时使用当前操作系统和当前架构。
@@ -216,7 +218,11 @@ electronup build --no-asar
 electronup build --win        # 未指定架构时输出 ia32 与 x64 两个包
 electronup build --win x64
 electronup build --win ia32
+electronup build --win arm64
+electronup build --win x64 --win arm64   # 重复传参可同时输出多个架构
 ```
+
+各平台只接受帮助中列出的架构（win：`ia32` / `x64` / `arm64`；mac：`x64` / `arm64` / `universal`；linux：`x64` / `arm64` / `armv7l`），传入其他值会直接报错并以 `1` 退出，不会回退为 x64。
 
 ### macOS `--mac`
 

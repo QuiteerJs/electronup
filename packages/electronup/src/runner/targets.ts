@@ -2,14 +2,27 @@ import type { Arch, Platform } from 'electron-builder'
 import process from 'node:process'
 import { Arch as ArchEnum, Platform as PlatformEnum } from 'electron-builder'
 
+export type WinArch = 'ia32' | 'x64' | 'arm64'
+export type MacArch = 'x64' | 'arm64' | 'universal'
+export type LinuxArch = 'x64' | 'arm64' | 'armv7l'
+/** true 表示未指定架构 ; 重复传参 ( --win x64 --win ia32 ) 时 cac 给出数组 */
+type ArchOption<T extends string> = true | T | Array<true | T>
+
+/** 各平台允许的架构 , 与命令行帮助保持一致 */
+export const PLATFORM_ARCHS = {
+  win: ['ia32', 'x64', 'arm64'],
+  mac: ['x64', 'arm64', 'universal'],
+  linux: ['x64', 'arm64', 'armv7l'],
+} as const satisfies Record<'win' | 'mac' | 'linux', readonly string[]>
+
 export interface ResolveTargetsOptions {
   /** 宿主平台 , 默认取 process.platform */
   hostPlatform?: string
   /** 宿主架构 , 默认取 process.arch */
   hostArch?: string
-  win?: true | 'ia32' | 'x64'
-  mac?: true | 'x64' | 'arm64' | 'universal'
-  linux?: true | 'x64' | 'arm64' | 'armv7l'
+  win?: ArchOption<WinArch>
+  mac?: ArchOption<MacArch>
+  linux?: ArchOption<LinuxArch>
   /** 只生成目录 ( unpacked ) */
   dir?: 'dir' | null
 }
@@ -33,11 +46,29 @@ export function hostArchToBuilderArch(arch: string): Arch {
   }
 }
 
-function platformArchs(arch: Exclude<ResolveTargetsOptions['win'] | ResolveTargetsOptions['mac'] | ResolveTargetsOptions['linux'], undefined>, currentArch: Arch): Arch[] {
-  if (arch === true || arch == null)
-    {return [currentArch]}
+/**
+ * 校验并解析命令行传入的架构 ; 非法值直接报错 , 不再静默回退为 x64
+ *
+ * @param defaults 未指定架构 ( true ) 时使用的架构
+ */
+function platformArchs(key: keyof typeof PLATFORM_ARCHS, value: ArchOption<string>, defaults: Arch[]): Arch[] {
+  const allowed: readonly string[] = PLATFORM_ARCHS[key]
+  const archs = new Set<Arch>()
 
-  return [hostArchToBuilderArch(arch)]
+  for (const item of [value].flat()) {
+    if (item === true) {
+      defaults.forEach(arch => archs.add(arch))
+      continue
+    }
+    // cac 会把纯数字参数 ( 如 --win 64 ) 解析为 number , 类型上虽是 string 仍需转换
+    // oxlint-disable-next-line no-unnecessary-type-conversion
+    const name = String(item)
+    if (!allowed.includes(name))
+      {throw new Error(`--${key} 不支持架构 ${name} , 可选 : ${allowed.join(' | ')}`)}
+    archs.add(hostArchToBuilderArch(name))
+  }
+
+  return [...archs]
 }
 
 /**
@@ -80,21 +111,19 @@ export function resolveBuildTargets(options: ResolveTargetsOptions = {}): Map<Pl
   if (platformKey === 'win') {
     // 与命令行帮助一致 : 显式传 --win 但未指定架构时 , 输出 ia32 和 x64 的两个包
     // 未传任何平台参数时 ( 宿主为 Windows 的默认构建 ) , 仅使用当前架构
-    const archs = options.win === true
-      ? [ArchEnum.ia32, ArchEnum.x64]
-      : options.win === undefined
-        ? [currentArch]
-        : platformArchs(options.win, currentArch)
+    const archs = options.win === undefined
+      ? [currentArch]
+      : platformArchs('win', options.win, [ArchEnum.ia32, ArchEnum.x64])
 
     return PlatformEnum.WINDOWS.createTarget(dir, ...archs)
   }
 
   if (platformKey === 'mac') {
     // 未通过命令行显式指定 mac 时 ( 宿主为 mac 的默认构建 ) , 使用当前架构
-    const archs = options.mac === undefined ? [currentArch] : platformArchs(options.mac, currentArch)
+    const archs = options.mac === undefined ? [currentArch] : platformArchs('mac', options.mac, [currentArch])
     return PlatformEnum.MAC.createTarget(dir, ...archs)
   }
 
-  const archs = options.linux === undefined ? [currentArch] : platformArchs(options.linux, currentArch)
+  const archs = options.linux === undefined ? [currentArch] : platformArchs('linux', options.linux, [currentArch])
   return PlatformEnum.LINUX.createTarget(dir, ...archs)
 }

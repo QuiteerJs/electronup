@@ -143,7 +143,10 @@ Presets:
 In dev, a successful main process build launches Electron; changes rebuild and restart it. Changing `format`, `entry` or `outDir` on the pack config has no effect.
 
 ::: tip Bundled dependencies
-When using the update helpers exported by `electronup`, put `electronup` into `noExternal` so the updater code is bundled into the main process output:
+When using the update helpers exported by `electronup`, you need both of the following (see [Auto update](./auto-update.md)):
+
+1. Install `electron-updater` as an app `dependency`. It is loaded lazily at runtime and cannot be bundled into the main process output, even via `noExternal`.
+2. Put `electronup` into `noExternal` so the helper code is bundled into the main process output:
 
 ```ts
 export default defineConfig({

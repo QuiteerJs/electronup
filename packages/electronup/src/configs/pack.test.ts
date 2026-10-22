@@ -1,8 +1,15 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
-import { getPackConfig, globalProcessPlugin, injectEnv, removeJunk } from './pack'
+import { assertMainEntry, getElectronBinary, getPackConfig, globalProcessPlugin, injectEnv, removeJunk } from './pack'
 import { store, DefaultDirs } from '../utils'
 
 vi.spyOn(process, 'cwd').mockReturnValue('/fake/root')
+
+// vitest 的模块运行器会从工作区解析 electron , 用 mock 模拟“项目中未安装 electron”
+const requireMock = vi.hoisted(() => vi.fn())
+vi.mock('node:module', () => ({ createRequire: () => requireMock }))
 
 describe('removeJunk (Electron 输出过滤)', () => {
   let info: ReturnType<typeof vi.spyOn>
@@ -106,15 +113,18 @@ describe('getPackConfig', () => {
     expect(cfg.minify).toBe(false)
   })
 
-  it('external 默认包含 electron', () => {
+  it('deps.neverBundle 默认包含 electron , 不再使用已弃用的 external / noExternal', () => {
     const cfg = getPackConfig({}, {})
-    expect(cfg.external).toContain('electron')
+    expect(cfg.deps?.neverBundle).toEqual(['electron'])
+    expect(cfg.deps).not.toHaveProperty('alwaysBundle')
+    expect(cfg).not.toHaveProperty('external')
+    expect(cfg).not.toHaveProperty('noExternal')
   })
 
-  it('用户 external 合并到 electron 之后', () => {
-    const cfg = getPackConfig({ external: ['foo'] }, {})
-    expect(cfg.external).toContain('electron')
-    expect(cfg.external).toContain('foo')
+  it('packConfig.external / noExternal 映射到 deps.neverBundle / alwaysBundle', () => {
+    const cfg = getPackConfig({ external: ['foo'], noExternal: ['electronup'] }, {})
+    expect(cfg.deps?.neverBundle).toEqual(['electron', 'foo'])
+    expect(cfg.deps?.alwaysBundle).toEqual(['electronup'])
   })
 
   it('entry 指向 mainDir/index.ts', () => {
@@ -154,5 +164,41 @@ describe('globalProcessPlugin ( import process 时 env 仍可内联 )', () => {
   it('主进程配置默认挂载该插件', () => {
     const cfg = getPackConfig({}, {})
     expect(cfg.plugins).toEqual([expect.objectContaining({ name: 'electronup:global-process' })])
+  })
+})
+
+describe('dev 预检', () => {
+  let dir: string
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'electronup-pack-'))
+    vi.spyOn(process, 'cwd').mockReturnValue(dir)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    fs.rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('项目中没有 electron 时给出安装提示 , electron 下载不完整时透出原因', () => {
+    requireMock.mockImplementationOnce(() => {
+      throw Object.assign(new Error("Cannot find module 'electron'"), { code: 'MODULE_NOT_FOUND' })
+    })
+    expect(() => getElectronBinary()).toThrow('未在项目中找到 electron , 请先安装')
+
+    requireMock.mockImplementationOnce(() => {
+      throw new Error('Electron failed to install correctly')
+    })
+    expect(() => getElectronBinary()).toThrow('electron 无法使用 : Electron failed to install correctly')
+
+    requireMock.mockReturnValueOnce('/bin/electron')
+    expect(getElectronBinary()).toBe('/bin/electron')
+  })
+
+  it('主进程入口不存在时报错 , 存在时通过', () => {
+    expect(() => assertMainEntry({ mainDir: 'src/main' })).toThrow(path.join(dir, 'src', 'main', 'index.ts'))
+    fs.mkdirSync(path.join(dir, 'main'))
+    fs.writeFileSync(path.join(dir, 'main', 'index.ts'), '')
+    expect(() => assertMainEntry({})).not.toThrow()
   })
 })

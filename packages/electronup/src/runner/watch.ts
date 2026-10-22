@@ -3,6 +3,8 @@ import type { ElectronupConfig } from '../typings/electronup'
 import process from 'node:process'
 import { getPortPromise } from 'portfinder'
 import { createServer } from 'vite'
+import { assertMainEntry, getElectronBinary } from '../configs/pack'
+import { assertPreloadEntries } from '../configs/preload'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
 import { cleanOutputDirsOrExit } from './clean'
@@ -32,6 +34,17 @@ export async function createDevServer(config: InlineConfig) {
  * @param options 已执行 / 校验过的配置对象 ( 见 resolveElectronupConfig )
  */
 export async function watch(options: ElectronupConfig) {
+  // 预检在启动 dev server 与清理之前 : 入口缺失或未安装 electron 时直接报错 , 不删除任何内容
+  try {
+    assertMainEntry(options)
+    assertPreloadEntries(options.preload)
+    getElectronBinary()
+  }
+  catch (error: any) {
+    console.error('err: ', error.message)
+    process.exit(1)
+  }
+
   // 与 build 共用同一套清理校验 , 不合法的 resourceDir 直接报错退出 , 不删除任何内容
   cleanOutputDirsOrExit([options.resourceDir || DefaultDirs.resourceDir])
 

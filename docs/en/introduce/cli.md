@@ -50,7 +50,7 @@ Options:
   --dir               只生成目录
   --web               只构建渲染进程 ( web ) , 不构建主进程 / preload , 也不生成安装包
   --no-asar           asar false (default: true)
-  --win [arch]        [ia32 | x64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包
+  --win [arch]        [ia32 | x64 | arm64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包
   --mac [arch]        [x64 | arm64 | universal] 构建 mac 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型
   --linux [arch]      [x64 | arm64 | armv7l] 构建 linux 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型
   -m , --mode <mode>  [development | production | test | staging | ...] 环境模式
@@ -137,6 +137,8 @@ electronup --port 3000
 
 If the port is taken, the next free port is used. The final port is injected into the main process as `RENDER_PORT`.
 
+The port must be an integer from `1` to `65535`. Values such as `abc`, `0`, an empty string or an out-of-range number fail with exit code `1` instead of silently falling back to the default port.
+
 ## `electronup build`
 
 Builds installers. Without platform flags it builds for the current OS and architecture.
@@ -216,7 +218,11 @@ electronup build --no-asar
 electronup build --win        # ia32 and x64 packages when no arch is given
 electronup build --win x64
 electronup build --win ia32
+electronup build --win arm64
+electronup build --win x64 --win arm64   # repeat the flag to build several archs
 ```
+
+Each platform only accepts the architectures listed in the help (win: `ia32` / `x64` / `arm64`; mac: `x64` / `arm64` / `universal`; linux: `x64` / `arm64` / `armv7l`). Any other value fails with exit code `1` instead of falling back to x64.
 
 ### macOS `--mac`
 

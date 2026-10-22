@@ -102,7 +102,7 @@ export default defineConfig({
 })
 ```
 
-如果你选择把 `electron-updater` 一起打进主进程产物，则第 1 步可以省略，但需要确认构建结果确实包含更新器代码。
+两步缺一不可：更新辅助代码在运行时才通过 `createRequire` 惰性加载 `electron-updater`，打包工具无法跟踪这类调用，即使把 `electron-updater` 也加入 `noExternal`，产物中仍会保留 `require("electron-updater")`。因此 `electron-updater` 必须作为应用的 `dependencies` 安装，否则运行时会报 `Cannot find module 'electron-updater'`。
 
 ### 平台产物要求
 

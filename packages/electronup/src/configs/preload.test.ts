@@ -22,7 +22,8 @@ describe('getPreloadConfigs', () => {
     expect(result[0].format).toBe('cjs')
     expect(result[0].dts).toBe(false)
     expect(result[0].clean).toBe(false)
-    expect(result[0].external).toContain('electron')
+    expect(result[0].deps?.neverBundle).toEqual(['electron'])
+    expect(result[0]).not.toHaveProperty('external')
     expect(result[0].outDir).toMatch(/dist[\\/]resource$/)
   })
 
@@ -39,7 +40,7 @@ describe('getPreloadConfigs', () => {
     // 用户显式 format:'esm' 覆盖了默认 cjs
     expect(result[0].format).toBe('cjs')
     expect(result[1].format).toBe('esm')
-    expect(result[1].external).toContain('electron')
+    expect(result[1].deps?.neverBundle).toEqual(['electron'])
     expect(result[1].dts).toBe(false)
     expect(result[1].clean).toBe(false)
   })
@@ -67,7 +68,7 @@ describe('getPreloadConfigs', () => {
 describe('preload external 始终保留 electron', () => {
   const baseAllConfig = { resourceDir: 'dist/resource' }
 
-  it('external: [] 或自定义数组时仍包含 electron', () => {
+  it('用户显式使用 external ( 已弃用 ) 时沿用 external , 且仍包含 electron', () => {
     const [empty, custom] = getPreloadConfigs(
       [{ entry: 'a.ts', external: [] }, { entry: 'b.ts', external: ['foo', /^bar/] }],
       baseAllConfig,

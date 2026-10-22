@@ -36,6 +36,10 @@ let root: string
 
 beforeEach(() => {
   root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'electronup-build-')))
+  // 预检要求入口存在
+  fs.mkdirSync(path.join(root, 'main'))
+  fs.writeFileSync(path.join(root, 'main/index.ts'), '')
+  fs.writeFileSync(path.join(root, 'a.ts'), '')
   vi.spyOn(process, 'cwd').mockReturnValue(root)
   store.command = 'build'
   store.option = false
@@ -112,6 +116,20 @@ describe('build 校验失败时不清理、不构建', () => {
       process.stdin.isTTY = isTTY
     }
     expect(error.mock.calls[0][1]).toContain('TTY')
+    expect(cleanOutputDirsOrExit).not.toHaveBeenCalled()
+  })
+})
+
+describe('入口预检', () => {
+  it('主进程入口或 preload entry 缺失时以 1 退出 , 不清理', async () => {
+    mockExit()
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    await expect(build({ mainDir: 'src/main' })).rejects.toThrow('exit 1')
+    expect(error.mock.calls[0][1]).toContain('找不到主进程入口')
+    await expect(build({ preload: {} })).rejects.toThrow('exit 1')
+    expect(error.mock.calls[1][1]).toContain('preload 缺少 entry')
+    await expect(build({ preload: [{ entry: 'a.ts' }, { entry: { p: 'missing.ts' } }] })).rejects.toThrow('exit 1')
+    expect(error.mock.calls[2][1]).toContain('preload[1] 的入口文件不存在')
     expect(cleanOutputDirsOrExit).not.toHaveBeenCalled()
   })
 })

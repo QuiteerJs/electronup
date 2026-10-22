@@ -143,7 +143,10 @@ export default defineConfig({
 开发模式下主进程构建成功后会启动 Electron；主进程文件变化会触发重新构建并重启。修改 `format`、`entry`、`outDir` 等字段不会生效。
 
 ::: tip 打包依赖
-如果你使用了 `electronup` 导出的更新辅助方法，建议把 `electronup` 加入 `noExternal`，让更新器代码打进主进程产物：
+如果你使用了 `electronup` 导出的更新辅助方法，需要同时做两件事（详见 [自动更新](./auto-update.md)）：
+
+1. 把 `electron-updater` 安装到应用的 `dependencies`（它在运行时惰性加载，无法被打进主进程产物，加入 `noExternal` 也不行）；
+2. 把 `electronup` 加入 `noExternal`，让更新辅助代码打进主进程产物：
 
 ```ts
 export default defineConfig({

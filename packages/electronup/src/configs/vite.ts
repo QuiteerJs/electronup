@@ -13,6 +13,8 @@ export function getViteConfig(config: ViteConfig, allConfig: ElectronupConfig) {
       ...config?.build,
       minify,
       outDir: resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir),
+      // resourceDir 由 electronup 在构建前清理 ; 显式关闭可避免 vite 提示 outDir 不在 root 内、不会被清空
+      emptyOutDir: config?.build?.emptyOutDir ?? false,
       // vite-plus-core 未导出 'vite/modulepreload-polyfill' 子路径 , 关闭 polyfill 规避解析报错 ( 渲染进程为 Chromium , 原生支持 )
       modulePreload: config?.build?.modulePreload ?? { polyfill: false },
     },

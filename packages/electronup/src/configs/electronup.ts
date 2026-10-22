@@ -20,8 +20,10 @@ export async function getElectronupConfig(config: ElectronupConfig) {
   const { viteConfig, packConfig, preload, builderConfig, ...dirConfig } = config
 
   const vite = getViteConfig(viteConfig || {}, config)
-  const pack = getPackConfig(packConfig || {}, config)
-  const preloadConfigs = getPreloadConfigs(preload, config)
+  // --web 只构建渲染进程 , 跳过主进程 / preload 配置生成 ( 也避免无用的 .env 读取 )
+  const webOnly = store.command === 'build' && store.web
+  const pack = webOnly ? {} : getPackConfig(packConfig || {}, config)
+  const preloadConfigs = webOnly ? [] : getPreloadConfigs(preload, config)
 
   const initConfig: InitConfig = { vite, pack, preload: preloadConfigs }
 

@@ -1,3 +1,5 @@
 export { cleanDirs, isSameOrInside } from './clean'
 export { DefaultDirs } from './dirs'
+export { hintPackageManager } from './packageManager'
+export { DEFAULT_PORT, parsePort } from './port'
 export { store } from './store'

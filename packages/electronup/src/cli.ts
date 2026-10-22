@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+import type { ResolveTargetsOptions } from './runner/targets'
+import process from 'node:process'
 import { cac } from 'cac'
 import { version } from '../package.json'
 import { build, watch } from './runner'
-import { getConfig, resolveElectronupConfig } from './transform'
-import { store } from './utils'
+import { loadConfigOrExit } from './transform'
+import { parsePort, store } from './utils'
 
 interface Options {
   m?: string
@@ -13,16 +15,16 @@ interface Options {
 }
 
 interface DevOptions extends Options {
-  p?: number
-  port?: number
+  p?: number | string
+  port?: number | string
 }
 
 interface BuildOptions extends Options {
   o?: true
   option?: true
-  win?: true | 'ia32' | 'x64'
-  mac?: true | 'x64' | 'arm64' | 'universal'
-  linux?: true | 'x64' | 'arm64' | 'armv7l'
+  win?: ResolveTargetsOptions['win']
+  mac?: ResolveTargetsOptions['mac']
+  linux?: ResolveTargetsOptions['linux']
   dir?: true
   web?: boolean
   asar: boolean
@@ -43,11 +45,17 @@ cli
     // store.command 需在执行函数式配置前设置 ( 作为 ConfigEnv 传给用户 )
     store.command = 'serve'
     store.mode = (mode || 'development')
-    store.port = (port || 8090)
+    try {
+      store.port = parsePort(port)
+    }
+    catch (error: any) {
+      console.error('err: ', error.message)
+      process.exit(1)
+    }
     store.minify = minify
 
     // 先执行函数式 / 异步配置得到最终对象 , 清理由 watch 在拿到真实 resourceDir 后进行
-    const option = await resolveElectronupConfig(await getConfig(configFile))
+    const option = await loadConfigOrExit(configFile)
 
     await watch(option)
   })
@@ -58,7 +66,7 @@ cli
   .option('--dir', '只生成目录')
   .option('--web', '只构建渲染进程 ( web ) , 不构建主进程 / preload , 也不生成安装包')
   .option('--no-asar', 'asar false')
-  .option('--win [arch]', '[ia32 | x64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包')
+  .option('--win [arch]', '[ia32 | x64 | arm64] 构建 win 平台下的输出包 , 不指定架构则输出 ia32 和 x64的两个包')
   .option('--mac [arch]', '[x64 | arm64 | universal] 构建 mac 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型')
   .option('--linux [arch]', '[x64 | arm64 | armv7l] 构建 linux 平台下的输出包 , 若不指定架构则默认当前操作系统的架构类型')
   .action(async (configFile: undefined | string, options: BuildOptions) => {
@@ -88,7 +96,7 @@ cli
     store.linux = linux
 
     // 先执行函数式 / 异步配置得到最终对象 ; 清理由 build 在目标校验之后进行
-    const configOption = await resolveElectronupConfig(await getConfig(configFile))
+    const configOption = await loadConfigOrExit(configFile)
 
     await build(configOption)
   })

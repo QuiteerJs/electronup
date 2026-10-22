@@ -1,5 +1,6 @@
 import type { ElectronupConfigExport } from '../typings/electronup'
 import { extname, join, resolve } from 'node:path'
+import process from 'node:process'
 import { parserConfig } from '@quiteer/parser-config'
 import fsExtra from 'fs-extra'
 import { store } from '../utils'
@@ -37,6 +38,23 @@ async function configPath(filePath: string | undefined) {
 }
 
 /**
+ * 调用 parser-config 加载配置 , 并把它内部吞掉的错误转成 reject
+ *
+ * @quiteer/parser-config 1.0.3 用 `new Promise(t => load().then(t))` 包装加载 , 语法错误等失败时
+ * 返回的 Promise 永不 reject , 错误变成未处理拒绝 . 加载期间临时监听 unhandledRejection 接住它
+ */
+function loadConfigFile(path: string): Promise<ElectronupConfigExport> {
+  return new Promise((resolve, reject) => {
+    const onRejection = (reason: unknown) => reject(reason)
+    process.once('unhandledRejection', onRejection)
+    // 不传 configName : 传了会让 parser-config 丢弃文件名 , 改为在同目录搜索标准名配置
+    parserConfig(path)
+      .then(resolve, reject)
+      .finally(() => process.off('unhandledRejection', onRejection))
+  })
+}
+
+/**
  * 读取配置文件的原始导出 ( 可能是对象、Promise 或函数 ) ,
  * 需再经 resolveElectronupConfig 执行 / 校验后才能读取 resourceDir 等字段
  */
@@ -44,9 +62,7 @@ export async function getConfig(filePath: string | undefined): Promise<Electronu
   const path = await configPath(filePath)
 
   try {
-    // 不传 configName : 传了会让 parser-config 丢弃文件名 , 改为在同目录搜索标准名配置
-    const option: ElectronupConfigExport = await parserConfig(path)
-    return option
+    return await loadConfigFile(path)
   }
   catch (error) {
     throw new Error(`${PARSING_FAILED} ( ${path} )`, { cause: error })

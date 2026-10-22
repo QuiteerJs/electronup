@@ -1,4 +1,5 @@
 import type { Platform } from 'electron-builder'
+import type { ResolveTargetsOptions } from '../runner/targets'
 import process from 'node:process'
 import { Arch } from 'electron-builder'
 
@@ -15,9 +16,9 @@ class Store {
   minify!: boolean
   port?: number
   option!: boolean
-  win?: true | 'ia32' | 'x64'
-  mac?: true | 'x64' | 'arm64' | 'universal'
-  linux?: true | 'x64' | 'arm64' | 'armv7l'
+  win?: ResolveTargetsOptions['win']
+  mac?: ResolveTargetsOptions['mac']
+  linux?: ResolveTargetsOptions['linux']
   dir?: 'dir' | null
   asar?: boolean
   /** 只构建渲染进程 ( web ) , 跳过主进程 / preload 与 electron-builder */

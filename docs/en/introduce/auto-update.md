@@ -101,7 +101,7 @@ export default defineConfig({
 })
 ```
 
-If you prefer bundling `electron-updater` into the main process output as well, step 1 can be skipped, but verify that the updater code really ended up in the bundle.
+Both steps are required. The helper code loads `electron-updater` lazily through `createRequire` at runtime, which bundlers cannot follow: even with `electron-updater` in `noExternal`, the output still contains `require("electron-updater")`. So `electron-updater` must be installed as an app `dependency`, otherwise the app fails at runtime with `Cannot find module 'electron-updater'`.
 
 ### Platform artifacts
 

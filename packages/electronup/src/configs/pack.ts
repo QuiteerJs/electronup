@@ -2,6 +2,7 @@ import type { ChildProcessWithoutNullStreams } from 'node:child_process'
 import type { UserConfig } from 'vite-plus/pack'
 import type { ElectronupConfig, PackConfig } from '../typings/electronup'
 import { spawn } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import process from 'node:process'
@@ -18,7 +19,8 @@ const defaultEnvPath = resolve(store.root, '.env')
 
 /** 可选地加载一个 dotenv 文件 , 文件缺失时返回 {} 而不是报错 */
 function loadOptionalEnv(path: string): Record<string, string> {
-  const { parsed, error } = getEnv({ path })
+  // quiet : dotenv v17 默认每次加载都会打印提示日志
+  const { parsed, error } = getEnv({ path, quiet: true })
   if (error) { return {} }
   return parsed ?? {}
 }
@@ -91,8 +93,11 @@ export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig) {
   const defaultConfig: UserConfig = {
     // 默认压缩 ( dev / build 一致 ) , 显式传 --no-minify 时关闭
     minify: minify !== false && (minify === true || !isServe),
-    external: ['electron', ...(config.external ?? [])],
-    noExternal: config.noExternal,
+    // external / noExternal 已被 vite-plus pack 弃用 , 对外保留原配置名 , 内部映射到 deps
+    deps: {
+      neverBundle: ['electron', ...(config.external ?? [])],
+      ...(config.noExternal ? { alwaysBundle: config.noExternal } : {}),
+    },
     entry: { electron: resolve(root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts') },
     outDir: allConfig.resourceDir || DefaultDirs.resourceDir,
     watch: isServe,
@@ -110,15 +115,31 @@ export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig) {
   return { ...defaultConfig }
 }
 
+/** 预检主进程入口 ( mainDir/index.ts ) 是否存在 , 不存在时抛错 */
+export function assertMainEntry(allConfig: ElectronupConfig) {
+  const entry = resolve(store.root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts')
+  if (!existsSync(entry))
+    {throw new Error(`找不到主进程入口 : ${entry} ( 可通过 mainDir 配置主进程目录 )`)}
+}
+
 /**
  * Description 从用户项目根解析 electron 可执行文件路径
  * Description  electron 为 peer 依赖 , pnpm 严格隔离下只能从用户项目解析
+ * Description  解析失败时抛出带安装提示的错误 , dev 启动前会先调用一次做预检
  * @returns {any}
  */
-function getElectronBinary(): string {
+export function getElectronBinary(): string {
   const requireFromRoot = createRequire(resolve(store.root, 'package.json'))
-  // electron 在普通 Node 下的 module.exports 就是可执行文件路径
-  return requireFromRoot('electron')
+  try {
+    // electron 在普通 Node 下的 module.exports 就是可执行文件路径
+    return requireFromRoot('electron')
+  }
+  catch (error: any) {
+    if (error?.code === 'MODULE_NOT_FOUND')
+      {throw new Error('未在项目中找到 electron , 请先安装 : pnpm add -D electron ( 或 npm i -D electron )', { cause: error })}
+    // electron 包已安装但可执行文件下载失败时 , electron 自身会抛出 "Electron failed to install correctly"
+    throw new Error(`electron 无法使用 : ${error?.message ?? error}`, { cause: error })
+  }
 }
 
 let electronProcess: ChildProcessWithoutNullStreams | null

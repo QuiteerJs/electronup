@@ -8,8 +8,10 @@ import fsExtra from 'fs-extra'
 import pc from 'picocolors'
 import { build as viteBuild } from 'vite'
 import { getBuilderOutDir, getPreloadFilePatterns } from '../configs/builder'
+import { assertMainEntry } from '../configs/pack'
+import { assertPreloadEntries } from '../configs/preload'
 import { electronupConfig } from '../transform'
-import { DefaultDirs, store } from '../utils'
+import { DefaultDirs, hintPackageManager, store } from '../utils'
 import { cleanOutputDirsOrExit } from './clean'
 import { EFFECTIVE_CONFIG_FILE, toPlainConfig, writeEffectiveConfig } from './effectiveConfig'
 import { resolveBuildTargets } from './targets'
@@ -141,7 +143,9 @@ export async function build(options: ElectronupConfig) {
           dir: store.dir,
         })
       }
-      // preload 输出目录无法打包时提前报错 , 避免清理之后才失败
+      // 入口缺失、preload 输出目录无法打包时提前报错 , 避免清理之后才失败
+      assertMainEntry(options)
+      assertPreloadEntries(options.preload)
       getPreloadFilePatterns(options)
     }
     catch (error: any) {
@@ -178,6 +182,8 @@ export async function build(options: ElectronupConfig) {
   // electron-builder 会原地改写配置 ( 如 files 变成 filter 结构 ) , 需在执行前做快照
   const snapshot = toPlainConfig(initConfig)
 
+  // 直接用 node 调用 CLI 时 electron-builder 会把 workspace 子项目误判为 npm , 先补上包管理器信息
+  hintPackageManager(store.root)
   await builder(initConfig.builder)
 
   const outDir = path.resolve(store.root, builderOutDir)

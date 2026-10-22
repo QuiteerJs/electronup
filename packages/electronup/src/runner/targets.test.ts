@@ -113,4 +113,22 @@ describe('resolveBuildTargets', () => {
     expect(summary[0].platform).toBe('windows')
     expect(summary[0].archs).toEqual([ArchEnum.x64])
   })
+
+  it('非法架构直接报错 , 不再回退为 x64', () => {
+    expect(() => resolveBuildTargets({ hostPlatform: 'win32', win: 'foo' as any })).toThrow('--win 不支持架构 foo , 可选 : ia32 | x64 | arm64')
+    expect(() => resolveBuildTargets({ hostPlatform: 'darwin', mac: 'ia32' as any })).toThrow('--mac 不支持架构 ia32')
+    expect(() => resolveBuildTargets({ hostPlatform: 'linux', linux: 'universal' as any })).toThrow('--linux 不支持架构 universal')
+    // cac 会把纯数字参数解析为 number
+    expect(() => resolveBuildTargets({ hostPlatform: 'win32', win: 64 as any })).toThrow('--win 不支持架构 64')
+  })
+
+  it('win 支持 arm64', () => {
+    expect(summarize(resolveBuildTargets({ hostPlatform: 'win32', win: 'arm64' }))[0].archs).toEqual([ArchEnum.arm64])
+  })
+
+  it('重复传参时合并多个架构并去重 , 其中任一非法即报错', () => {
+    expect(summarize(resolveBuildTargets({ hostPlatform: 'win32', win: ['x64', 'arm64', 'x64'] }))[0].archs)
+      .toEqual([ArchEnum.x64, ArchEnum.arm64])
+    expect(() => resolveBuildTargets({ hostPlatform: 'win32', win: ['x64', 'foo' as any] })).toThrow('foo')
+  })
 })

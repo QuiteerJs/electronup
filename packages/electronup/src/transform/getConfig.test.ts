@@ -60,4 +60,12 @@ describe('getConfig', () => {
     write('electronup.json', '{}')
     await expect(getConfig('electronup.json')).rejects.toThrow('不支持的配置文件类型')
   })
+
+  it.each(['broken.mjs', 'broken.ts'])('语法错误时 reject ( %s ) , 错误附带文件路径与原因', async (name) => {
+    const file = write(name, 'export default {\n')
+    const error = await getConfig(name).catch(e => e)
+    expect(error.message).toContain('解析配置文件失败')
+    expect(error.message).toContain(file)
+    expect(error.cause).toBeInstanceOf(Error)
+  })
 })
