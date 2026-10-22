@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs'
-import { resolve } from 'node:path'
 import { cac } from 'cac'
 import { version } from '../package.json'
 import { build, watch } from './runner'
-import { getConfig } from './transform'
-import { DefaultDirs, store } from './utils'
+import { getConfig, resolveElectronupConfig } from './transform'
+import { store } from './utils'
 
 interface Options {
   m?: string
@@ -42,14 +40,14 @@ cli
   .action(async (configFile: undefined | string, options: DevOptions) => {
     const { mode, port, minify } = options
 
-    const option = await getConfig(configFile)
-
-    emptyDir(resolve(store.root, option.resourceDir || DefaultDirs.resourceDir))
-
+    // store.command 需在执行函数式配置前设置 ( 作为 ConfigEnv 传给用户 )
     store.command = 'serve'
     store.mode = (mode || 'development')
     store.port = (port || 8090)
     store.minify = minify
+
+    // 先执行函数式 / 异步配置得到最终对象 , 清理由 watch 在拿到真实 resourceDir 后进行
+    const option = await resolveElectronupConfig(await getConfig(configFile))
 
     await watch(option)
   })
@@ -76,13 +74,6 @@ cli
       asar,
     } = options
 
-    const configOption = await getConfig(configFile)
-
-    emptyDir(resolve(store.root, configOption.resourceDir || DefaultDirs.resourceDir))
-    // --web 只构建渲染进程 , 不产出安装包 , 无需清空 outDir
-    if (!web)
-      {emptyDir(resolve(store.root, configOption.outDir || DefaultDirs.outDir))}
-
     store.command = 'build'
     store.mode = (mode || 'production')
     // build 默认压缩 , 只有显式 --no-minify 时才关闭
@@ -96,17 +87,12 @@ cli
     store.mac = mac
     store.linux = linux
 
+    // 先执行函数式 / 异步配置得到最终对象 ; 清理由 build 在目标校验之后进行
+    const configOption = await resolveElectronupConfig(await getConfig(configFile))
+
     await build(configOption)
   })
 
 cli.help()
 cli.version(version)
 cli.parse()
-
-function emptyDir(dir: string) {
-  if (!fs.existsSync(dir))
-    {return}
-
-  for (const file of fs.readdirSync(dir))
-    {fs.rmSync(resolve(dir, file), { recursive: true, force: true })}
-}

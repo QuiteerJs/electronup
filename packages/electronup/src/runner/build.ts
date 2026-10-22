@@ -10,6 +10,7 @@ import { build as viteBuild } from 'vite'
 import { stringify } from 'yaml'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
+import { cleanOutputDirsOrExit } from './clean'
 import { resolveBuildTargets } from './targets'
 
 type ColorFunc = (str: string | number) => string
@@ -113,9 +114,14 @@ const platformSelect: PlatformSelect[] = [
   },
 ]
 
+/**
+ * @param options 已执行 / 校验过的配置对象 ( 见 resolveElectronupConfig ) ,
+ * 函数式导出必须先执行 , 否则读不到 resourceDir / outDir
+ */
 export async function build(options: ElectronupConfig) {
   const { writeFile } = fsExtra
 
+  // 清理必须在目标解析 / 交互式向导之后 : 平台不支持、参数错误或用户取消时 , 上一次的产物保持不变
   // --web 只构建渲染进程 , 不涉及打包平台与架构 , 跳过目标解析与交互式向导
   if (!store.web) {
     if (store.option)
@@ -135,6 +141,11 @@ export async function build(options: ElectronupConfig) {
       }
     }
   }
+
+  // --web 不产出安装包 , 只清空 resourceDir , 保留 outDir
+  const cleanTargets = [options.resourceDir || DefaultDirs.resourceDir]
+  if (!store.web) { cleanTargets.push(options.outDir || DefaultDirs.outDir) }
+  cleanOutputDirsOrExit(cleanTargets)
 
   const initConfig = await electronupConfig(options)
 

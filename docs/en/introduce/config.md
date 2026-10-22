@@ -69,7 +69,7 @@ export default defineConfig({
 ::: warning Notes
 - Except for `libDir`, these paths are joined with the project root before use.
 - `renderDir`, `publicDir` and `mainDir` cannot be overridden inside Vite / vite-plus pack: setting `viteConfig.root`, `viteConfig.publicDir` or `packConfig.entry` has no effect (`packConfig` only exposes `external` / `noExternal`).
-- `electronup dev` clears `resourceDir`; `electronup build` clears both `resourceDir` and `outDir`. Never point them at source directories.
+- `electronup dev` clears `resourceDir`; `electronup build` clears both `resourceDir` and `outDir`. Never point them at source directories. A safety check runs first: if a directory is the project root or one of its parents, the home directory, a filesystem root, inside `node_modules` / `.git`, or is itself a symlink / junction, electronup exits with an error and deletes nothing.
 :::
 
 ## Vite

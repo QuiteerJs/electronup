@@ -69,7 +69,7 @@ export default defineConfig({
 ::: warning 注意
 - 除 `libDir` 外，这些路径都会与项目根目录拼接后使用。
 - `renderDir`、`publicDir`、`mainDir` 在 Vite / vite-plus pack 内部无法直接覆盖：设置 `viteConfig.root`、`viteConfig.publicDir` 或 `packConfig.entry` 不会生效（`packConfig` 本身也只暴露 `external` / `noExternal`）。
-- `electronup dev` 会清空 `resourceDir`，`electronup build` 会清空 `resourceDir` 与 `outDir`，请不要把它们指到源码目录。
+- `electronup dev` 会清空 `resourceDir`，`electronup build` 会清空 `resourceDir` 与 `outDir`，请不要把它们指到源码目录。清理前会做安全校验：指向项目根目录及其上级、用户主目录、文件系统根目录、`node_modules` / `.git`，或目录本身是符号链接 / junction 时，会直接报错且不删除任何内容。
 :::
 
 ## Vite

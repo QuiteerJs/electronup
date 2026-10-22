@@ -108,7 +108,7 @@ electronup
 行为：
 
 1. 读取配置文件。
-2. 清空 `resourceDir` 后启动 Vite 开发服务器。
+2. 校验并清空 `resourceDir` 后启动 Vite 开发服务器。
 3. 构建 preload（如果配置了 `preload`）。
 4. 以 watch 模式构建主进程，构建成功后在主进程脚本目录启动 Electron。
 5. 主进程代码变化会重新构建并重启 Electron；渲染进程由 Vite 热更新。
@@ -271,4 +271,8 @@ Windows 系统不能构建 Linux 包，传入 `--linux` 会直接报错。macOS 
 
 ::: warning 目录会被清空
 `electronup dev` 启动时会清空 `resourceDir` 的内容；`electronup build` 会清空 `resourceDir` 与 `outDir` 的内容（`build --web` 只清空 `resourceDir`）。不要把这两个目录指向源码目录。
+
+- 清理发生在配置文件（含函数式导出）执行与平台 / 架构校验之后：参数错误、平台不支持或在 `-o` 向导中取消时，上一次的产物保持不变。
+- 指向项目根目录及其上级、用户主目录、文件系统根目录、`node_modules` / `.git`，或目录本身是符号链接 / junction 时，会直接报错且不删除任何内容；指向项目之外的其他目录时会给出提示。
+- 目录被占用（例如打包出的应用仍在运行）时会报错退出，已有产物不会被删掉一部分。
 :::

@@ -10,7 +10,7 @@ electronup monorepo：`packages/electronup` 是核心 CLI/构建工具（Vite + 
 
 ```bash
 pnpm install            # 只用 pnpm（packageManager: pnpm@10.30.3）
-pnpm test               # 单元测试（vitest 5，7 文件 / 71 用例）
+pnpm test               # 单元测试（vitest 5，9 文件 / 91 用例）
 pnpm typecheck          # tsc -p packages/electronup/tsconfig.json
 pnpm lint               # oxlint；不支持 Markdown
 pnpm --filter electronup build
@@ -31,6 +31,7 @@ node ../../packages/electronup/dist/bin/electronup.mjs build --dir   # 含主进
 - cac 负向选项未传时默认 `true`（`--no-minify` / `--no-asar`），CLI 层要做归一化。
 - 主进程与 preload 产物为 CJS（`electron.cjs` / `preload*.cjs`），示例 `main` 指向 `dist/resource/electron.cjs`。
 - `electron` 是 optional peer，通过项目根 `createRequire` 解析。
+- 清空 `resourceDir` / `outDir` 只能走 `runner/clean.ts`（内部用 `utils/clean.ts` 校验），且必须在配置执行与目标校验之后。
 - 文档中英各 17 篇一一对应，新增页面要同时登记两种语言的 nav/sidebar。
 - 提交信息格式：`type(scope): 中文描述`；不要提交 `dist/`、`.vitepress` 缓存、`*.tgz`、临时日志。
 

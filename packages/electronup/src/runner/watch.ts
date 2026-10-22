@@ -2,9 +2,16 @@ import type { ElectronupConfig } from '../typings/electronup'
 import { getPortPromise } from 'portfinder'
 import { createServer } from 'vite'
 import { electronupConfig } from '../transform'
-import { store } from '../utils'
+import { DefaultDirs, store } from '../utils'
+import { cleanOutputDirsOrExit } from './clean'
 
+/**
+ * @param options 已执行 / 校验过的配置对象 ( 见 resolveElectronupConfig )
+ */
 export async function watch(options: ElectronupConfig) {
+  // 与 build 共用同一套清理校验 , 不合法的 resourceDir 直接报错退出 , 不删除任何内容
+  cleanOutputDirsOrExit([options.resourceDir || DefaultDirs.resourceDir])
+
   const p = await getPortPromise({
     port: Number(store.port),
   })

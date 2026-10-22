@@ -1,4 +1,4 @@
-import type { ElectronupConfig } from '../typings/electronup'
+import type { ElectronupConfigExport } from '../typings/electronup'
 import { join } from 'node:path'
 import { parserConfig } from '@quiteer/parser-config'
 import fsExtra from 'fs-extra'
@@ -24,11 +24,15 @@ async function configPath(filePath: string | undefined) {
   throw new Error(NOT_FOUND)
 }
 
-export async function getConfig(filePath: string | undefined): Promise<ElectronupConfig> {
+/**
+ * 读取配置文件的原始导出 ( 可能是对象、Promise 或函数 ) ,
+ * 需再经 resolveElectronupConfig 执行 / 校验后才能读取 resourceDir 等字段
+ */
+export async function getConfig(filePath: string | undefined): Promise<ElectronupConfigExport> {
   const path = await configPath(filePath)
 
   try {
-    const option: ElectronupConfig = await parserConfig(path, 'electronup.config')
+    const option: ElectronupConfigExport = await parserConfig(path, 'electronup.config')
     return option
   }
   catch (error) {
