@@ -1,20 +1,32 @@
 import type { ElectronupConfigExport } from '../typings/electronup'
-import { join } from 'node:path'
+import { extname, join, resolve } from 'node:path'
 import { parserConfig } from '@quiteer/parser-config'
 import fsExtra from 'fs-extra'
 import { store } from '../utils'
+
+const SUFFIXES = ['ts', 'mjs', 'cjs', 'js']
 
 const NOT_FOUND = '找不到 electronup.config.ts | electronup.config.mjs | electronup.config.cjs | electronup.config.js , 请在根目录下添加配置文件 , 或显式的指定配置文件路径（相对于根目录）'
 const PARSING_FAILED = '找到了配置文件,但解析配置文件失败！'
 
 async function configPath(filePath: string | undefined) {
-  const { pathExists } = fsExtra
+  const { pathExists, stat } = fsExtra
   const { root } = store
 
-  if (filePath)
-    {return join(root, filePath)}
+  // 显式路径 : 相对路径基于项目根解析 , 绝对路径原样使用 ; 不存在时直接报错 , 绝不回退到标准名配置
+  if (filePath) {
+    const path = resolve(root, filePath)
 
-  const configList = ['ts', 'mjs', 'cjs', 'js'].map(suffix => `${join(root, 'electronup.config')}.${suffix}`)
+    if (!(await pathExists(path)) || !(await stat(path)).isFile())
+      {throw new Error(`找不到指定的配置文件 : ${path}`)}
+
+    if (!SUFFIXES.includes(extname(path).slice(1)))
+      {throw new Error(`不支持的配置文件类型 : ${path} , 仅支持 ${SUFFIXES.map(s => `.${s}`).join(' | ')}`)}
+
+    return path
+  }
+
+  const configList = SUFFIXES.map(suffix => `${join(root, 'electronup.config')}.${suffix}`)
 
   const index = (await Promise.all(configList.map(path => pathExists(path)))).findIndex(flag => flag)
 
@@ -32,11 +44,11 @@ export async function getConfig(filePath: string | undefined): Promise<Electronu
   const path = await configPath(filePath)
 
   try {
-    const option: ElectronupConfigExport = await parserConfig(path, 'electronup.config')
+    // 不传 configName : 传了会让 parser-config 丢弃文件名 , 改为在同目录搜索标准名配置
+    const option: ElectronupConfigExport = await parserConfig(path)
     return option
   }
   catch (error) {
-    console.error('error :>> ', error)
-    throw new Error(PARSING_FAILED, { cause: error })
+    throw new Error(`${PARSING_FAILED} ( ${path} )`, { cause: error })
   }
 }

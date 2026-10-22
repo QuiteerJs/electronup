@@ -18,8 +18,8 @@ Usage:
   $ electronup [config-file]
 
 Commands:
-  [config-file]  等同于electronup dev ,启动开发环境热更新
-  build [root]   开始构建服务 , 若不指定平台则默认当前操作系统的架构类型
+  [config-file]        等同于electronup dev ,启动开发环境热更新
+  build [config-file]  开始构建服务 , 若不指定平台则默认当前操作系统的架构类型
 
 For more info, run any command with the `--help` flag:
   $ electronup --help
@@ -43,7 +43,7 @@ electronup build --help
 electronup/0.3.0
 
 Usage:
-  $ electronup build [root]
+  $ electronup build [config-file]
 
 Options:
   -o , --option       自定义 , 自定义构建选项
@@ -59,7 +59,7 @@ Options:
 ```
 :::
 
-命令中的 `[config-file]` 与 `build [root]` 都是**配置文件路径**（相对项目根目录），不是项目根目录本身。省略时使用根目录下的 `electronup.config.*`。
+命令中的 `[config-file]` 是**配置文件路径**（相对项目根目录，也可以是绝对路径），不是项目根目录本身；文件名不限于 `electronup.config.*`，但扩展名需为 `.ts` / `.mjs` / `.cjs` / `.js`。省略时使用根目录下的 `electronup.config.*`；显式指定的文件不存在时直接报错，不会回退到标准名配置。
 
 ## 环境模式 `-m` / `--mode`
 
