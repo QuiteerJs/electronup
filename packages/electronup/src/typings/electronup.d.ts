@@ -50,14 +50,15 @@ export interface ElectronupConfig {
   libDir?: string
 
   /**
-   * 资源构建输出目录
-   * @default 'dist'
+   * 资源构建输出目录 ( 渲染进程、主进程、preload ) , 构建前会被清空
+   * @default 'dist/resource'
    */
   resourceDir?: string
 
   /**
-   * electron-builder 输出目录
-   * @default 'out'
+   * electron-builder 输出目录 , `build` ( 非 `--web` ) 前会被清空 ;
+   * 配置了 `builderConfig.directories.output` 时以后者为准
+   * @default 'dist/out'
    */
   outDir?: string
 }

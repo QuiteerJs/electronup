@@ -210,7 +210,7 @@ Builds only the renderer (Vite output) and skips preload, the main process and e
 electronup build --no-asar
 ```
 
-[asar](https://github.com/electron/asar) packs app files into a single archive. Passing `--no-asar` explicitly sets `asar: false`; without it, electron-builder's default (enabled) applies, and `builderConfig.asar` can override it.
+[asar](https://github.com/electron/asar) packs app files into a single archive. Precedence: an explicit `--no-asar` > `builderConfig.asar` > electron-builder's default (enabled). Passing `--no-asar` sets `asar: false` even when `builderConfig.asar` is `true`; without it, `builderConfig.asar` is used, and if that is unset electron-builder decides.
 
 ### Windows `--win`
 
@@ -281,6 +281,7 @@ The first match wins. Explicit paths are resolved relative to the project root.
 `electronup dev` clears the contents of `resourceDir`; `electronup build` clears `resourceDir` and `outDir` (`build --web` clears only `resourceDir`). Never point these options at source directories.
 
 - Cleaning happens after the config file (including function exports) is evaluated and platforms / architectures are validated: invalid arguments, unsupported platforms or cancelling the `-o` wizard leave the previous output untouched.
+- Every cleared directory is logged as `[electronup] 已清空 <dir>` ("cleared"); when `build --web` clears `resourceDir`, the previous main process / preload output is removed as well.
 - If a directory is the project root or one of its parents, the home directory, a filesystem root, inside `node_modules` / `.git`, or is itself a symlink / junction, electronup exits with an error and deletes nothing. Directories outside the project are allowed with a notice.
 - If a directory is in use (for example, the packaged app is still running), electronup exits with an error instead of leaving it half deleted.
 :::

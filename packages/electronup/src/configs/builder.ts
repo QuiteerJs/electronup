@@ -107,9 +107,10 @@ export async function getBuilderConfig(config: BuilderConfig, allConfig: Electro
     // 用户自定义 files 时整体覆盖 , 需自行包含 resourceDir 与 preload 输出目录
     files: [`${allConfig.resourceDir || DefaultDirs.resourceDir}/**/*`, ...getPreloadFilePatterns(allConfig)],
     extraFiles: [allConfig.libDir || DefaultDirs.libDir],
-    // CLI 未传 --no-asar 时 store.asar 为 undefined , 不覆盖 builder 默认值
-    ...(store.asar !== undefined ? { asar: store.asar } : {}),
     ...restConfig,
+    // 优先级 : 显式 --no-asar > builderConfig.asar > electron-builder 默认值 ( 开启 ) ;
+    // CLI 未传 --no-asar 时 store.asar 为 undefined , 不覆盖用户配置
+    ...(store.asar !== undefined ? { asar: store.asar } : {}),
     // 嵌套预置项做一层浅合并 : builderConfig 中同名字段覆盖预置字段 ,
     // 未覆盖的预置字段 ( 如 mac 默认 dmg + zip 、nsis 预置项 ) 保留
     nsis: { ...nsis, ...restConfig.nsis },

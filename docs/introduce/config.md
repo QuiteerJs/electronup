@@ -204,7 +204,7 @@ export default defineConfig({
 | `files` | `${resourceDir}/**/*` |
 | `extraFiles` | `[libDir]` |
 | `directories.output` | 默认取 `outDir`；配置了 `builderConfig.directories.output` 时以它为准，清理与 `electronup-effective-config.yaml` 也随之使用该目录 |
-| `asar` | 只有显式传入 `--no-asar` 时才会写入 `false`，否则交给 electron-builder 决定 |
+| `asar` | 显式传入 `--no-asar` 时写入 `false` 并覆盖 `builderConfig.asar`；否则使用 `builderConfig.asar`，未配置时交给 electron-builder 决定 |
 | `targets` | 由命令行或交互式向导解析出的平台与架构 |
 | `mac.target` | `['dmg', 'zip']`：`dmg` 用于分发安装，`zip` 是 mac 端 electron-updater 更新所需的产物 |
 

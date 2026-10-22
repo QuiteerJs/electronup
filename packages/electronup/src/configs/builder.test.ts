@@ -155,6 +155,12 @@ describe('getBuilderConfig', () => {
     expect(cfg.asar).toBe(true)
   })
 
+  it('显式 --no-asar 优先于 builderConfig.asar', async () => {
+    store.asar = false
+    const cfg = await getCfg({ asar: true })
+    expect(cfg.asar).toBe(false)
+  })
+
   it('resourceDir 决定 files 路径', async () => {
     const cfg = await getCfg({}, { resourceDir: 'out/rsc' })
     expect((cfg.files as string[])[0]).toBe('out/rsc/**/*')

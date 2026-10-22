@@ -210,7 +210,7 @@ electronup build --web
 electronup build --no-asar
 ```
 
-[asar](https://github.com/electron/asar) 会把应用文件归档成单个文件。传递 `--no-asar` 后 electronup 会显式设置 `asar: false`；不传时保持 electron-builder 的默认行为（默认开启），也可以在 `builderConfig.asar` 中自行覆盖。
+[asar](https://github.com/electron/asar) 会把应用文件归档成单个文件。优先级为：显式传入的 `--no-asar` > `builderConfig.asar` > electron-builder 默认值（开启）。传递 `--no-asar` 后 electronup 会设置 `asar: false`，即使 `builderConfig.asar` 为 `true` 也以命令行为准；不传时使用 `builderConfig.asar`，未配置则交给 electron-builder。
 
 ### Windows `--win`
 
@@ -281,6 +281,7 @@ Windows 系统不能构建 Linux 包，传入 `--linux` 会直接报错。macOS 
 `electronup dev` 启动时会清空 `resourceDir` 的内容；`electronup build` 会清空 `resourceDir` 与 `outDir` 的内容（`build --web` 只清空 `resourceDir`）。不要把这两个目录指向源码目录。
 
 - 清理发生在配置文件（含函数式导出）执行与平台 / 架构校验之后：参数错误、平台不支持或在 `-o` 向导中取消时，上一次的产物保持不变。
+- 每清空一个目录都会打印一行 `[electronup] 已清空 <目录>`；`build --web` 清空 `resourceDir` 时，上一次的主进程 / preload 产物也会一并删除。
 - 指向项目根目录及其上级、用户主目录、文件系统根目录、`node_modules` / `.git`，或目录本身是符号链接 / junction 时，会直接报错且不删除任何内容；指向项目之外的其他目录时会给出提示。
 - 目录被占用（例如打包出的应用仍在运行）时会报错退出，已有产物不会被删掉一部分。
 :::

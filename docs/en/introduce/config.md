@@ -204,7 +204,7 @@ If your Electron version supports ESM preload, pass `format: 'esm'` in the item 
 | `files` | `${resourceDir}/**/*` |
 | `extraFiles` | `[libDir]` |
 | `directories.output` | Defaults to `outDir`; when `builderConfig.directories.output` is set it wins, and cleanup and `electronup-effective-config.yaml` follow it |
-| `asar` | Only written as `false` when `--no-asar` is passed; otherwise electron-builder decides |
+| `asar` | Set to `false` when `--no-asar` is passed, overriding `builderConfig.asar`; otherwise `builderConfig.asar` is used, and electron-builder decides when it is unset |
 | `targets` | Platform and architecture resolved from CLI flags or the interactive wizard |
 | `mac.target` | `['dmg', 'zip']`: `dmg` for distributing the installer, `zip` is required by electron-updater on macOS |
 
