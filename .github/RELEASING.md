@@ -59,4 +59,10 @@ pnpm --filter electronup release
 pnpm --filter create-electronup release
 ```
 
+在仓库根目录运行核心包命令。当前 `qui r` 会列出整个仓库的包，发布核心包时只选择 `electronup (packages/electronup/package.json)`；不要同时选择脚手架、playground 或 template。确认新版本未占用，再完成版本和提交信息交互。不要以“未选择任何包”的方式跳过升版：当前工具会正常返回，后面的构建与发布仍会继续。
+
+当前 `@quiteer/scripts 0.1.6` 在生成 CHANGELOG 后执行 `git add -A`，因此执行前必须检查未跟踪文件。本机缓存和个人记录可加入 `.git/info/exclude`，不要靠临时文件“未跟踪”来阻止它们进入发布提交。
+
+`qui r` 会创建版本提交和标签，然后生成 CHANGELOG 并交互提交；它不会推送这些 Git 变更。npm 发布成功后，在当前分支执行 `git push`，再用 `git push origin electronup-v<实际版本>` 只推送本次标签。
+
 发布后从官方注册表核对版本和 dist-tag，并在新的消费项目中验证正式发布包。不要直接上传仍使用旧版本号的预检 tarball。
