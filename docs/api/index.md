@@ -11,7 +11,7 @@ title: API
 | `defineConfig` | 函数 | 配置类型提示 |
 | `initAutoUpdater` | 函数 | 初始化 electron-updater |
 | `checkForUpdates` | 函数 | 检查更新 |
-| `autoUpdater` | 实例 | electron-updater 原生实例 |
+| `autoUpdater` | 惰性代理 | 访问 electron-updater 实例 |
 | `BuilderConfig` | 类型 | electron-builder 配置类型别名 |
 | `ConfigEnv` | 类型 | 配置函数的参数类型 |
 | `ElectronupConfig` | 类型 | 完整配置类型 |
@@ -111,7 +111,7 @@ interface AutoUpdaterOptions {
 }
 ```
 
-返回值是 `autoUpdater` 实例。建议在 `app.whenReady()` 之后调用。只有在 `app.isPackaged` 为 `true` 时才会在启动时发起检查。
+返回值是 electron-updater 的底层真实实例。建议在 `app.whenReady()` 之后调用。只有在 `app.isPackaged` 为 `true` 时才会在启动时发起检查。
 
 ## `checkForUpdates`
 
@@ -127,7 +127,7 @@ const result = await checkForUpdates()
 
 ## `autoUpdater`
 
-electron-updater 的原生实例，用于监听事件或做更细粒度的控制：
+electron-updater 实例的惰性代理，用于监听事件或做更细粒度的控制。`initAutoUpdater` 返回底层真实实例，与此代理不是同一对象；建议在初始化前订阅事件：
 
 ```ts
 import { autoUpdater } from 'electronup'

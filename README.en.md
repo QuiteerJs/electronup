@@ -23,7 +23,7 @@
 
 ## Requirements
 
-- Node.js `>= 22`
+- Node.js `^22.18.0 || ^24.11.0 || >=26.0.0` (matching vite-plus; this repository uses `24.12.0`)
 - Electron `>= 28` (installed by your app)
 - TypeScript for the main process and preload entries
 

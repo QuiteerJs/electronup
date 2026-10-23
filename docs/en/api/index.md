@@ -11,7 +11,7 @@ The `electronup` package exports:
 | `defineConfig` | function | Config type helper |
 | `initAutoUpdater` | function | Initializes electron-updater |
 | `checkForUpdates` | function | Checks for updates |
-| `autoUpdater` | instance | Raw electron-updater instance |
+| `autoUpdater` | lazy proxy | Access to the electron-updater instance |
 | `BuilderConfig` | type | Alias for electron-builder config |
 | `ConfigEnv` | type | Argument type of the config function |
 | `ElectronupConfig` | type | Full config type |
@@ -111,7 +111,7 @@ interface AutoUpdaterOptions {
 }
 ```
 
-Returns the `autoUpdater` instance. Call it after `app.whenReady()`. The start-up check only fires when `app.isPackaged` is `true`.
+Returns the underlying electron-updater instance. Call it after `app.whenReady()`. The start-up check only fires when `app.isPackaged` is `true`.
 
 ## `checkForUpdates`
 
@@ -127,7 +127,7 @@ When `app.isPackaged === false`, it resolves to `null` without a network request
 
 ## `autoUpdater`
 
-The raw electron-updater instance for events and fine-grained control:
+A lazy proxy to the electron-updater instance for events and fine-grained control. `initAutoUpdater` returns the underlying instance, which is a different object from this proxy. Subscribe before initialization:
 
 ```ts
 import { autoUpdater } from 'electronup'

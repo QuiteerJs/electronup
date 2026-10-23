@@ -10,17 +10,19 @@ electronup 内置了 [electron-updater](https://www.electron.build/auto-update)�
 | --- | --- |
 | `initAutoUpdater(options?)` | 配置 electron-updater，可选地在应用启动后检查更新 |
 | `checkForUpdates()` | 手动检查更新；未打包时返回 `null` |
-| `autoUpdater` | electron-updater 的原生实例，用于监听事件或做更细的控制 |
+| `autoUpdater` | electron-updater 实例的惰性代理，用于监听事件或做更细的控制 |
 
 ## 基本用法
 
 在主进程 `app.whenReady()` 之后初始化：
 
 ```ts
-import { initAutoUpdater } from 'electronup'
+import { autoUpdater, initAutoUpdater } from 'electronup'
 import { app } from 'electron'
 
 void app.whenReady().then(() => {
+  // 在启动检查前订阅错误，避免遗漏初始化期间的事件
+  autoUpdater.on('error', error => console.error('更新失败：', error))
   initAutoUpdater({
     checkOnStart: true,
     autoDownload: true,
@@ -38,7 +40,7 @@ void app.whenReady().then(() => {
 | `autoInstallOnAppQuit` | `true` | 退出应用时安装已下载的更新 |
 | `logger` | 无 | 兼容 electron-updater 的 logger |
 
-返回值就是 `autoUpdater` 实例，可以直接继续监听事件：
+`initAutoUpdater` 返回底层真实实例；导出的 `autoUpdater` 是访问该实例的惰性代理，两者不是同一个对象。建议在初始化前通过代理订阅事件：
 
 ```ts
 import { autoUpdater } from 'electronup'
@@ -115,6 +117,34 @@ electron-updater 对不同平台的安装包类型有要求，调整 `builderCon
 ## 开发环境行为
 
 - `app.isPackaged` 为 `false` 时，`initAutoUpdater` 与 `checkForUpdates` 都不会发起更新检查。
-- `initAutoUpdater` 内部的自动检查会忽略错误；手动调用 `checkForUpdates` 时错误会正常抛出，需要自行捕获。
-- `autoUpdater` 是惰性实例：只有读取它的属性时才真正初始化 electron-updater，因此在非 Electron 进程（例如构建期加载 `electronup.config.ts`）中导入 `electronup` 不会触发初始化。
+- `initAutoUpdater` 会处理启动检查返回的 Promise 拒绝；electron-updater 的 `error` 事件和 logger 仍可记录失败。手动调用 `checkForUpdates` 时 Promise 会正常拒绝，需要自行捕获。
+- `autoUpdater` 是惰性代理：访问属性时才真正初始化 electron-updater，因此在非 Electron 进程（例如构建期加载 `electronup.config.ts`）中仅导入 `electronup` 不会触发初始化。调用初始化函数或访问代理仍然要求 Electron 主进程环境。
 - 需要自定义提示界面时，监听 `autoUpdater` 的事件即可，electronup 不提供内置 UI。
+
+## 仓库示例与升级验收
+
+`playground/electronup-test` 已配置生产依赖和 `noExternal`，并在主进程订阅更新事件。构建时设置 `ELECTRONUP_UPDATE_URL` 可使用 generic 更新源；不设置时禁用发布配置，示例不会自动检查。只有存在打包器生成的 `app-update.yml` 时，示例才启用启动检查。
+
+CI 检查三平台目录包内的更新器依赖，并在 Windows 上构建 NSIS 安装包，检查 `app-update.yml` 的更新源，以及 `latest.yml` 的版本、安装包大小和 SHA-512 哈希。Windows/macOS 的 `--dir` 不生成更新配置，目录打包通过不能证明自动升级可用。
+
+在 Windows 上执行真实升级验收（以下为仓库根目录下的 PowerShell 命令）：
+
+```powershell
+pnpm --filter electronup build
+$env:ELECTRONUP_UPDATE_URL = 'http://127.0.0.1:18080/'
+$env:ELECTRONUP_UPDATE_VERSION = '1.0.0'
+pnpm --filter electronup-test exec node ../../packages/electronup/dist/bin/electronup.mjs build --win x64
+```
+
+先安装生成的 `1.0.0` NSIS 安装包，然后退出应用。接着构建新版：
+
+```powershell
+$env:ELECTRONUP_UPDATE_VERSION = '1.0.1'
+pnpm --filter electronup-test exec node ../../packages/electronup/dist/bin/electronup.mjs build --win x64
+# 需要 Python 3；在单独的终端提供新版安装包、blockmap 与 latest.yml
+python -m http.server 18080 --bind 127.0.0.1 --directory playground/electronup-test/dist/out
+```
+
+启动已安装的旧版，确认检测到 `1.0.1`、完成下载，退出后安装，再次启动时确认 `app.getVersion()` 为 `1.0.1`。还应检查同版本不更新，以及服务关闭时记录错误且应用仍可使用。版本环境变量仅覆盖验收产物，不修改仓库版本号；验收完成后移除两个环境变量。
+
+本地 HTTP 地址仅用于本机验收；正式应用应配置实际的 HTTPS 更新源，并验证目标平台的签名、安装权限和更新文件访问。CI 当前不执行安装、重启和跨版本升级，这部分仍需在目标系统验收。

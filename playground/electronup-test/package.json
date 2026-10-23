@@ -33,6 +33,7 @@
   "dependencies": {
     "@quiteer/electron-ipc": "^2.0.4",
     "@quiteer/electron-preload": "^0.0.10",
+    "electron-updater": "^6.8.9",
     "epic-spinners": "^2.0.0"
   },
   "devDependencies": {

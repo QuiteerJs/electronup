@@ -55,7 +55,7 @@
     "release": "qui r --tag-prefix electronup && vp pack && pnpm publish"
   },
   "engines": {
-    "node": ">= 22"
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
   "peerDependencies": {
     "@types/node": ">= 22",

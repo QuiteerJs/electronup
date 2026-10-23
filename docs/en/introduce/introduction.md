@@ -9,7 +9,7 @@ This chapter walks you through creating a project and running the electronup dev
 ## Requirements
 
 ::: tip Prerequisites
-- Node.js `>= 22`
+- Node.js `^22.18.0 || ^24.11.0 || >=26.0.0` (matching vite-plus)
 - npm, yarn or pnpm
 - Network access to GitHub when using the templates
 :::

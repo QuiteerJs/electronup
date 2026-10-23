@@ -43,7 +43,7 @@ To avoid confusion:
 
 | Dependency | Requirement |
 | --- | --- |
-| Node.js | `>= 22` (see `engines` in `packages/electronup/package.json`) |
+| Node.js | `^22.18.0 \|\| ^24.11.0 \|\| >=26.0.0` (see `engines` in `packages/electronup/package.json`) |
 | Package manager | npm, yarn or pnpm |
 | Electron | `>= 28` recommended; installed by your app |
 | TypeScript | Main and preload entries must be TypeScript |

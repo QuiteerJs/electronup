@@ -10,17 +10,19 @@ electronup bundles [electron-updater](https://www.electron.build/auto-update) an
 | --- | --- |
 | `initAutoUpdater(options?)` | Configures electron-updater and optionally checks for updates on start |
 | `checkForUpdates()` | Manually checks for updates; returns `null` when not packaged |
-| `autoUpdater` | The raw electron-updater instance for events and finer control |
+| `autoUpdater` | A lazy proxy to the electron-updater instance for events and finer control |
 
 ## Basic usage
 
 Initialize after `app.whenReady()` in the main process:
 
 ```ts
-import { initAutoUpdater } from 'electronup'
+import { autoUpdater, initAutoUpdater } from 'electronup'
 import { app } from 'electron'
 
 void app.whenReady().then(() => {
+  // Subscribe before the startup check so early errors are observable
+  autoUpdater.on('error', error => console.error('Update failed:', error))
   initAutoUpdater({
     checkOnStart: true,
     autoDownload: true,
@@ -38,7 +40,7 @@ void app.whenReady().then(() => {
 | `autoInstallOnAppQuit` | `true` | Install a downloaded update when the app quits |
 | `logger` | none | A logger compatible with electron-updater |
 
-The return value is the `autoUpdater` instance, so you can keep listening for events:
+`initAutoUpdater` returns the underlying instance. The exported `autoUpdater` is a lazy proxy to that instance, so they are different objects. Subscribe through the proxy before initialization:
 
 ```ts
 import { autoUpdater } from 'electronup'
@@ -114,6 +116,34 @@ electron-updater expects specific artifact types per platform. Keep them when cu
 ## Behavior in development
 
 - When `app.isPackaged` is `false`, neither `initAutoUpdater` nor `checkForUpdates` performs a network request.
-- The automatic check inside `initAutoUpdater` swallows errors; manual `checkForUpdates` calls reject normally and need your own error handling.
-- `autoUpdater` is a lazy instance: electron-updater is only initialized when one of its properties is read, so importing `electronup` in a non-Electron process (for example while loading `electronup.config.ts` during a build) does not trigger initialization.
+- `initAutoUpdater` handles rejection of the startup check Promise. The electron-updater `error` event and logger can still report failures. Manual `checkForUpdates` calls reject normally and need your own error handling.
+- `autoUpdater` is a lazy proxy: accessing its properties initializes electron-updater, so merely importing `electronup` in a non-Electron process (for example while loading `electronup.config.ts` during a build) does not trigger initialization. Calling initialization or accessing the proxy still requires the Electron main process.
 - electronup ships no update UI. Listen to `autoUpdater` events and build your own prompts.
+
+## Repository example and upgrade verification
+
+`playground/electronup-test` includes the production dependency, `noExternal` configuration, and main-process event listeners. Set `ELECTRONUP_UPDATE_URL` at build time to configure a generic update source. Without it, publishing configuration is disabled and the example does not check automatically. The example enables startup checks only when the packager has generated `app-update.yml`.
+
+CI checks updater dependencies inside unpacked apps on all three platforms. On Windows it also builds an NSIS installer and checks the source in `app-update.yml`, plus the version, installer size, and SHA-512 hash in `latest.yml`. Windows/macOS `--dir` builds do not generate update configuration; a successful directory build does not establish that upgrading works.
+
+To verify a real upgrade on Windows, run these PowerShell commands from the repository root:
+
+```powershell
+pnpm --filter electronup build
+$env:ELECTRONUP_UPDATE_URL = 'http://127.0.0.1:18080/'
+$env:ELECTRONUP_UPDATE_VERSION = '1.0.0'
+pnpm --filter electronup-test exec node ../../packages/electronup/dist/bin/electronup.mjs build --win x64
+```
+
+Install the generated `1.0.0` NSIS installer, then quit the app. Build the next version:
+
+```powershell
+$env:ELECTRONUP_UPDATE_VERSION = '1.0.1'
+pnpm --filter electronup-test exec node ../../packages/electronup/dist/bin/electronup.mjs build --win x64
+# Requires Python 3; serve the new installer, blockmap and latest.yml in a separate terminal
+python -m http.server 18080 --bind 127.0.0.1 --directory playground/electronup-test/dist/out
+```
+
+Launch the installed old version, verify detection and download of `1.0.1`, quit to install, then relaunch and confirm `app.getVersion()` is `1.0.1`. Also verify that the same version does not update and that a stopped server produces an error while the app remains usable. The version environment variable only overrides verification artifacts; it does not change repository versions. Remove both environment variables after verification.
+
+The local HTTP address is for verification on the same machine. Production apps should use their actual HTTPS update source and verify platform signing, installation permissions, and access to update files. CI does not currently install, restart, or upgrade between versions; those steps still require verification on the target system.

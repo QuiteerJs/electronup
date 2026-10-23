@@ -62,8 +62,8 @@ export function checkForUpdates() {
 }
 
 /**
- * electron-updater 的原生实例 ( 惰性代理 ) :
- * 只有读取属性时才实例化真实 updater , 保证配置加载阶段不触发 electron 相关副作用
+ * electron-updater 的惰性代理 , 与 initAutoUpdater 返回的真实实例不是同一对象 :
+ * 访问属性时才初始化真实 updater , 保证配置加载阶段不触发 electron 相关副作用
  */
 export const autoUpdater: AppUpdater = new Proxy({} as AppUpdater, {
   get: (_target, prop) => Reflect.get(getAutoUpdater(), prop),

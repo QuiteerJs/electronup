@@ -43,7 +43,7 @@ title: 项目介绍
 
 | 依赖 | 要求 |
 | --- | --- |
-| Node.js | `>= 22`（见 `packages/electronup/package.json` 的 `engines`） |
+| Node.js | `^22.18.0 \|\| ^24.11.0 \|\| >=26.0.0`（见 `packages/electronup/package.json` 的 `engines`） |
 | 包管理器 | npm、yarn 或 pnpm 均可 |
 | Electron | 建议 `>= 28`；由应用项目安装 |
 | TypeScript | 主进程与 preload 入口必须是 TypeScript |

@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import process from 'node:process'
 import { Ipc } from '@quiteer/electron-ipc'
 import { app, BrowserWindow } from 'electron'
+import { initExampleUpdater } from './updater'
 
 const loadUrl = process.env.NODE_ENV === 'development'
   ? `http://localhost:${process.env.RENDER_PORT}`
@@ -10,6 +11,7 @@ const loadUrl = process.env.NODE_ENV === 'development'
 
 void app.whenReady().then(() => {
   Ipc.init()
+  initExampleUpdater()
   const win = new BrowserWindow({
     height: 700,
     width: 1000,

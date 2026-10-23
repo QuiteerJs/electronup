@@ -8,7 +8,7 @@
 
 - 中文文档：https://quiteerjs.github.io/electronup/
 - English docs：https://quiteerjs.github.io/electronup/en/
-- 仓库根目录还提供 [English README](../../README.en.md)。
+- 仓库根目录还提供 [English README](https://github.com/QuiteerJs/electronup/blob/main/README.en.md)。
 
 ## 安装
 
@@ -26,7 +26,7 @@ pnpm add electronup -D
 
 ## 环境要求
 
-- Node.js `>= 22`
+- Node.js `^22.18.0 || ^24.11.0 || >=26.0.0`（与 vite-plus 的运行要求一致）
 - Electron `>= 28`（作为可选对等依赖，由应用项目自行安装）
 - 主进程与 preload 入口使用 TypeScript；因为使用 vite-plus pack 构建主进程，当前不支持 JavaScript 主进程入口。
 
@@ -67,9 +67,11 @@ export default defineConfig({
 内置 `electron-updater`，在主进程 `app.whenReady()` 中初始化：
 
 ```ts
-import { initAutoUpdater } from 'electronup'
+import { app } from 'electron'
+import { autoUpdater, initAutoUpdater } from 'electronup'
 
 void app.whenReady().then(() => {
+  autoUpdater.on('error', error => console.error('更新失败：', error))
   initAutoUpdater({ checkOnStart: true, autoDownload: true })
 })
 ```

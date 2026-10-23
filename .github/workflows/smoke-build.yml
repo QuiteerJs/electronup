@@ -10,6 +10,8 @@ on:
 jobs:
   smoke:
     name: build --dir on ${{ matrix.os }}
+    env:
+      ELECTRONUP_UPDATE_URL: http://127.0.0.1:18080/updates/
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22.18.0'
           cache: pnpm
 
       - name: Install dependencies
@@ -37,6 +39,14 @@ jobs:
 
       - name: Run unit tests
         run: pnpm --filter electronup test
+
+      - name: Check packed core package
+        shell: bash
+        run: |
+          mkdir -p template/release-check/archive template/release-check/extracted
+          pnpm --filter electronup pack --pack-destination "$PWD/template/release-check/archive"
+          tar -xf template/release-check/archive/electronup-*.tgz -C template/release-check/extracted
+          node .github/scripts/check-release-package.mjs template/release-check/extracted/package
 
       - name: Smoke build ( dir target , current platform )
         working-directory: playground/electronup-test
@@ -58,6 +68,31 @@ jobs:
           esac
           echo "smoke build OK : ${{ runner.os }}"
 
+      - name: Assert packaged updater dependencies
+        shell: bash
+        working-directory: playground/electronup-test
+        run: |
+          case "${{ runner.os }}" in
+            Windows) resources=(dist/out/win-unpacked/resources) ;;
+            macOS)   resources=(dist/out/mac*/electronup-test.app/Contents/Resources) ;;
+            Linux)   resources=(dist/out/linux-unpacked/resources) ;;
+            *) exit 1 ;;
+          esac
+          node ../../.github/scripts/check-updater-package.mjs "${resources[0]}"
+
+      - name: Build NSIS update artifacts (Windows)
+        if: runner.os == 'Windows'
+        working-directory: playground/electronup-test
+        run: node ../../packages/electronup/dist/bin/electronup.mjs build --win x64
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Assert update source and metadata (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        working-directory: playground/electronup-test
+        run: node ../../.github/scripts/check-updater-package.mjs dist/out/win-unpacked/resources "$ELECTRONUP_UPDATE_URL" dist/out/latest.yml
+
   sign-smoke:
     name: signed build with self-signed cert (Windows)
     runs-on: windows-latest
@@ -72,7 +107,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22.18.0'
           cache: pnpm
 
       - name: Install dependencies

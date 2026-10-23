@@ -17,7 +17,7 @@ electronup 是把 **Vite**（渲染进程）+ **vite-plus pack**（主进程 / p
 
 ## 环境与安装
 
-- Node.js `>= 22`（仓库 `.node-version` 为 `24.12.0`），pnpm `10.30.3`（`packageManager` 字段）。**只用 pnpm**，不要用 npm/yarn 生成 lockfile。
+- Node.js `^22.18.0 || ^24.11.0 || >=26.0.0`（与 vite-plus 的运行要求一致，仓库 `.node-version` 为 `24.12.0`），pnpm `10.30.3`（`packageManager` 字段）。**只用 pnpm**，不要用 npm/yarn 生成 lockfile。
 - 依赖安装：`pnpm install`。`.npmrc` 已配置 npmmirror 镜像（含 electron / electron-builder binaries）。
 - Electron 二进制在安装时按需下载；本机若没有 `node_modules/electron/dist`，`electronup dev` 无法真正拉起窗口，此时用构建 / 单元测试验证。
 - electron-builder 打包需要 electron 压缩包，缓存在 `%LOCALAPPDATA%\electron\Cache`（Windows）。网络受限、直接运行构建出的 CLI 时，可临时设置：
