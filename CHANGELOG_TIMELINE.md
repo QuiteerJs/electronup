@@ -1,6 +1,21 @@
 ## 变更日志
 
-### 2026-10-23 `✏️ 22+` `➕ 4+` `🗑️ 0+`
+### 2026-10-23 `✏️ 30+` `➕ 5+` `🗑️ 0+`
+- 🐛  **fix** `release`: 拆分版本准备与发布并修复 Windows 升版路径
+  > **🕒  15:39** · `➕446` / `➖105`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`3e348d5`](https://github.com/QuiteerJs/electronup/commit/3e348d571fd95c317c629a24e0103ff938acf34c))
+  - ➕ [`.github/scripts/check-publish-ready.mjs`](https://github.com/QuiteerJs/electronup/blob/3e348d571fd95c317c629a24e0103ff938acf34c/.github/scripts/check-publish-ready.mjs)
+  - ✏️ [`.github/RELEASING.md`](https://github.com/QuiteerJs/electronup/blob/3e348d571fd95c317c629a24e0103ff938acf34c/.github/RELEASING.md)
+  - ✏️ [`AGENTS.md`](https://github.com/QuiteerJs/electronup/blob/3e348d571fd95c317c629a24e0103ff938acf34c/AGENTS.md)
+  - ✏️ [`package.json`](https://github.com/QuiteerJs/electronup/blob/3e348d571fd95c317c629a24e0103ff938acf34c/package.json)
+  - ✏️ [`packages/create-electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/3e348d571fd95c317c629a24e0103ff938acf34c/packages/create-electronup/package.json)
+  - ✏️ [`packages/electronup/package.json`](https://github.com/QuiteerJs/electronup/blob/3e348d571fd95c317c629a24e0103ff938acf34c/packages/electronup/package.json)
+  - ✏️ [`pnpm-lock.yaml`](https://github.com/QuiteerJs/electronup/blob/3e348d571fd95c317c629a24e0103ff938acf34c/pnpm-lock.yaml)
+- ✨  **feat** `utils`: 集成electron-updater
+  > **🕒  15:25** · `➕433` / `➖103`
+  > `👤 Quiteer`  <p602985@yeah.net> ([`a8c2177`](https://github.com/QuiteerJs/electronup/commit/a8c217766c7823ad5a2901ff72ebfb1ec4e4c894))
+  - ✏️ [`CHANGELOG.md`](https://github.com/QuiteerJs/electronup/blob/a8c217766c7823ad5a2901ff72ebfb1ec4e4c894/CHANGELOG.md)
+  - ✏️ [`CHANGELOG_TIMELINE.md`](https://github.com/QuiteerJs/electronup/blob/a8c217766c7823ad5a2901ff72ebfb1ec4e4c894/CHANGELOG_TIMELINE.md)
 - 🔧  **chore** `release`: v0.3.1
   > **🕒  15:24** · `➕0` / `➖0`
   > `👤 Quiteer`  <p602985@yeah.net> ([`b8bc367`](https://github.com/QuiteerJs/electronup/commit/b8bc3674fec0384ab49b54aad5ef7db928087d45))
