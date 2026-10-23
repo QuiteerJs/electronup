@@ -84,8 +84,15 @@ src/cli.ts (cac 命令解析)
 
 ## 发布
 
-- 版本号由 `release` 脚本（`qui r`）生成，不要手改 `version`；npm 发布需要凭证，日常任务不要执行 `release` / `publish`。
-- `CHANGELOG*` 由发布工具生成，不要手工维护。
+- 固定采用“agent 准备，用户发布”：用户最后在 `packages/electronup`（或脚手架包目录）执行 `pnpm publish`。没有明确授权时 agent 不得执行 publish。不要再使用 `qui r` 或恢复升版、构建、上传串在一起的 release 脚本。
+- 先查询官方 npm 注册表版本，选取未使用的新版本。版本由根目录 `pnpm version:core --release <版本> --yes` 生成；脚手架用 `version:scaffold`。二者采用 bumpp 的相对路径输入，只处理指定包，不自动提交、打标签或推送。禁止手改 version。
+- 升版后必须读取目标 package.json 确认版本，不能以提交信息、命令成功或日志里的目标版本代替文件验收。Windows 上旧 qui r 向 bumpp 传入反斜杠绝对路径可能未匹配到任何文件，曾生成空的升版提交。
+- 完成必要检查后提交版本和代码，再运行 `pnpm changelog` 生成 CHANGELOG 并单独提交；不要手工维护 CHANGELOG。
+- 将已验收提交合入 main（能快进则用 --ff-only，不能快进先处理差异，不强推），在最终提交创建 `<包名>-v<实际版本>` 标签。标签必须包含对应版本和 CHANGELOG。
+- 重新 build、pack 并用 `.github/scripts/check-release-package.mjs` 校验实际 tarball；确认 tarball、源码版本、标签三者一致。推送 main 和本次标签，核对同一提交的 Smoke Build。
+- 保持工作区干净。本机缓存和个人记录放入 .git/info/exclude，不能为了发版顺手删除或提交。版本准备失败时先核对文件、提交、标签与注册表，禁止盲目重跑升版。
+- 两个包的 prepublishOnly 会校验 main/master、干净工作区、当前版本标签，并重新构建。用户只需 pnpm publish，npm 登录和 2FA 由用户完成。
+- 详细操作见 [.github/RELEASING.md](.github/RELEASING.md)。
 
 ## 相关文档
 

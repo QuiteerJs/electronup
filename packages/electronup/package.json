@@ -1,6 +1,6 @@
 {
   "name": "electronup",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "融合构建 electron 应用需要的构建工具,保留原有配置习惯的命令行工具 ",
   "author": "quiteer",
   "license": "MIT",
@@ -52,7 +52,7 @@
     "dev": "vp pack --watch",
     "build": "vp pack",
     "test": "vp test run",
-    "release": "qui r --tag-prefix electronup && vp pack && pnpm publish"
+    "prepublishOnly": "node ../../.github/scripts/check-publish-ready.mjs && pnpm run build"
   },
   "engines": {
     "node": "^22.18.0 || ^24.11.0 || >=26.0.0"

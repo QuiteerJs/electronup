@@ -1,14 +1,23 @@
-# 发版准备
+# 发布流程
 
-准备检查不会修改版本、生成 CHANGELOG、提交、打标签或发布。版本与 CHANGELOG 由各包的 `release` 脚本生成。
+固定分为准备与上传两步：agent 完成版本、检查、提交、标签和 CI；用户最后在包目录运行 `pnpm publish`。不再提供将这些动作串联的 `release` 命令。
 
-## 环境与检查
+## 1. 确定版本
 
-- 使用 `.node-version` 指定的 Node.js；核心包支持 `^22.18.0 || ^24.11.0 || >=26.0.0`，与 vite-plus 一致。
-- 使用 `packageManager` 指定的 pnpm 10.30.3。
-- 检查 `git status --short`，仅纳入本次发布需要的文件；不要把本地记录、缓存、安装包和验收日志提交。
+在仓库根目录查询官方注册表，确认新版本未被使用：
 
-在仓库根目录执行：
+```bash
+pnpm view electronup version versions --json --registry=https://registry.npmjs.org/
+pnpm version:core --release <新版本> --yes
+```
+
+脚手架独立发版，用 `pnpm version:scaffold --release <新版本> --yes`。命令通过 bumpp 修改指定包的 package.json，不自动提交、打标签或推送。必须检查实际文件版本与 diff，不能仅看命令成功或提交标题。不要手工修改版本。
+
+旧 `qui r` 在 Windows 将反斜杠绝对路径交给 bumpp，可能匹配不到文件却创建空版本提交。本流程使用仓库相对路径。失败后先检查 package.json、Git 标签和 npm 版本，避免重复升版。
+
+## 2. 验收与提交
+
+使用 .node-version 与 packageManager 指定的版本。在根目录执行：
 
 ```bash
 pnpm install --frozen-lockfile
@@ -20,49 +29,45 @@ pnpm work:build
 pnpm docs:build
 ```
 
-涉及构建或更新器时还应执行 playground 的 `build --web`、`build --dir` 和 Windows NSIS 更新产物检查，并等待 Smoke Build 的三个平台及 Windows 签名任务通过。该工作流使用最低支持的 Node 22.18.0，并检查核心包 tarball。更新器的真实安装、下载、退出安装与重启验收见 [自动更新文档](../docs/introduce/auto-update.md#仓库示例与升级验收)；构建成功不代表真实升级已通过。
+构建或更新器变更还需验收 playground 的 Web、目录包与 Windows NSIS 更新元数据。真实安装、下载更新和重启验收参见自动更新文档，构建成功不能替代真实升级。
 
-## 发布包检查
+审阅 git diff，只提交本次变更。先提交代码与版本，再运行 `pnpm changelog`，审阅并提交生成的 CHANGELOG。不要手工维护 CHANGELOG。原有本地缓存与个人记录保留在本地，可通过 .git/info/exclude 排除。
 
-使用一个新的临时目录保存 tarball，例如仓库已忽略的 `template/release-check`，并取得它的绝对路径。以下解压命令需要 `tar`；重复检查时应另建空目录，避免旧文件影响结果。
+## 3. 主分支、标签与真实 tarball
 
-```bash
-pnpm --filter electronup pack --pack-destination <临时目录绝对路径>
-pnpm --filter create-electronup pack --pack-destination <临时目录绝对路径>
-```
+将上述提交合入 main；能快进时使用 `git merge --ff-only <准备分支>`，不能快进时先处理差异，不强推。工作区应干净。
 
-`--pack-destination` 请使用绝对路径，避免被包目录解析。为两个包各建一个空解压目录，然后将实际版本号代入以下命令：
+重新构建待发布包，在已忽略的 template 下创建一个新的空验收目录：
 
 ```bash
-tar -xf <临时目录>/electronup-<版本>.tgz -C <核心包解压目录>
-tar -xf <临时目录>/create-electronup-<版本>.tgz -C <脚手架解压目录>
-node .github/scripts/check-release-package.mjs <核心包解压目录>/package
-node .github/scripts/check-release-package.mjs <脚手架解压目录>/package
+pnpm --filter electronup build
+pnpm --filter electronup pack --pack-destination <归档目录绝对路径>
+tar -xf <归档目录>/electronup-<新版本>.tgz -C <空解压目录>
+node .github/scripts/check-release-package.mjs <解压目录>/package
 ```
 
-检查脚本验证文件白名单、bin / exports / 类型入口、依赖协议转换、Node 要求、Electron 可选 peer，以及核心包的 ESM / CJS 惰性导入。脚手架还需在可联网环境实际拉取目标模板；检查文件本身不代表模板拉取成功。
+确认 tarball 版本与源码一致，独立消费项目安装、CLI 与构建验证通过。脚手架使用对应包名，并补充模板拉取验证。
 
-另外应在独立消费项目中安装 tarball，验证 `electronup --help`、`electronup build --help`、`electronup --version` 和项目构建。独立安装受限时，必须记录未验证项，不能用 workspace 内的成功结果代替。
-
-## 正式发布前
-
-1. 提交并审阅待发布变更，确认远端 CI 对应同一提交；工作区保持干净。
-2. 查询官方 npm 注册表的版本和标签，确认目标版本未使用。核心包与脚手架独立版本，不必同步发版。
-3. 确认 npm 账户、包权限与发布认证可用；不要在日志中打印 token。
-4. 审阅发布工具将生成的版本和 CHANGELOG；不要手动维护 `CHANGELOG*`。
-
-下面的命令会进入真实发版流程，包含版本生成、构建及 npm 发布，只在明确决定发版时执行：
+在包含版本和 CHANGELOG 的最终提交创建注解标签，再推送主分支与本次标签：
 
 ```bash
-pnpm --filter electronup release
-# 仅在脚手架也需要发布时执行
-pnpm --filter create-electronup release
+git tag -a electronup-v<新版本> -m "chore(release): 发布 electronup v<新版本>"
+git push origin main
+git push origin electronup-v<新版本>
 ```
 
-在仓库根目录运行核心包命令。当前 `qui r` 会列出整个仓库的包，发布核心包时只选择 `electronup (packages/electronup/package.json)`；不要同时选择脚手架、playground 或 template。确认新版本未占用，再完成版本和提交信息交互。不要以“未选择任何包”的方式跳过升版：当前工具会正常返回，后面的构建与发布仍会继续。
+核对相同提交的 Smoke Build（三平台与 Windows 签名）通过；失败先修复，不能把旧提交的通过记录当作本次结果。未完成的真实升级验证必须明确记录。
 
-当前 `@quiteer/scripts 0.1.6` 在生成 CHANGELOG 后执行 `git add -A`，因此执行前必须检查未跟踪文件。本机缓存和个人记录可加入 `.git/info/exclude`，不要靠临时文件“未跟踪”来阻止它们进入发布提交。
+## 4. 用户上传
 
-`qui r` 会创建版本提交和标签，然后生成 CHANGELOG 并交互提交；它不会推送这些 Git 变更。npm 发布成功后，在当前分支执行 `git push`，再用 `git push origin electronup-v<实际版本>` 只推送本次标签。
+核心包在 `packages/electronup` 目录执行：
 
-发布后从官方注册表核对版本和 dist-tag，并在新的消费项目中验证正式发布包。不要直接上传仍使用旧版本号的预检 tarball。
+```bash
+pnpm publish
+```
+
+脚手架在 `packages/create-electronup` 执行同一命令。不要在仓库根目录执行，该目录是 private monorepo。
+
+prepublishOnly 自动校验 main/master、干净工作区及当前版本标签指向 HEAD，然后重新构建；不升版、不生成 CHANGELOG、不提交、不推送。npm 登录及 2FA 由用户完成。
+
+上传后查询官方注册表确认版本和 latest 标签。如果认证失败，只修复登录后重试 publish；如果版本已存在，先核实是否已成功发布，不得盲目重新升版。

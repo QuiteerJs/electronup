@@ -31,7 +31,7 @@
     "dev": "unbuild --stub",
     "build": "unbuild",
     "typecheck": "tsc --noEmit",
-    "release": "qui r --tag-prefix create-electronup && unbuild && pnpm publish"
+    "prepublishOnly": "node ../../.github/scripts/check-publish-ready.mjs && pnpm run build"
   },
   "devDependencies": {
     "@clack/prompts": "^1.8.1",
