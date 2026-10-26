@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
-import { emptyDir, formatTargetDir, FRAMEWORKS, isEmpty, pkgFromUserAgent, TEMPLATES } from './utils'
+import { emptyDir, formatTargetDir, FRAMEWORKS, isEmpty, isValidPackageName, pkgFromUserAgent, TEMPLATES, toValidPackageName } from './utils'
 
 let sandbox: string
 
@@ -70,5 +70,24 @@ describe('pkgFromUserAgent', () => {
 
   it('没有 user agent 时返回 undefined', () => {
     expect(pkgFromUserAgent(undefined)).toBeUndefined()
+  })
+})
+
+describe('isValidPackageName / toValidPackageName', () => {
+  it('识别合法包名', () => {
+    expect(isValidPackageName('my-app')).toBe(true)
+    expect(isValidPackageName('@scope/app')).toBe(true)
+    expect(isValidPackageName('My App')).toBe(false)
+    expect(isValidPackageName('.hidden')).toBe(false)
+  })
+
+  it('规整为合法包名', () => {
+    expect(toValidPackageName('My App')).toBe('my-app')
+    expect(toValidPackageName('  Foo_Bar!! ')).toBe('foo-bar')
+    expect(toValidPackageName('.hidden')).toBe('hidden')
+  })
+
+  it('规整后为空时回退默认名', () => {
+    expect(toValidPackageName('我的应用')).toBe('electronup-project')
   })
 })

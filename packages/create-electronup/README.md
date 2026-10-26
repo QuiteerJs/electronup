@@ -14,6 +14,14 @@ pnpm create electronup
 pnpm create electronup my-app --template vue
 ```
 
+| 参数 | 说明 |
+| --- | --- |
+| `-t, --template <模板>` | 指定模板，跳过选择 |
+| `--overwrite` | 目标目录不为空时直接清空（保留 `.git`） |
+| `-h, --help` | 显示帮助 |
+
+生成后 `package.json#name` 会改写为项目目录名。模板锁定 pnpm，创建后请用 `pnpm install` 安装依赖。
+
 ## 模板
 
 | 模板 | 说明 |

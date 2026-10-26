@@ -6,7 +6,7 @@ import * as prompts from '@clack/prompts'
 import degit from 'degit'
 import mri from 'mri'
 import pc from 'picocolors'
-import { defaultTargetDir, emptyDir, formatTargetDir, FRAMEWORKS, isEmpty, pkgFromUserAgent, remote, TEMPLATES } from './utils'
+import { defaultTargetDir, emptyDir, formatTargetDir, FRAMEWORKS, helpMessage, isEmpty, isValidPackageName, pkgFromUserAgent, remote, TEMPLATES, toValidPackageName } from './utils'
 
 export interface InitOptions {
   /** 命令行参数 ( 不含 node 与脚本路径 ) */
@@ -15,7 +15,10 @@ export interface InitOptions {
   userAgent?: string
 }
 
-export async function init(options: InitOptions = {}) {
+/**
+ * 执行脚手架流程 , 返回进程退出码 : 0 成功 ; 1 取消或失败
+ */
+export async function init(options: InitOptions = {}): Promise<number> {
   const {
     args = process.argv.slice(2),
     cwd = process.cwd(),
@@ -27,10 +30,22 @@ export async function init(options: InitOptions = {}) {
   const argv = mri<{
     t?: string
     template?: string
-  }>(args, { string: ['_'] })
+    overwrite?: boolean
+    help?: boolean
+  }>(args, {
+    string: ['_', 'template'],
+    boolean: ['help', 'overwrite'],
+    alias: { h: 'help', t: 'template' },
+  })
+
+  if (argv.help) {
+    // oxlint-disable-next-line no-console
+    console.log(helpMessage)
+    return 0
+  }
 
   const argTargetDir = formatTargetDir(argv._[0])
-  const argTemplate = argv.template || argv.t
+  const argTemplate = argv.template
 
   let targetDir = argTargetDir || defaultTargetDir
   let result = {} as any
@@ -55,7 +70,10 @@ export async function init(options: InitOptions = {}) {
     // 检查目录是否为空
     let overwrite = false
     const targetPath = path.resolve(cwd, targetDir)
-    if (fs.existsSync(targetPath) && !isEmpty(targetPath)) {
+    if (fs.existsSync(targetPath) && !isEmpty(targetPath) && argv.overwrite) {
+      overwrite = true
+    }
+    else if (fs.existsSync(targetPath) && !isEmpty(targetPath)) {
       const overwriteResult = await prompts.confirm({
         message: `${targetDir === '.' ? '当前目录' : `目标目录 "${targetDir}"`} 不为空，是否清空继续？`,
       })
@@ -73,7 +91,12 @@ export async function init(options: InitOptions = {}) {
 
     // 选择框架
     let framework: Framework | null = null
-    if (!argTemplate || !TEMPLATES.includes(argTemplate)) {
+    let variant = ''
+    if (argTemplate && TEMPLATES.includes(argTemplate)) {
+      // 命令行已指定有效模板 ( 含 react-swc 这类变体名 ) , 不再询问
+      variant = argTemplate
+    }
+    else {
       const frameworkResult = await prompts.select({
         message: typeof argTemplate === 'string' && !TEMPLATES.includes(argTemplate)
           ? pc.reset(`"${argTemplate}" 不是有效模板，请从下方选择：`)
@@ -90,12 +113,8 @@ export async function init(options: InitOptions = {}) {
 
       framework = frameworkResult
     }
-    else {
-      framework = FRAMEWORKS.find(f => f.name === argTemplate) || null
-    }
 
     // 选择变体
-    let variant = ''
     if (framework && framework.variants) {
       const variantResult = await prompts.select({
         message: pc.reset('请选择变体：'),
@@ -123,7 +142,7 @@ export async function init(options: InitOptions = {}) {
   catch (cancelled: any) {
     // oxlint-disable-next-line no-console
     console.log(cancelled.message)
-    return
+    return 1
   }
 
   // 用户选择与提示相关联
@@ -142,16 +161,32 @@ export async function init(options: InitOptions = {}) {
     {fs.mkdirSync(root, { recursive: true })}
 
   // determine template
-  const template: string = variant || framework?.name || argTemplate || ''
-
-  const pkgInfo = pkgFromUserAgent(userAgent)
-  const pkgManager = pkgInfo ? pkgInfo.name : 'npm'
+  const template: string = variant || framework?.name || ''
 
   const spinner = prompts.spinner()
   spinner.start(`正在拉取模板：${template}`)
-  const emitter = degit(`${remote}#${template}`, { cache: false, force: overwrite })
-  await emitter.clone(root)
+  try {
+    const emitter = degit(`${remote}#${template}`, { cache: false, force: overwrite })
+    await emitter.clone(root)
+  }
+  catch (error: any) {
+    spinner.error('模板拉取失败')
+    console.error(pc.red(`\n无法从 GitHub 拉取模板 ${template}：${error?.message ?? error}`))
+    console.error(`请确认可以访问 GitHub ( 必要时设置 HTTPS_PROXY ) 后重试 , 或手动克隆：\n`)
+    console.error(pc.cyan(`  git clone -b ${template} --depth 1 ${remote} ${targetDir}\n`))
+    return 1
+  }
   spinner.stop('模板拉取完成')
+
+  // 模板的包名固定为 electronup-template , 改写为项目名 , 避免所有应用共用同一个 appId
+  const pkgPath = path.join(root, 'package.json')
+  if (fs.existsSync(pkgPath)) {
+    const baseName = path.basename(root)
+    const packageName = isValidPackageName(baseName) ? baseName : toValidPackageName(baseName)
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
+    pkg.name = packageName
+    fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
+  }
 
   // oxlint-disable-next-line no-console
   console.log('\n完成。请执行：\n')
@@ -167,10 +202,17 @@ export async function init(options: InitOptions = {}) {
     console.log(pc.green(cdCommand))
   }
 
-  const inStallCommand = pkgManager === 'yarn' ? 'yarn' : `${pkgManager} install\n`
+  // 模板通过 packageManager 字段与 pnpm-lock.yaml 锁定 pnpm , 统一提示 pnpm
   // oxlint-disable-next-line no-console
-  console.log(pc.yellow(inStallCommand))
-  const devConmand = pkgManager === 'yarn' ? 'yarn dev' : `${pkgManager} run dev`
+  console.log(pc.yellow('pnpm install\n'))
   // oxlint-disable-next-line no-console
-  console.log(pc.cyan(devConmand))
+  console.log(pc.cyan('pnpm dev'))
+
+  const pkgManager = pkgFromUserAgent(userAgent)?.name
+  if (pkgManager && pkgManager !== 'pnpm') {
+    // oxlint-disable-next-line no-console
+    console.log(pc.dim(`\n模板使用 pnpm 管理依赖 ( 含 pnpm-lock.yaml ) , 请勿使用 ${pkgManager} 安装 ; 未安装 pnpm 时可先执行 corepack enable`))
+  }
+
+  return 0
 }
