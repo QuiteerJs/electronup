@@ -117,6 +117,17 @@ export default defineConfig({
 
 开发环境（`app.isPackaged` 为 `false`）不会发起检查。Windows 使用 NSIS、macOS 使用 zip（需签名）、Linux 使用 AppImage / deb / rpm。参数、事件与验收方式详见[自动更新文档](https://quiteerjs.github.io/electronup/introduce/auto-update)。
 
+## AI Agent Skills
+
+仓库的 [`skills/`](./skills) 目录提供了供 AI 编程助手使用的 Agent Skills（`SKILL.md` 格式），覆盖创建项目、编写配置、开发与打包、接入自动更新。在 Claude Code 中安装：
+
+```bash
+/plugin marketplace add QuiteerJs/electronup
+/plugin install electronup@electronup
+```
+
+也可以把 `skills/` 下需要的目录复制到项目的 `.claude/skills/`（或其他支持 Agent Skills 的工具对应目录）。
+
 ## 示例
 
 - 本仓库示例：https://github.com/QuiteerJs/electronup/tree/main/playground/electronup-test

@@ -1,0 +1,12 @@
+{
+  "name": "electronup",
+  "version": "0.1.0",
+  "description": "electronup 的 Agent Skills：创建项目、编写 electronup.config、开发/打包与接入自动更新",
+  "author": {
+    "name": "quiteer"
+  },
+  "homepage": "https://quiteerjs.github.io/electronup/",
+  "repository": "https://github.com/QuiteerJs/electronup",
+  "license": "MIT",
+  "keywords": ["electron", "electronup", "vite", "electron-builder", "electron-updater"]
+}

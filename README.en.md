@@ -117,6 +117,17 @@ export default defineConfig({
 
 No check runs in development (`app.isPackaged` is `false`). Use NSIS on Windows, zip on macOS (signing required), and AppImage / deb / rpm on Linux. See the [auto update docs](https://quiteerjs.github.io/electronup/en/introduce/auto-update) for options, events, and verification.
 
+## AI Agent Skills
+
+The [`skills/`](./skills) directory ships Agent Skills (`SKILL.md` format, written in Chinese) for AI coding assistants, covering project creation, configuration, dev and packaging, and auto update. Install them in Claude Code with:
+
+```bash
+/plugin marketplace add QuiteerJs/electronup
+/plugin install electronup@electronup
+```
+
+Or copy the directories you need from `skills/` into your project's `.claude/skills/` (or the equivalent folder of another tool that supports Agent Skills).
+
 ## Examples
 
 - Playground in this repository: https://github.com/QuiteerJs/electronup/tree/main/playground/electronup-test
