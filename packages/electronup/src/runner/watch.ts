@@ -2,7 +2,7 @@ import type { InlineConfig } from 'vite'
 import type { ElectronupConfig } from '../typings/electronup'
 import process from 'node:process'
 import { getPortPromise } from 'portfinder'
-import { createServer } from 'vite'
+import { build, createServer } from 'vite'
 import { assertMainEntry, getElectronBinary } from '../configs/pack'
 import { assertPreloadEntries } from '../configs/preload'
 import { electronupConfig } from '../transform'
@@ -60,9 +60,9 @@ export async function watch(options: ElectronupConfig) {
 
   void viteDevServer.listen(p).then(() => viteDevServer.printUrls())
 
-  const { build } = await import('vite-plus/pack')
   // preload 先于主进程构建完成 , 保证 electron 启动时 preload 已写入磁盘
   for (const preloadConfig of initConfig.preload)
     {await build(preloadConfig)}
+  // 主进程以 watch 模式构建 , 每次写盘后由 startElectronPlugin 启动 / 重启 Electron
   await build(initConfig.pack)
 }

@@ -3,6 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { parse } from 'yaml'
+import type { PreloadConfig } from '../typings/electronup'
 import { electronupConfig } from '../transform'
 import { store } from '../utils'
 import { build } from './build'
@@ -26,7 +27,6 @@ vi.mock('./clean', () => ({ cleanOutputDirsOrExit: vi.fn() }))
 vi.mock('../transform', () => ({ electronupConfig: vi.fn(async () => ({ vite: {}, pack: {}, preload: [], builder: {} })) }))
 vi.mock('vite', () => ({ build: vi.fn() }))
 vi.mock('./targets', () => ({ resolveBuildTargets: vi.fn(() => new Map()) }))
-vi.mock('vite-plus/pack', () => ({ build: vi.fn() }))
 vi.mock('electron-builder', async importOriginal => ({
   ...(await importOriginal<typeof import('electron-builder')>()),
   build: mocks.builder,
@@ -126,7 +126,7 @@ describe('入口预检', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     await expect(build({ mainDir: 'src/main' })).rejects.toThrow('exit 1')
     expect(error.mock.calls[0][1]).toContain('找不到主进程入口')
-    await expect(build({ preload: {} })).rejects.toThrow('exit 1')
+    await expect(build({ preload: {} as PreloadConfig })).rejects.toThrow('exit 1')
     expect(error.mock.calls[1][1]).toContain('preload 缺少 entry')
     await expect(build({ preload: [{ entry: 'a.ts' }, { entry: { p: 'missing.ts' } }] })).rejects.toThrow('exit 1')
     expect(error.mock.calls[2][1]).toContain('preload[1] 的入口文件不存在')

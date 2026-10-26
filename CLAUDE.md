@@ -4,7 +4,7 @@
 
 ## 仓库一句话
 
-electronup monorepo：`packages/electronup` 是核心 CLI/构建工具（Vite + vite-plus pack + electron-builder），`docs/` 是中英双语文档站，`playground/electronup-test` 是端到端示例。
+electronup monorepo：`packages/electronup` 是核心 CLI/构建工具（Vite + electron-builder；主进程 / preload 也由 Vite SSR 构建，`vp pack` 只用于构建 electronup 自身），`docs/` 是中英双语文档站，`playground/electronup-test` 是端到端示例。
 
 ## 必记命令
 

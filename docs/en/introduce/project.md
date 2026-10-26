@@ -9,14 +9,14 @@ title: Overview
 [electronup](https://github.com/QuiteerJs/electronup) is a command-line build tool for Electron applications. It wires the renderer, the main process, preload scripts and installer packaging into a single workflow:
 
 - The renderer is built and hot-reloaded by **Vite**.
-- The main process is built and watched by **vite-plus pack** (`vp pack`).
-- Preload scripts are built with vite-plus pack as well.
+- The main process is built and watched by **Vite** in SSR (Node) mode.
+- Preload scripts are built with Vite as well.
 - Installers are produced by **electron-builder**.
 
 You only need to maintain one `electronup.config.ts` file in the project root. Most common options of the underlying tools are preset, and most presets can be overridden.
 
 ::: warning TypeScript only
-The main process and preload scripts are built with vite-plus pack, and the main entry is fixed to `${mainDir}/index.ts`. JavaScript main entries are not supported in the current version. The config file is meant to be `electronup.config.ts` as well.
+The main process and preload scripts are built with Vite, and the main entry is fixed to `${mainDir}/index.ts`. JavaScript main entries are not supported in the current version. The config file is meant to be `electronup.config.ts` as well.
 :::
 
 ## What it does
@@ -36,7 +36,7 @@ To avoid confusion:
 
 - **It does not install or pin Electron.** `electron` is an optional peer dependency installed and versioned by your app. electronup reads the installed version when building.
 - **It does not provide runtime helpers for windows, menus, trays or IPC.** Those live in the [electron-modules](https://github.com/QuiteerJs/electron-modules) packages. See the [plugin overview](/en/plugins/).
-- **It does not replace the full documentation of Vite, vite-plus pack or electron-builder.** electronup presets and orchestrates them; refer to their docs for uncovered options.
+- **It does not replace the full documentation of Vite or electron-builder.** electronup presets and orchestrates them; refer to their docs for uncovered options.
 - **It does not manage code signing certificates.** macOS notarization and Windows code signing still depend on electron-builder configuration and your certificate setup; see [Code signing and notarization](/en/introduce/config#code-signing-and-notarization).
 
 ## Requirements
@@ -63,7 +63,7 @@ yarn add electronup -D
 pnpm add electronup -D
 ```
 
-`electronup` already depends on `vite-plus`, `electron-builder` and friends. Your app usually only needs `electron` and `typescript`:
+`electronup` already depends on `vite`, `electron-builder` and friends. Your app usually only needs `electron` and `typescript`:
 
 ```json
 {

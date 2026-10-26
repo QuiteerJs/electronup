@@ -68,7 +68,7 @@ export default defineConfig({
 
 ::: warning 注意
 - 除 `libDir` 外，这些路径都会与项目根目录拼接后使用。
-- `renderDir`、`publicDir`、`mainDir` 在 Vite / vite-plus pack 内部无法直接覆盖：设置 `viteConfig.root`、`viteConfig.publicDir` 或 `packConfig.entry` 不会生效（`packConfig` 本身也只暴露 `external` / `noExternal`）。
+- `renderDir`、`publicDir`、`mainDir` 在 Vite 内部无法直接覆盖：设置 `viteConfig.root`、`viteConfig.publicDir` 或 `packConfig.entry` 不会生效（`packConfig` 本身也只暴露 `external` / `noExternal`）。
 - `electronup dev` 会清空 `resourceDir`，`electronup build` 会清空 `resourceDir` 与打包输出目录（配置了 `builderConfig.directories.output` 时清空它，否则清空 `outDir`），请不要把它们指到源码目录。清理前会做安全校验：指向项目根目录及其上级、用户主目录、文件系统根目录、`node_modules` / `.git`，或目录本身是符号链接 / junction 时，会直接报错且不删除任何内容。
 :::
 
@@ -109,13 +109,13 @@ electronup 会先用 dotenv 读取根目录的 `.env` 与 `.env.{mode}`，再启
 
 ## pack
 
-> 主进程构建程序，由 vite-plus pack（`vp pack`）负责，对应配置项为 `packConfig`。
+> 主进程构建程序，由 Vite 以 SSR（Node）模式构建，对应配置项为 `packConfig`。
 
 出于稳定性考虑，`packConfig` 只暴露两个字段：
 
 | 配置项 | 类型 | 说明 |
 | --- | --- | --- |
-| `external` | `(string \| RegExp)[]` | 不参与构建的模块，默认已包含 `electron` |
+| `external` | `(string \| RegExp)[]` | 不参与构建的模块，`electron` 与 Node 内置模块始终不参与 |
 | `noExternal` | `(string \| RegExp)[]` | 强制参与构建的模块 |
 
 ```ts
@@ -134,13 +134,14 @@ export default defineConfig({
 | 入口 | `${mainDir}/index.ts`（固定） |
 | 输出 | `resourceDir/electron.cjs` |
 | 格式 | `cjs`（固定） |
-| `dts` | `false`（固定） |
-| `clean` | `false`（固定） |
-| `watch` | `dev` 下为 `true`，`build` 下为 `false` |
+| `build.target` | `node18`（Electron 28 内置的 Node 版本） |
+| `build.emptyOutDir` | `false`（`resourceDir` 由 electronup 统一清理） |
+| `build.watch` | `dev` 下开启，`build` 下关闭 |
 | `minify` | 跟随命令行，默认开启 |
-| `env` | 自动注入 `.env` / `.env.{mode}`、`NODE_ENV`、`RENDER_PORT` |
+| 环境变量 | 自动注入 `.env` / `.env.{mode}`、`NODE_ENV`、`RENDER_PORT`，以 `define` 替换 `process.env.X` 与 `import.meta.env.X` |
+| 依赖 | `package.json` 中 `dependencies` / `peerDependencies` / `optionalDependencies` 声明的包不打包（electron-builder 会把它们装进安装包），`devDependencies` 与其他模块打进产物 |
 
-开发模式下主进程构建成功后会启动 Electron；主进程文件变化会触发重新构建并重启。修改 `format`、`entry`、`outDir` 等字段不会生效。
+主进程构建不读取项目里的 `vite.config.*`，也不复制 `publicDir`。开发模式下主进程每次构建写盘后都会启动（或重启）Electron，主进程文件变化会触发重新构建。
 
 ::: tip 打包依赖
 如果你使用了 `electronup` 导出的更新辅助方法，需要同时做两件事（详见 [自动更新](./auto-update.md)）：
@@ -161,7 +162,7 @@ export default defineConfig({
 
 > 预加载脚本构建配置，对应配置项为 `preload`。可传单个配置对象或配置数组（多入口场景）。
 
-每一项都是 vite-plus pack 的用户配置，其中 `entry` 必须提供：
+每一项都使用 Vite 以 SSR（Node）模式构建，其中 `entry` 必须提供（不支持 glob 通配符）：
 
 ```ts
 import { resolve } from 'node:path'
@@ -178,12 +179,13 @@ export default defineConfig({
 
 | 项 | 默认值 |
 | --- | --- |
-| 格式 | `cjs`，输出文件名与入口 key 对应（例如 `preload` → `preload.cjs`） |
+| 格式 | `cjs`，输出文件名与入口 key 对应（例如 `preload` → `preload.cjs`）；`format: 'esm'` 时输出 `.mjs` |
 | 输出目录 | 与主进程一致（`resourceDir`），也可在单项配置中指定 `outDir`；`outDir` 位于 `resourceDir` 之外时会自动加入默认的 builder `files`（自定义 `files` 时需自行包含），且必须位于项目根目录之内 |
 | 环境变量 | 与主进程一致；单项配置中的 `env` 优先 |
-| `external` | 包含 `electron` |
-| `dts` / `clean` | `false` |
-| `minify` | 跟随命令行 |
+| `external` / `noExternal` | 与主进程相同的依赖规则，`electron` 始终不打包；`noExternal: true` 表示其余模块全部打进产物 |
+| `minify` / `sourcemap` | `minify` 跟随命令行，`sourcemap` 默认关闭 |
+| `plugins` | Vite 插件，追加在 electronup 内置插件之后 |
+| `viteConfig` | 其余 Vite 配置，最后通过 `mergeConfig` 合并，可覆盖上面的预置项 |
 
 `dev` 与 `build` 都会在主进程构建之前完成 preload 构建。开发模式下 preload 只构建一次，不会监听文件变化，修改后请重新启动开发命令。
 

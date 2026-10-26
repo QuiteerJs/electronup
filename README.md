@@ -4,7 +4,7 @@
 
 [简体中文](./README.md) | [English](./README.en.md)
 
-> 融合 Vite、vite-plus pack（vp pack）与 electron-builder 的 Electron 构建工具，一个配置文件完成多环境、多目标的构建与打包。
+> 融合 Vite 与 electron-builder 的 Electron 构建工具，一个配置文件完成多环境、多目标的构建与打包。
 
 ## 文档
 
@@ -14,7 +14,7 @@
 ## 特性
 
 - **多框架模板**：`create-electronup` 支持 `vanilla`、`vue`、`react`、`react-swc`、`solid`。
-- **双进程开发**：渲染进程 Vite HMR；主进程由 vite-plus pack 监听并自动重启 Electron。
+- **双进程开发**：渲染进程 Vite HMR；主进程由 Vite 监听构建并自动重启 Electron。
 - **统一环境变量**：根目录 `.env` / `.env.{mode}` 由 dotenv 读取，主进程与 preload 直接使用，渲染进程可使用 `VITE_` 前缀变量。
 - **单文件配置**：`electronup.config.ts` 管理路径、Vite、pack、preload 与 electron-builder。
 - **平台感知**：默认构建当前系统与架构，也可通过命令行或交互式向导选择平台和架构。

@@ -23,10 +23,10 @@ hero:
 features:
   - icon: ⚡️
     title: Two-process development
-    details: The renderer uses Vite HMR; vite-plus pack watches the main process and restarts Electron automatically.
+    details: The renderer uses Vite HMR; Vite watches and rebuilds the main process and restarts Electron automatically.
   - icon: 🦾
     title: One build pipeline
-    details: Built on vite-plus and electron-builder. The renderer, main process and preload scripts are built together.
+    details: Built on Vite and electron-builder. The renderer, main process and preload scripts are built together.
   - icon: 🎯
     title: Platform aware
     details: Builds the current OS and architecture by default, or choose a platform and architectures via CLI flags or an interactive wizard.
@@ -35,7 +35,7 @@ features:
     details: Sane defaults for paths and electron-builder, while keeping the original tool configuration style.
   - icon: 🔧
     title: TypeScript
-    details: Main process and preload scripts are built with vite-plus pack. The config file is TypeScript too.
+    details: Main process and preload scripts are built with Vite as well. The config file is TypeScript too.
   - icon: 📦
     title: Auto update
     details: Ships electron-updater helpers for initialization and update checks, working with electron-builder publish config.

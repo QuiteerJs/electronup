@@ -81,11 +81,11 @@
     "picocolors": "^1.1.1",
     "portfinder": "^1.0.38",
     "vite": "catalog:",
-    "vite-plus": "catalog:",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
     "electron": "^40.10.6",
+    "vite-plus": "catalog:",
     "vitest": "catalog:"
   }
 }

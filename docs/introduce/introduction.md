@@ -211,4 +211,4 @@ app.on('window-all-closed', () => {
 
 - 了解目录约定：[目录介绍](/introduce/catalogue)
 - 查看全部命令参数：[命令行界面](/introduce/cli)
-- 配置 Vite、vite-plus pack 与 electron-builder：[配置](/introduce/config)
+- 配置 Vite 与 electron-builder：[配置](/introduce/config)

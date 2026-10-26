@@ -40,7 +40,7 @@ my-app/
 
 主进程源码目录，默认入口为 `main/index.ts`。
 
-- 由 vite-plus pack 构建，固定输出 CommonJS 格式。
+- 由 Vite 构建，固定输出 CommonJS 格式。
 - 构建产物默认输出到 `dist/resource/electron.cjs`。
 - 开发模式下会被监听，代码修改后自动重新构建并重启 Electron。
 - 入口文件名固定为 `index.ts`，当前版本不支持通过 `packConfig` 修改入口。

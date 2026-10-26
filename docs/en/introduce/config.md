@@ -68,7 +68,7 @@ export default defineConfig({
 
 ::: warning Notes
 - Except for `libDir`, these paths are joined with the project root before use.
-- `renderDir`, `publicDir` and `mainDir` cannot be overridden inside Vite / vite-plus pack: setting `viteConfig.root`, `viteConfig.publicDir` or `packConfig.entry` has no effect (`packConfig` only exposes `external` / `noExternal`).
+- `renderDir`, `publicDir` and `mainDir` cannot be overridden inside Vite: setting `viteConfig.root`, `viteConfig.publicDir` or `packConfig.entry` has no effect (`packConfig` only exposes `external` / `noExternal`).
 - `electronup dev` clears `resourceDir`; `electronup build` clears both `resourceDir` and the packaging output directory (`builderConfig.directories.output` when set, otherwise `outDir`). Never point them at source directories. A safety check runs first: if a directory is the project root or one of its parents, the home directory, a filesystem root, inside `node_modules` / `.git`, or is itself a symlink / junction, electronup exits with an error and deletes nothing.
 :::
 
@@ -109,13 +109,13 @@ electronup runs dotenv on the project root `.env` and `.env.{mode}` files before
 
 ## pack
 
-> Main process build, handled by vite-plus pack (`vp pack`) and configured with `packConfig`.
+> Main process build, done by Vite in SSR (Node) mode and configured with `packConfig`.
 
 For stability, `packConfig` exposes only two fields:
 
 | Option | Type | Description |
 | --- | --- | --- |
-| `external` | `(string \| RegExp)[]` | Modules excluded from the bundle; `electron` is always included |
+| `external` | `(string \| RegExp)[]` | Modules excluded from the bundle; `electron` and Node built-ins are always excluded |
 | `noExternal` | `(string \| RegExp)[]` | Modules forced into the bundle |
 
 ```ts
@@ -134,13 +134,14 @@ Presets:
 | Entry | `${mainDir}/index.ts` (fixed) |
 | Output | `resourceDir/electron.cjs` |
 | Format | `cjs` (fixed) |
-| `dts` | `false` (fixed) |
-| `clean` | `false` (fixed) |
-| `watch` | `true` in dev, `false` in build |
+| `build.target` | `node18` (the Node version bundled with Electron 28) |
+| `build.emptyOutDir` | `false` (`resourceDir` is cleaned by electronup) |
+| `build.watch` | Enabled in dev, disabled in build |
 | `minify` | Follows the CLI; enabled by default |
-| `env` | Injects `.env` / `.env.{mode}`, `NODE_ENV` and `RENDER_PORT` |
+| Env | Injects `.env` / `.env.{mode}`, `NODE_ENV` and `RENDER_PORT`, replacing `process.env.X` and `import.meta.env.X` via `define` |
+| Dependencies | Packages declared in `dependencies` / `peerDependencies` / `optionalDependencies` of `package.json` stay external (electron-builder installs them into the app); `devDependencies` and other modules are bundled |
 
-In dev, a successful main process build launches Electron; changes rebuild and restart it. Changing `format`, `entry` or `outDir` on the pack config has no effect.
+The main process build does not read the project's `vite.config.*` and does not copy `publicDir`. In dev, Electron is launched (or restarted) after every main process build is written; changes to main process files trigger a rebuild.
 
 ::: tip Bundled dependencies
 When using the update helpers exported by `electronup`, you need both of the following (see [Auto update](./auto-update.md)):
@@ -161,7 +162,7 @@ export default defineConfig({
 
 > Preload build, configured with `preload`. Accepts one config object or an array (multiple entries).
 
-Each item is a vite-plus pack user config and must provide `entry`:
+Each item is built by Vite in SSR (Node) mode and must provide `entry` (glob patterns are not supported):
 
 ```ts
 import { resolve } from 'node:path'
@@ -178,12 +179,13 @@ Per-item defaults are listed below; fields in the item config override them:
 
 | Item | Default |
 | --- | --- |
-| Format | `cjs`; the output file name follows the entry key (`preload` → `preload.cjs`) |
+| Format | `cjs`; the output file name follows the entry key (`preload` → `preload.cjs`); `format: 'esm'` outputs `.mjs` |
 | Output dir | `resourceDir`; can be set per item with `outDir`. An `outDir` outside `resourceDir` is added to the default builder `files` automatically (include it yourself if you override `files`) and must stay inside the project root |
 | Env | Same as the main process; per-item `env` wins |
-| `external` | Includes `electron` |
-| `dts` / `clean` | `false` |
-| `minify` | Follows the CLI |
+| `external` / `noExternal` | Same dependency rules as the main process; `electron` is never bundled; `noExternal: true` bundles everything else |
+| `minify` / `sourcemap` | `minify` follows the CLI; `sourcemap` is off by default |
+| `plugins` | Vite plugins, appended after electronup's built-in plugins |
+| `viteConfig` | Any other Vite options, merged last with `mergeConfig` and able to override the presets above |
 
 Both `dev` and `build` build preload scripts before the main process. In dev they are built once and not watched; restart the dev command after editing them.
 
