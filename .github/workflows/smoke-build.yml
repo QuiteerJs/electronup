@@ -8,6 +8,39 @@ on:
   workflow_dispatch:
 
 jobs:
+  check:
+    name: typecheck & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck ( all packages )
+        run: pnpm typecheck
+
+      - name: Run unit tests ( all packages )
+        run: pnpm test
+
+      # 真实拉取 electronup-template 各分支校验与 electronup 的约定 ; 模板仓库独立演进 , 失败只提示不阻塞
+      - name: Check create-electronup remote templates
+        continue-on-error: true
+        run: pnpm --filter create-electronup exec vp test run templates.remote
+        env:
+          CREATE_ELECTRONUP_REMOTE: '1'
+
   smoke:
     name: build --dir on ${{ matrix.os }}
     env:
@@ -37,8 +70,8 @@ jobs:
       - name: Build electronup CLI
         run: pnpm --filter electronup build
 
-      - name: Run unit tests
-        run: pnpm --filter electronup test
+      - name: Run unit tests ( all packages )
+        run: pnpm test
 
       - name: Check packed core package
         shell: bash

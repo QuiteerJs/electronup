@@ -13,7 +13,7 @@ electronup 是把 **Vite**（渲染进程）+ **vite-plus pack**（主进程 / p
 | `playground/electronup-test` | 端到端示例项目，CI 冒烟构建也用它 |
 | `template` | 脚手架测试入口；仅 `template/package.json` 被跟踪，`template/*` 其余内容被忽略 |
 | `docs` | VitePress 中英双语文档站（`docs/` 中文，`docs/en/` 英文） |
-| `.github/workflows/smoke-build.yml` | 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 |
+| `.github/workflows/smoke-build.yml` | 全包 typecheck / test + 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 |
 
 ## 环境与安装
 
@@ -31,9 +31,9 @@ $env:ELECTRON_CUSTOM_DIR = '{{ version }}'
 
 | 目的 | 命令 |
 | --- | --- |
-| 单元测试（vitest 5） | `pnpm test`（等价 `pnpm --filter electronup test`） |
+| 单元测试（vitest 5） | `pnpm test`（`packages/*` 全部包；create-electronup 的远端模板校验需 `CREATE_ELECTRONUP_REMOTE=1`） |
 | 单文件/过滤测试 | `pnpm --filter electronup exec vp test run pack` |
-| 类型检查 | `pnpm typecheck`（`tsc -p packages/electronup/tsconfig.json`） |
+| 类型检查 | `pnpm typecheck`（electronup 与 create-electronup 两个 tsconfig） |
 | Lint（oxlint，不支持 Markdown） | `pnpm lint` / `pnpm lint:fix` |
 | 构建核心包（vp pack） | `pnpm --filter electronup build` |
 | 文档开发 / 构建 | `pnpm docs:dev` / `pnpm docs:build` |
