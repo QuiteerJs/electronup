@@ -80,18 +80,33 @@ jobs:
           esac
           node ../../.github/scripts/check-updater-package.mjs "${resources[0]}"
 
-      - name: Build NSIS update artifacts (Windows)
-        if: runner.os == 'Windows'
+      # --dir 只在 Linux 写入 app-update.yml ; 各平台都构建一次支持自动更新的安装包 , 才能验证更新源与元数据
+      - name: Build update artifacts ( installer target , current platform )
+        shell: bash
         working-directory: playground/electronup-test
-        run: node ../../packages/electronup/dist/bin/electronup.mjs build --win x64
+        run: |
+          case "${{ runner.os }}" in
+            Windows) target=(--win x64) ;;
+            macOS)   target=(--mac) ;;
+            Linux)   target=(--linux x64) ;;
+            *) exit 1 ;;
+          esac
+          node ../../packages/electronup/dist/bin/electronup.mjs build "${target[@]}"
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Assert update source and metadata (Windows)
-        if: runner.os == 'Windows'
+      - name: Assert update source and metadata
         shell: bash
         working-directory: playground/electronup-test
-        run: node ../../.github/scripts/check-updater-package.mjs dist/out/win-unpacked/resources "$ELECTRONUP_UPDATE_URL" dist/out/latest.yml
+        run: |
+          ls dist/out
+          case "${{ runner.os }}" in
+            Windows) resources=(dist/out/win-unpacked/resources) metadata=dist/out/latest.yml ;;
+            macOS)   resources=(dist/out/mac*/electronup-test.app/Contents/Resources) metadata=dist/out/latest-mac.yml ;;
+            Linux)   resources=(dist/out/linux-unpacked/resources) metadata=dist/out/latest-linux.yml ;;
+            *) exit 1 ;;
+          esac
+          node ../../.github/scripts/check-updater-package.mjs "${resources[0]}" "$ELECTRONUP_UPDATE_URL" "$metadata"
 
   sign-smoke:
     name: signed build with self-signed cert (Windows)

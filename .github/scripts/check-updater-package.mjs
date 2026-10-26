@@ -23,7 +23,7 @@ assert.doesNotMatch(readFileSync(main, 'utf8'), /require\s*\(\s*['"`]electronup[
 // 只加载模块 , 不读取 autoUpdater getter , 不启动 Electron 或发起网络请求
 const updaterModule = requireFromApp('electron-updater')
 assert.equal(typeof updaterModule.AppUpdater, 'function')
-// Windows / macOS 的 --dir 不生成更新配置 ; 安装包构建才验证更新源与元数据
+// Windows / macOS 的 --dir 不生成更新配置 ; 各平台的安装包构建才验证更新源与元数据
 if (expectedUrl) {
   const requireFromUpdater = createRequire(updaterPath)
   const { load } = requireFromUpdater('js-yaml')

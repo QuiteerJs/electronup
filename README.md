@@ -84,16 +84,38 @@ export default defineConfig({
 
 ## 自动更新
 
+在主进程 `app.whenReady()` 之后初始化，事件通过导出的 `autoUpdater` 代理订阅：
+
 ```ts
-import { initAutoUpdater } from 'electronup'
+import { autoUpdater, initAutoUpdater } from 'electronup'
 import { app } from 'electron'
 
 void app.whenReady().then(() => {
-  initAutoUpdater({ checkOnStart: true })
+  autoUpdater.on('error', error => console.error('更新失败：', error))
+  initAutoUpdater({ checkOnStart: true, autoDownload: true, autoInstallOnAppQuit: true })
 })
 ```
 
-更新源由 `builderConfig.publish` 决定，详见[自动更新文档](https://quiteerjs.github.io/electronup/introduce/auto-update)。
+更新源由 `builderConfig.publish` 决定，打包后的应用还需要能解析到 `electron-updater`：
+
+```bash
+pnpm add electron-updater   # 作为应用的生产依赖
+```
+
+```ts
+// electronup.config.ts
+export default defineConfig({
+  packConfig: {
+    noExternal: ['electronup'], // 更新辅助代码内联进主进程产物
+  },
+  builderConfig: {
+    publish: [{ provider: 'github', owner: 'your-org', repo: 'your-app' }],
+    linux: { target: ['AppImage'] }, // 默认的 snap 目标不支持自动更新
+  },
+})
+```
+
+开发环境（`app.isPackaged` 为 `false`）不会发起检查。Windows 使用 NSIS、macOS 使用 zip（需签名）、Linux 使用 AppImage / deb / rpm。参数、事件与验收方式详见[自动更新文档](https://quiteerjs.github.io/electronup/introduce/auto-update)。
 
 ## 示例
 
