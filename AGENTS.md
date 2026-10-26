@@ -4,7 +4,7 @@
 
 ## 项目概览
 
-electronup 是把 **Vite**（渲染进程）+ **vite-plus pack**（主进程 / preload）+ **electron-builder**（打包）融合在一起的 Electron 构建工具，保留原有工具的配置习惯，通过一个 `electronup.config.ts` 管理全部构建与打包。
+electronup 是把 **Vite**（渲染进程、主进程 / preload）+ **electron-builder**（打包）融合在一起的 Electron 构建工具，保留原有工具的配置习惯，通过一个 `electronup.config.ts` 管理全部构建与打包。
 
 | 路径 | 说明 |
 | --- | --- |
@@ -52,13 +52,13 @@ src/cli.ts (cac 命令解析)
        └─ runner/watch.ts | runner/build.ts
             └─ configs/electronup.ts (组装 vite / pack / preload / builder)
                  ├─ configs/vite.ts        渲染进程 Vite 配置
-                 ├─ configs/pack.ts        主进程 vite-plus pack 配置 + dev 时启动 Electron
+                 ├─ configs/pack.ts        主进程 Vite SSR 构建配置 ( 依赖外部化规则 ) + dev 时启动 Electron
                  ├─ configs/preload.ts     preload 归一化（默认 CJS、输出到 resourceDir）
                  └─ configs/builder.ts     electron-builder 预置项与合并
 ```
 
-- dev：vite 起渲染 dev server；pack watch 主进程并在成功回调里启动 Electron；`.env` / `.env.{mode}` 注入。
-- build：vite build → pack preload → pack 主进程 → electron-builder 打包 → 写 `outDir/electronup-effective-config.yaml`（`--web` 除外）。
+- dev：vite 起渲染 dev server；vite build watch 主进程，每次写盘后由 `electronup:start-electron` 插件启动 / 重启 Electron；`.env` / `.env.{mode}` 注入。
+- build：vite build 渲染进程 → vite build preload → vite build 主进程 → electron-builder 打包 → 写 `outDir/electronup-effective-config.yaml`（`--web` 除外）。
 - `--web`：只构建渲染进程，跳过 targets 解析、preload/主进程构建与 electron-builder，且不清空 `outDir`。
 
 ## 必须遵守的约定与易错点

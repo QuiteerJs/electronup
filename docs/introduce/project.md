@@ -9,14 +9,14 @@ title: 项目介绍
 [electronup](https://github.com/QuiteerJs/electronup) 是一个面向 Electron 应用的命令行构建工具。它把渲染进程、主进程、preload 脚本和安装包构建串到同一条流程里：
 
 - 渲染进程由 **Vite** 构建和热更新。
-- 主进程由 **vite-plus pack**（`vp pack`）构建和监听。
-- preload 脚本同样使用 vite-plus pack 构建。
+- 主进程由 **Vite** 以 SSR（Node）模式构建和监听。
+- preload 脚本同样使用 Vite 构建。
 - 安装包由 **electron-builder** 生成。
 
 项目只需要在根目录维护一个 `electronup.config.ts`，其余构建工具的常用配置已经预置，并且大多数预置项都可以覆盖。
 
 ::: warning 只支持 TypeScript
-主进程与 preload 使用 vite-plus pack 构建，入口固定为 `${mainDir}/index.ts`，因此当前版本不支持 JavaScript 主进程入口。配置文件本身也推荐使用 `electronup.config.ts`。
+主进程与 preload 使用 Vite 构建，主进程入口固定为 `${mainDir}/index.ts`，因此当前版本不支持 JavaScript 主进程入口。配置文件本身也推荐使用 `electronup.config.ts`。
 :::
 
 ## 它负责什么
@@ -36,7 +36,7 @@ title: 项目介绍
 
 - **不安装或锁定 Electron**。`electron` 是可选的对等依赖（peer dependency），由应用项目自行安装并选择版本；electronup 构建时会读取项目内的 Electron 版本。
 - **不提供窗口、菜单、托盘、IPC 的运行时封装**。这些能力由 [electron-modules](https://github.com/QuiteerJs/electron-modules) 系列包提供，可按需安装，见[插件总览](/plugins/)。
-- **不替代 Vite、vite-plus pack、electron-builder 的完整文档**。electronup 只做预置与编排，未覆盖的配置项应查阅对应工具的官方文档。
+- **不替代 Vite、electron-builder 的完整文档**。electronup 只做预置与编排，未覆盖的配置项应查阅对应工具的官方文档。
 - **不内置代码签名证书**。macOS 公证、Windows 代码签名等仍由 electron-builder 的配置和你的证书环境决定，具体配置见[签名与公证](/introduce/config#签名与公证)。
 
 ## 前置要求
@@ -63,7 +63,7 @@ yarn add electronup -D
 pnpm add electronup -D
 ```
 
-`electronup` 已把 `vite-plus`、`electron-builder` 等构建依赖列入自身依赖；应用项目通常只需要再安装 `electron` 和 `typescript`：
+`electronup` 已把 `vite`、`electron-builder` 等构建依赖列入自身依赖；应用项目通常只需要再安装 `electron` 和 `typescript`：
 
 ```json
 {

@@ -211,4 +211,4 @@ In the current version the main process output is `electron.cjs`. When packaging
 
 - Learn the directory conventions: [Project structure](/en/introduce/catalogue)
 - See every CLI flag: [CLI](/en/introduce/cli)
-- Configure Vite, vite-plus pack and electron-builder: [Configuration](/en/introduce/config)
+- Configure Vite and electron-builder: [Configuration](/en/introduce/config)

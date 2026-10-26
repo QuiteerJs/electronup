@@ -40,7 +40,7 @@ my-app/
 
 Main process source. The default entry is `main/index.ts`.
 
-- Built by vite-plus pack, always as CommonJS.
+- Built by Vite, always as CommonJS.
 - Output goes to `dist/resource/electron.cjs` by default.
 - Watched in dev: changes trigger a rebuild and an Electron restart.
 - The entry file name is fixed to `index.ts`; `packConfig` cannot change it in the current version.

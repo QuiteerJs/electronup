@@ -1,6 +1,5 @@
 import type { CliOptions } from 'electron-builder'
-import type { UserConfig as PackUserConfig } from 'vite-plus/pack'
-import type { UserConfig } from 'vite'
+import type { InlineConfig, UserConfig } from 'vite'
 
 import type { ElectronupConfig } from '../typings/electronup'
 import { getPreloadConfigs } from './preload'
@@ -11,8 +10,8 @@ import { getViteConfig } from './vite'
 
 interface InitConfig extends Omit<ElectronupConfig, 'viteConfig' | 'packConfig' | 'preload' | 'builderConfig'> {
   vite: UserConfig
-  pack: PackUserConfig
-  preload: PackUserConfig[]
+  pack: InlineConfig
+  preload: InlineConfig[]
   builder?: CliOptions
 }
 

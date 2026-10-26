@@ -4,7 +4,7 @@
 
 [简体中文](./README.md) | [English](./README.en.md)
 
-> An Electron build tool that combines Vite, vite-plus pack (vp pack) and electron-builder. One config file for multi-environment, multi-target builds and packaging.
+> An Electron build tool that combines Vite and electron-builder. One config file for multi-environment, multi-target builds and packaging.
 
 ## Documentation
 
@@ -14,7 +14,7 @@
 ## Features
 
 - **Multiple templates**: `create-electronup` supports `vanilla`, `vue`, `react`, `react-swc` and `solid`.
-- **Two-process development**: renderer HMR with Vite; vite-plus pack watches the main process and restarts Electron automatically.
+- **Two-process development**: renderer HMR with Vite; Vite watches and rebuilds the main process and restarts Electron automatically.
 - **Unified environment variables**: `.env` / `.env.{mode}` in the project root are loaded with dotenv for the main process and preload scripts; the renderer can use `VITE_`-prefixed variables.
 - **Single-file config**: `electronup.config.ts` manages paths, Vite, pack, preload scripts and electron-builder.
 - **Platform aware**: builds the current OS and architecture by default; choose platforms and architectures via CLI flags or an interactive wizard.

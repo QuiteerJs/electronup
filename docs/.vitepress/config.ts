@@ -12,7 +12,7 @@ export default defineConfig({
   base,
   lang: 'zh-CN',
   title: 'electronup 中文文档',
-  description: '融合 Vite、vite-plus pack 与 electron-builder 的 Electron 构建工具',
+  description: '融合 Vite 与 electron-builder 的 Electron 构建工具',
   head: [['link', { rel: 'icon', href: `${base}favicon.ico` }]],
   markdown: {
     lineNumbers: true,
@@ -53,14 +53,14 @@ export default defineConfig({
       label: '简体中文',
       lang: 'zh-CN',
       title: 'electronup 中文文档',
-      description: '融合 Vite、vite-plus pack 与 electron-builder 的 Electron 构建工具',
+      description: '融合 Vite 与 electron-builder 的 Electron 构建工具',
     },
     en: {
       label: 'English',
       lang: 'en-US',
       link: '/en/',
       title: 'electronup Documentation',
-      description: 'An Electron build tool that combines Vite, vite-plus pack and electron-builder',
+      description: 'An Electron build tool that combines Vite and electron-builder',
       themeConfig: {
         siteTitle: 'electronup',
         editLink: {
@@ -115,7 +115,6 @@ function zhNav() {
       items: [
         { text: 'electron', link: 'https://www.electronjs.org/zh/' },
         { text: 'vite', link: 'https://cn.vitejs.dev/' },
-        { text: 'vite-plus pack', link: 'https://viteplus.dev/guide/pack' },
         { text: 'electron-builder', link: 'https://www.electron.build/' },
       ],
     },
@@ -157,7 +156,6 @@ function enNav() {
       items: [
         { text: 'electron', link: 'https://www.electronjs.org/' },
         { text: 'vite', link: 'https://vite.dev/' },
-        { text: 'vite-plus pack', link: 'https://viteplus.dev/guide/pack' },
         { text: 'electron-builder', link: 'https://www.electron.build/' },
       ],
     },

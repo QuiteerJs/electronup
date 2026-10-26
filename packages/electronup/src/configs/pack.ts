@@ -1,10 +1,10 @@
 import type { ChildProcessWithoutNullStreams } from 'node:child_process'
-import type { UserConfig } from 'vite-plus/pack'
+import type { InlineConfig, Plugin, PluginOption } from 'vite'
 import type { ElectronupConfig, PackConfig } from '../typings/electronup'
 import { spawn } from 'node:child_process'
-import { existsSync } from 'node:fs'
-import { createRequire } from 'node:module'
-import { resolve } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { createRequire, isBuiltin } from 'node:module'
+import { isAbsolute, resolve } from 'node:path'
 import process from 'node:process'
 import { config as getEnv } from 'dotenv'
 import { DefaultDirs, store } from '../utils'
@@ -80,39 +80,153 @@ export function globalProcessPlugin() {
   }
 }
 
+type ExternalPattern = string | RegExp
+
+/** 主进程 / preload 共用的 Node 侧构建参数 */
+export interface NodeBuildOptions {
+  entry: string | string[] | Record<string, string>
+  outDir: string
+  format: 'cjs' | 'esm'
+  minify: boolean
+  /** 额外不参与构建的模块 , electron 与 Node 内置模块始终不参与 */
+  external?: ExternalPattern[]
+  /** 强制参与构建的模块 , true 表示除 electron / 内置模块外全部打进产物 */
+  noExternal?: ExternalPattern[] | true
+  env?: Record<string, string>
+  plugins?: PluginOption[]
+  sourcemap?: boolean | 'inline' | 'hidden'
+  /** 监听文件变化并重新构建 ( dev 下的主进程 ) */
+  watch?: boolean
+}
+
+/** 取裸模块名对应的包名 : `foo/bar` -> `foo` , `@scope/foo/bar` -> `@scope/foo` */
+function getPackageName(id: string) {
+  const parts = id.split('/')
+  return id.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]
+}
+
+function matchPattern(id: string, patterns: ExternalPattern[]) {
+  return patterns.some(pattern => typeof pattern === 'string'
+    ? id === pattern || id.startsWith(`${pattern}/`)
+    : pattern.test(id))
+}
+
+/** 读取项目 package.json 中运行时可用的依赖 ( dependencies / peerDependencies / optionalDependencies ) */
+export function getRuntimeDependencies(root: string): Set<string> {
+  try {
+    const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
+    return new Set([pkg.dependencies, pkg.peerDependencies, pkg.optionalDependencies].flatMap(deps => Object.keys(deps ?? {})))
+  }
+  catch {
+    return new Set()
+  }
+}
+
 /**
- * Description  主进程代码编译配置
+ * 生成 rolldown 的 external 判断函数 , 与原 vite-plus pack 的默认行为保持一致 :
+ * electron、Node 内置模块与项目运行时依赖不打包 ( electron-builder 会把 dependencies 装进安装包 ) ,
+ * devDependencies 及其余模块打进产物 ; noExternal 优先于运行时依赖 , external 优先于 noExternal
+ */
+export function createExternal(options: Pick<NodeBuildOptions, 'external' | 'noExternal'>, root = store.root) {
+  const { external = [], noExternal = [] } = options
+  const dependencies = getRuntimeDependencies(root)
+
+  return (id: string, _importer: string | undefined, isResolved: boolean) => {
+    // 已解析的绝对路径与相对路径都是项目内部模块 , 交给打包流程
+    if (isResolved || id.startsWith('.') || isAbsolute(id) || id.startsWith('\0'))
+      {return false}
+    if (isBuiltin(id) || id === 'electron' || id.startsWith('electron/') || matchPattern(id, external))
+      {return true}
+    if (noExternal === true || matchPattern(id, noExternal))
+      {return false}
+    return dependencies.has(getPackageName(id))
+  }
+}
+
+/** 把环境变量转成 define , 与原 pack 的 env 一致 : 同时替换 process.env.X 与 import.meta.env.X */
+export function envToDefine(env: Record<string, string>) {
+  return Object.fromEntries(Object.entries(env).flatMap(([key, value]) => [
+    [`process.env.${key}`, JSON.stringify(value)],
+    [`import.meta.env.${key}`, JSON.stringify(value)],
+  ]))
+}
+
+/**
+ * 生成主进程 / preload 共用的 Vite 构建配置 ( SSR 构建 , 面向 Node 运行时 )
+ *
+ * 依赖是否打包完全由 createExternal 决定 ( ssr.noExternal: true 关闭 Vite 自身的外部化判断 ) ,
+ * 不读取 vite.config 与 .env ( 环境变量由 electronup 统一注入 ) , 不复制 publicDir , 不清空输出目录
+ */
+export function createNodeBuildConfig(options: NodeBuildOptions): InlineConfig {
+  const { entry, outDir, format, minify, env = {}, plugins = [], sourcemap = false, watch = false } = options
+
+  return {
+    configFile: false,
+    envDir: false,
+    root: store.root,
+    publicDir: false,
+    logLevel: 'warn',
+    define: envToDefine(env),
+    plugins: [globalProcessPlugin(), ...plugins],
+    ssr: { target: 'node', noExternal: true },
+    build: {
+      ssr: true,
+      outDir: resolve(store.root, outDir),
+      emptyOutDir: false,
+      copyPublicDir: false,
+      // Electron 28 ( 最低支持版本 ) 内置 Node 18
+      target: 'node18',
+      minify,
+      sourcemap,
+      reportCompressedSize: false,
+      watch: watch ? {} : null,
+      rolldownOptions: {
+        input: entry,
+        external: createExternal(options),
+        output: {
+          format,
+          entryFileNames: `[name].${format === 'esm' ? 'mjs' : 'cjs'}`,
+          chunkFileNames: `chunks/[name]-[hash].${format === 'esm' ? 'mjs' : 'cjs'}`,
+        },
+      },
+    },
+  }
+}
+
+/** dev 下每次主进程构建写盘后 ( 含 watch 触发的重新构建 ) 启动 / 重启 Electron */
+export function startElectronPlugin(mainPath: string): Plugin {
+  return {
+    name: 'electronup:start-electron',
+    writeBundle() {
+      startElectron(mainPath)
+    },
+  }
+}
+
+/**
+ * Description  主进程代码编译配置 ( Vite SSR 构建 )
  * @param {any} config:PackConfig
  * @param {any} allConfig:ElectronupConfig
  * @returns {any}
  */
-export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig) {
+export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig): InlineConfig {
   const { command, root, minify } = store
   const isServe = command === 'serve'
+  const resourceDir = allConfig.resourceDir || DefaultDirs.resourceDir
 
-  const defaultConfig: UserConfig = {
-    // 默认压缩 ( dev / build 一致 ) , 显式传 --no-minify 时关闭
-    minify: minify !== false && (minify === true || !isServe),
-    // external / noExternal 已被 vite-plus pack 弃用 , 对外保留原配置名 , 内部映射到 deps
-    deps: {
-      neverBundle: ['electron', ...(config.external ?? [])],
-      ...(config.noExternal ? { alwaysBundle: config.noExternal } : {}),
-    },
+  return createNodeBuildConfig({
     entry: { electron: resolve(root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts') },
-    outDir: allConfig.resourceDir || DefaultDirs.resourceDir,
-    watch: isServe,
+    outDir: resourceDir,
     // 主进程强制 CJS , 与 preload 保持一致 , Electron 主进程对 CJS 兼容性最好
     format: 'cjs',
-    dts: false,
-    clean: false,
+    // 默认压缩 ( dev / build 一致 ) , 显式传 --no-minify 时关闭
+    minify: minify !== false && (minify === true || !isServe),
+    external: config.external,
+    noExternal: config.noExternal,
     env: injectEnv(),
-    plugins: [globalProcessPlugin()],
-    async onSuccess() {
-      if (isServe) { return startElectron(resolve(root, allConfig.resourceDir || DefaultDirs.resourceDir, 'electron.cjs')) }
-    },
-  }
-
-  return { ...defaultConfig }
+    watch: isServe,
+    plugins: isServe ? [startElectronPlugin(resolve(root, resourceDir, 'electron.cjs'))] : [],
+  })
 }
 
 /** 预检主进程入口 ( mainDir/index.ts ) 是否存在 , 不存在时抛错 */

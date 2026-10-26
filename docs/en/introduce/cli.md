@@ -83,7 +83,7 @@ electronup dev -m production
 ```
 
 ::: tip
-`mode` only selects the `.env.{mode}` file. A missing file is not an error; only `.env` is used. The build mode of Vite and vite-plus pack is still determined by `dev` / `build`.
+`mode` only selects the `.env.{mode}` file. A missing file is not an error; only `.env` is used. The build mode of Vite is still determined by `dev` / `build`.
 :::
 
 ## Minification `--no-minify`

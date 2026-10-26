@@ -83,7 +83,7 @@ electronup dev -m production
 ```
 
 ::: tip
-`mode` 用于选择 `.env.{mode}` 文件；文件不存在时不会报错，只使用 `.env`。Vite 与 vite-plus pack 的构建模式仍由 `dev` / `build` 命令决定。
+`mode` 用于选择 `.env.{mode}` 文件；文件不存在时不会报错，只使用 `.env`。Vite 的构建模式仍由 `dev` / `build` 命令决定。
 :::
 
 ## 压缩 `--no-minify`

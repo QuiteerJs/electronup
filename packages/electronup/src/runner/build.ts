@@ -174,10 +174,9 @@ export async function build(options: ElectronupConfig) {
     return
   }
 
-  const { build: packBuild } = await import('vite-plus/pack')
   for (const preloadConfig of initConfig.preload)
-    {await packBuild(preloadConfig)}
-  await packBuild(initConfig.pack)
+    {await viteBuild(preloadConfig)}
+  await viteBuild(initConfig.pack)
 
   // electron-builder 会原地改写配置 ( 如 files 变成 filter 结构 ) , 需在执行前做快照
   const snapshot = toPlainConfig(initConfig)
