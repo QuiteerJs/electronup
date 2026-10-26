@@ -1,0 +1,16 @@
+{
+  "name": "electronup",
+  "owner": {
+    "name": "quiteer"
+  },
+  "metadata": {
+    "description": "electronup 官方 Agent Skills 插件市场"
+  },
+  "plugins": [
+    {
+      "name": "electronup",
+      "source": "./",
+      "description": "electronup 的 Agent Skills：创建项目、编写 electronup.config、开发/打包与接入自动更新"
+    }
+  ]
+}
