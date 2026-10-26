@@ -34,6 +34,12 @@ describe.skipIf(!enabled)('electronup-template 远端模板', () => {
     // electronup 版本线与当前核心包一致
     expect(pkg.devDependencies.electronup).toMatch(new RegExp(`^\\^${major}\\.${minor}\\.`))
     expect(pkg.engines.node).toBe(electronupPkg.engines.node)
+    // 脚手架统一提示 pnpm , 依赖模板锁定 pnpm
+    expect(pkg.packageManager).toMatch(/^pnpm@/)
+    // 声明 vite 时应指向 vite-plus 且不锁死具体版本
+    if (pkg.devDependencies.vite) {
+      expect(pkg.devDependencies.vite).toMatch(/^npm:vite-plus@\^/)
+    }
     // electron 为模板自己的依赖 , electron-updater 必须随安装包分发
     expect(pkg.devDependencies.electron).toBeTruthy()
     expect(pkg.dependencies['electron-updater']).toBeTruthy()

@@ -91,3 +91,32 @@ export function pkgFromUserAgent(userAgent: string | undefined) {
     version: pkgSpecArr[1],
   }
 }
+
+export function isValidPackageName(projectName: string) {
+  return /^(?:@[a-z\d\-*~][a-z\d\-*._~]*\/)?[a-z\d\-~][a-z\d\-._~]*$/.test(projectName)
+}
+
+// 目录名不一定是合法包名 , 规整后写入 package.json#name ( electron-builder 据此生成 appId )
+export function toValidPackageName(projectName: string) {
+  return projectName
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/^[._]/, '')
+    .replace(/[^a-z\d\-~]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    || defaultTargetDir
+}
+
+export const helpMessage = `\
+用法：create-electronup [项目目录] [选项]
+
+基于 electronup 创建 Electron 项目。不传参数时进入交互模式。
+
+选项：
+  -t, --template 模板名      使用指定模板，跳过选择
+  --overwrite               目标目录不为空时直接清空（保留 .git），不再询问
+  -h, --help                显示帮助
+
+可用模板：
+${TEMPLATES.map(t => `  ${t}`).join('\n')}`

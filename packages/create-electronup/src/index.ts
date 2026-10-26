@@ -1,5 +1,11 @@
+import process from 'node:process'
 import { init } from './init'
 
-init().catch((e) => {
-  console.error(e)
-})
+init()
+  .then((code) => {
+    process.exitCode = code
+  })
+  .catch((e) => {
+    console.error(e)
+    process.exitCode = 1
+  })
