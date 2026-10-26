@@ -25,6 +25,8 @@ export default defineConfig((env) => {
       publish: updateUrl ? { provider: 'generic' as const, url: updateUrl } : null,
       // 仅覆盖验收安装包的版本 , 不修改仓库 package.json
       ...(updateVersion ? { extraMetadata: { version: updateVersion } } : {}),
+      // electron-builder 的 linux 默认目标含 snap ( 需要 snapcraft ) ; 示例只产出支持自动更新的 AppImage
+      linux: { target: ['AppImage'] },
     },
   }
 })

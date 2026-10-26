@@ -84,16 +84,38 @@ See the [configuration docs](https://quiteerjs.github.io/electronup/en/introduce
 
 ## Auto update
 
+Initialize after `app.whenReady()` in the main process, and subscribe to events through the exported `autoUpdater` proxy:
+
 ```ts
-import { initAutoUpdater } from 'electronup'
+import { autoUpdater, initAutoUpdater } from 'electronup'
 import { app } from 'electron'
 
 void app.whenReady().then(() => {
-  initAutoUpdater({ checkOnStart: true })
+  autoUpdater.on('error', error => console.error('Update failed:', error))
+  initAutoUpdater({ checkOnStart: true, autoDownload: true, autoInstallOnAppQuit: true })
 })
 ```
 
-The update source comes from `builderConfig.publish`. See the [auto update docs](https://quiteerjs.github.io/electronup/en/introduce/auto-update).
+The update source comes from `builderConfig.publish`, and the packaged app must be able to resolve `electron-updater`:
+
+```bash
+pnpm add electron-updater   # as a production dependency of your app
+```
+
+```ts
+// electronup.config.ts
+export default defineConfig({
+  packConfig: {
+    noExternal: ['electronup'], // inline the update helpers into the main-process bundle
+  },
+  builderConfig: {
+    publish: [{ provider: 'github', owner: 'your-org', repo: 'your-app' }],
+    linux: { target: ['AppImage'] }, // the default snap target does not support auto update
+  },
+})
+```
+
+No check runs in development (`app.isPackaged` is `false`). Use NSIS on Windows, zip on macOS (signing required), and AppImage / deb / rpm on Linux. See the [auto update docs](https://quiteerjs.github.io/electronup/en/introduce/auto-update) for options, events, and verification.
 
 ## Examples
 

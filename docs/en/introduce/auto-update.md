@@ -111,7 +111,7 @@ electron-updater expects specific artifact types per platform. Keep them when cu
 
 - Windows: NSIS installers (electronup's default `nsis` config); targets such as `portable` do not support auto update.
 - macOS: `zip` update packages (`mac.target` includes `zip` by default), and the app must be signed and notarized.
-- Linux: `AppImage`, `rpm` or `deb` artifacts.
+- Linux: `AppImage`, `rpm` or `deb` artifacts. electron-builder's default Linux targets include `snap` (not supported by electron-updater, and it needs snapcraft to build), so set `linux: { target: ['AppImage'] }` explicitly.
 
 ## Behavior in development
 
@@ -122,9 +122,17 @@ electron-updater expects specific artifact types per platform. Keep them when cu
 
 ## Repository example and upgrade verification
 
-`playground/electronup-test` includes the production dependency, `noExternal` configuration, and main-process event listeners. Set `ELECTRONUP_UPDATE_URL` at build time to configure a generic update source. Without it, publishing configuration is disabled and the example does not check automatically. The example enables startup checks only when the packager has generated `app-update.yml`.
+`playground/electronup-test` includes the production dependency, `noExternal` configuration, the Linux `AppImage` target, and main-process event listeners. Set `ELECTRONUP_UPDATE_URL` at build time to configure a generic update source. Without it, publishing configuration is disabled and the example does not check automatically. The example enables startup checks only when the packager has generated `app-update.yml`.
 
-CI checks updater dependencies inside unpacked apps on all three platforms. On Windows it also builds an NSIS installer and checks the source in `app-update.yml`, plus the version, installer size, and SHA-512 hash in `latest.yml`. Windows/macOS `--dir` builds do not generate update configuration; a successful directory build does not establish that upgrading works.
+CI runs two builds on each of the three platforms:
+
+| Platform | Build command | Update metadata |
+| --- | --- | --- |
+| Windows | `build --win x64` (NSIS) | `latest.yml` |
+| macOS | `build --mac` (dmg + zip, unsigned) | `latest-mac.yml` |
+| Linux | `build --linux x64` (AppImage) | `latest-linux.yml` |
+
+The `--dir` build checks updater dependencies inside the unpacked app (`electron-updater` is a production dependency, lives inside the app, and the update helpers are inlined into the main process). The installer build from the table then checks the provider and URL in `app-update.yml`, and verifies the version plus each installer's size and SHA-512 hash in the metadata. Windows/macOS `--dir` builds do not generate update configuration; a successful directory build does not establish that upgrading works.
 
 To verify a real upgrade on Windows, run these PowerShell commands from the repository root:
 

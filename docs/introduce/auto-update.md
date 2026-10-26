@@ -112,7 +112,7 @@ electron-updater 对不同平台的安装包类型有要求，调整 `builderCon
 
 - Windows：使用 NSIS 安装包（electronup 默认的 `nsis` 配置）；`portable` 等目标不支持自动更新。
 - macOS：使用 `zip` 更新包（`mac.target` 默认已包含 `zip`），且应用需要签名并公证。
-- Linux：使用 `AppImage`、`rpm` 或 `deb` 产物。
+- Linux：使用 `AppImage`、`rpm` 或 `deb` 产物。electron-builder 的 Linux 默认目标含 `snap`（不支持 electron-updater，且构建需要 snapcraft），建议显式配置 `linux: { target: ['AppImage'] }`。
 
 ## 开发环境行为
 
@@ -123,9 +123,17 @@ electron-updater 对不同平台的安装包类型有要求，调整 `builderCon
 
 ## 仓库示例与升级验收
 
-`playground/electronup-test` 已配置生产依赖和 `noExternal`，并在主进程订阅更新事件。构建时设置 `ELECTRONUP_UPDATE_URL` 可使用 generic 更新源；不设置时禁用发布配置，示例不会自动检查。只有存在打包器生成的 `app-update.yml` 时，示例才启用启动检查。
+`playground/electronup-test` 已配置生产依赖、`noExternal` 与 Linux 的 `AppImage` 目标，并在主进程订阅更新事件。构建时设置 `ELECTRONUP_UPDATE_URL` 可使用 generic 更新源；不设置时禁用发布配置，示例不会自动检查。只有存在打包器生成的 `app-update.yml` 时，示例才启用启动检查。
 
-CI 检查三平台目录包内的更新器依赖，并在 Windows 上构建 NSIS 安装包，检查 `app-update.yml` 的更新源，以及 `latest.yml` 的版本、安装包大小和 SHA-512 哈希。Windows/macOS 的 `--dir` 不生成更新配置，目录打包通过不能证明自动升级可用。
+CI 在三个平台上分别执行两轮构建：
+
+| 平台 | 构建命令 | 更新元数据 |
+| --- | --- | --- |
+| Windows | `build --win x64`（NSIS） | `latest.yml` |
+| macOS | `build --mac`（dmg + zip，未签名） | `latest-mac.yml` |
+| Linux | `build --linux x64`（AppImage） | `latest-linux.yml` |
+
+先用 `--dir` 检查目录包内的更新器依赖（`electron-updater` 是生产依赖、位于应用内、更新辅助代码已内联进主进程）；再构建上表中的安装包，检查 `app-update.yml` 中的 provider 与更新地址，并核对元数据里的版本、每个安装包的大小和 SHA-512 哈希。Windows/macOS 的 `--dir` 不生成更新配置，目录打包通过不能证明自动升级可用。
 
 在 Windows 上执行真实升级验收（以下为仓库根目录下的 PowerShell 命令）：
 
