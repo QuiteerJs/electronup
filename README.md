@@ -137,7 +137,7 @@ export default defineConfig({
 
 - [create-electronup](https://github.com/QuiteerJs/electronup/tree/main/packages/create-electronup)：创建项目模板。
 - [@quiteer/parser-config](https://github.com/QuiteerJs/parser-config)：解析配置文件。
-- [electron-modules](https://github.com/QuiteerJs/electron-modules)：可选的窗口、菜单、托盘、IPC、preload 运行时包。
+- [`@quiteer/electron-*`](./packages)：本仓库 `packages/electron-*` 下可选的窗口、菜单、托盘、IPC、preload、应用生命周期、快捷键运行时包。
 
 ## License
 

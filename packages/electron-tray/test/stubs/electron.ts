@@ -8,6 +8,39 @@ export interface Size {
   height: number;
 }
 
+/** 以下只作类型使用, 对应 electron 的同名类型 */
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface Rectangle extends Point, Size {}
+
+export interface Event {
+  preventDefault: () => void;
+}
+
+export interface KeyboardEvent {
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
+
+export interface DisplayBalloonOptions {
+  title: string;
+  content: string;
+  icon?: NativeImage | string;
+  iconType?: 'none' | 'info' | 'warning' | 'error' | 'custom';
+  largeIcon?: boolean;
+  noSound?: boolean;
+  respectQuietTime?: boolean;
+}
+
+export interface TitleOptions {
+  fontType?: 'monospaced' | 'monospacedDigit';
+}
+
 export class NativeImage {
   kind: 'path' | 'dataURL';
   source: string;
@@ -34,7 +67,7 @@ export class NativeImage {
     this.template = option;
   }
 
-  resize(): NativeImage {
+  resize(_options?: { width?: number; height?: number }): NativeImage {
     return new NativeImage(this.kind, this.source);
   }
 
@@ -156,7 +189,7 @@ export class Tray extends Emitter {
     this.tooltip = toolTip;
   }
 
-  setTitle(title: string, options?: unknown): void {
+  setTitle(title: string, options?: TitleOptions): void {
     this.title = title;
     this.titleOptions = options;
   }
@@ -181,7 +214,7 @@ export class Tray extends Emitter {
     return this.ignoreDoubleClick;
   }
 
-  displayBalloon(options: unknown): void {
+  displayBalloon(options: DisplayBalloonOptions): void {
     Tray.balloons.push(options);
   }
 
@@ -189,7 +222,7 @@ export class Tray extends Emitter {
 
   focus(): void {}
 
-  popUpContextMenu(): void {
+  popUpContextMenu(_menu?: Menu): void {
     this.popups++;
     Menu.popups++;
   }

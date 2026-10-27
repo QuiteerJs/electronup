@@ -4,7 +4,7 @@ title: electron-browser
 
 # @quiteer/electron-browser
 
-> 属于 [electron-modules](https://github.com/QuiteerJs/electron-modules) 系列，与 electronup 配套使用。源码见 [packages/browser](https://github.com/QuiteerJs/electron-modules/tree/main/packages/browser)。
+> electronup 仓库维护的 electron 运行时模块包之一，与 electronup 配套使用。源码见 [packages/electron-browser](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-browser)。
 
 Electron 主进程窗口管理：统一注册、随处取窗、响应式操作。
 

@@ -4,7 +4,7 @@ title: electron-preload
 
 # @quiteer/electron-preload
 
-> 属于 [electron-modules](https://github.com/QuiteerJs/electron-modules) 系列，与 electronup 配套使用。源码见 [packages/preload](https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload)。
+> electronup 仓库维护的 electron 运行时模块包之一，与 electronup 配套使用。源码见 [packages/electron-preload](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-preload)。
 
 Electron 预加载脚本：导入即拿到脚本路径，一行接入 `webPreferences.preload`，并在渲染进程暴露 `$ipc` / `$clipboard` / `$webFrame` 三组已收敛的 API。
 
@@ -107,7 +107,7 @@ interface Window {
 }
 ```
 
-配合 [@quiteer/electron-ipc](https://github.com/QuiteerJs/electron-modules/tree/main/packages/ipc) 使用时，把它的通道类型一起叠上：
+配合 [@quiteer/electron-ipc](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-ipc) 使用时，把它的通道类型一起叠上：
 
 ```ts
 interface Window {

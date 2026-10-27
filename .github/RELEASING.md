@@ -86,3 +86,29 @@ pnpm publish
 prepublishOnly 自动校验 main/master、干净工作区及当前版本标签指向 HEAD，然后重新构建；不升版、不生成 CHANGELOG、不提交、不推送。npm 登录及 2FA 由用户完成。
 
 上传后查询官方注册表确认版本和 latest 标签。如果认证失败，只修复登录后重试 publish；如果版本已存在，先核实是否已成功发布，不得盲目重新升版。
+
+## 模块包（@quiteer/electron-*）
+
+`packages/electron-*` 的 7 个模块包用 changesets 管理版本与 CHANGELOG，不走 bumpp 与 `pnpm changelog`。
+
+1. 改动影响使用者时，在 PR 里附带 `pnpm changeset` 生成的说明。
+2. 发版时在根目录运行 `pnpm version:modules`，审阅版本号与各包 CHANGELOG 后提交，合入 main。
+3. 发版前查询官方注册表，确认目标版本未被使用：
+
+   ```bash
+   pnpm view @quiteer/electron-ipc versions --json --registry=https://registry.npmjs.org/
+   ```
+
+4. 在 main 上为每个升版的包创建注解标签，标签名去掉 `@quiteer/` scope：
+
+   ```bash
+   git tag -a electron-ipc-v<新版本> -m "chore(release): 发布 @quiteer/electron-ipc v<新版本>"
+   git push origin electron-ipc-v<新版本>
+   ```
+
+   **逐个推送标签**：一次推送超过三个标签时 GitHub 不会为它们触发 workflow。
+
+5. Release workflow 按标签找到 `packages/electron-<模块>`，跑与核心包相同的检查后经 Trusted Publishing 发布。
+
+每个模块包都要在 npmjs.com 单独登记 Trusted Publisher（填写方式同上，Workflow filename 为 `release.yml`）。尚未在 npm 上存在的包无法提前登记，首个版本需要维护者在包目录手动 `pnpm publish` 一次，之后再登记。
+

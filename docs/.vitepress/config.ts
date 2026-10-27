@@ -193,6 +193,9 @@ function sidebar(prefix: '' | '/en') {
         { text: 'electron-browser', link: `${prefix}/plugins/electron-browser` },
         { text: 'electron-menu', link: `${prefix}/plugins/electron-menu` },
         { text: 'electron-tray', link: `${prefix}/plugins/electron-tray` },
+        { text: 'electron-app', link: `${prefix}/plugins/electron-app` },
+        { text: 'electron-shortcut', link: `${prefix}/plugins/electron-shortcut` },
+        { text: prefix ? 'Migration guide' : '升级指南', link: `${prefix}/plugins/migration` },
       ],
     },
     {

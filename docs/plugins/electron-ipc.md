@@ -4,7 +4,7 @@ title: electron-ipc
 
 # @quiteer/electron-ipc
 
-> 属于 [electron-modules](https://github.com/QuiteerJs/electron-modules) 系列，与 electronup 配套使用。源码见 [packages/ipc](https://github.com/QuiteerJs/electron-modules/tree/main/packages/ipc)。
+> electronup 仓库维护的 electron 运行时模块包之一，与 electronup 配套使用。源码见 [packages/electron-ipc](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-ipc)。
 
 Electron 主进程 IPC 预设通道：一次 `init()`，渲染进程即可安全地操作所属窗口、调用 `node:path` 能力。
 

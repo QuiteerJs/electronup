@@ -6,9 +6,11 @@ import process from 'node:process'
 
 // 发布前的最后一道检查 ( 本地 pnpm publish 与 Release workflow 共用 ) ; 版本、提交与标签在准备阶段完成
 const pkg = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
-assert.ok(['electronup', 'create-electronup'].includes(pkg.name), '请在待发布包目录执行 pnpm publish')
+// electronup / create-electronup 与 @quiteer/electron-* 模块包 ; 模块包的标签去掉 scope , 如 electron-ipc-v3.2.0
+const isModule = /^@quiteer\/electron-[a-z]+$/.test(pkg.name)
+assert.ok(isModule || ['electronup', 'create-electronup'].includes(pkg.name), '请在待发布包目录执行 pnpm publish')
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
-const tag = `${pkg.name}-v${pkg.version}`
+const tag = `${pkg.name.replace(/^@quiteer\//, '')}-v${pkg.version}`
 
 if (process.env.GITHUB_ACTIONS === 'true') {
   // Release workflow 检出的是标签 ( detached HEAD ) : 要求触发的标签与包版本一致 , 且该提交已在 main 上

@@ -18,7 +18,12 @@ pnpm changeset
 
 ## 之后发生什么
 
-发布在本地手动进行, CI 不会自动发布:
+changesets 只管 `@quiteer/electron-*` 模块包; electronup 与 create-electronup 仍按 bumpp 流程发版。
 
-1. 准备发版时运行 `pnpm version-packages`, 汇总所有 changeset: 升版本号、写 CHANGELOG, 并删除已消费的 changeset。
-2. 提交上一步的改动后运行 `pnpm release`, 构建并发布 npm 上还没有的版本, 同时打 git tag。
+1. 准备发版时在根目录运行 `pnpm version:modules` (即 `changeset version`), 汇总所有 changeset:
+   升版本号、写各包 CHANGELOG, 并删除已消费的 changeset。审阅后提交并合入 main。
+2. 为每个升了版本的包在 main 上打注解标签, 标签去掉 `@quiteer/` scope, 如 `electron-ipc-v3.2.0`。
+3. 逐个推送标签, 由 `.github/workflows/release.yml` 发布到 npm。
+   一次推送超过三个标签时 GitHub 不会触发 workflow, 所以不要 `git push --tags`。
+
+详细步骤见 [.github/RELEASING.md](../.github/RELEASING.md)。

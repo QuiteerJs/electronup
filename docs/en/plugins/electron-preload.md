@@ -4,7 +4,7 @@ title: electron-preload
 
 # @quiteer/electron-preload
 
-> Part of the [electron-modules](https://github.com/QuiteerJs/electron-modules) family, designed to work with electronup. Source: [packages/preload](https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload).
+> One of the Electron runtime packages maintained in the electronup repository, designed to work with electronup. Source: [packages/electron-preload](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-preload).
 
 Preload script for Electron: import it to get the script path, plug it into `webPreferences.preload`, and expose the curated `$ipc` / `$clipboard` / `$webFrame` APIs to the renderer.
 
@@ -107,7 +107,7 @@ interface Window {
 }
 ```
 
-When used with [@quiteer/electron-ipc](https://github.com/QuiteerJs/electron-modules/tree/main/packages/ipc), merge its channel types too:
+When used with [@quiteer/electron-ipc](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-ipc), merge its channel types too:
 
 ```ts
 interface Window {

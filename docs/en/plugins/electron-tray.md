@@ -4,7 +4,7 @@ title: electron-tray
 
 # @quiteer/electron-tray
 
-> Part of the [electron-modules](https://github.com/QuiteerJs/electron-modules) family, designed to work with electronup. Source: [packages/tray](https://github.com/QuiteerJs/electron-modules/tree/main/packages/tray).
+> One of the Electron runtime packages maintained in the electronup repository, designed to work with electronup. Source: [packages/electron-tray](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-tray).
 
 Tray management for the Electron main process: central registration, icon states, menus and events.
 
@@ -121,7 +121,7 @@ paused = true
 tray.refreshMenu() // re-evaluate and setContextMenu
 ```
 
-Menus can also be managed by [@quiteer/electron-menu](https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu); assign `menu` to swap one in:
+Menus can also be managed by [@quiteer/electron-menu](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-menu); assign `menu` to swap one in:
 
 ```ts
 import { menus } from '@quiteer/electron-menu'

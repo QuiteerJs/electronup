@@ -23,10 +23,11 @@ class StubIpcRenderer extends EventEmitter {
   send(channel: string, ...args: unknown[]) {
     this.sent.push([channel, ...args]);
   }
-  sendSync(channel: string, ...args: unknown[]) {
+  // 与 electron 一致返回 any, 测试里回显调用参数
+  sendSync(channel: string, ...args: unknown[]): any {
     return { channel, args };
   }
-  async invoke(channel: string, ...args: unknown[]) {
+  async invoke(channel: string, ...args: unknown[]): Promise<any> {
     return { channel, args };
   }
   /** 模拟主进程推送 */
@@ -40,13 +41,33 @@ export const ipcRenderer = new StubIpcRenderer();
 
 export const webFrame = {
   zoomFactor: 1,
+  zoomLevel: 0,
+  inserted: [] as string[],
+  cleared: 0,
   setZoomFactor(factor: number) {
     this.zoomFactor = factor;
   },
   getZoomFactor() {
     return this.zoomFactor;
   },
+  setZoomLevel(level: number) {
+    this.zoomLevel = level;
+  },
+  getZoomLevel() {
+    return this.zoomLevel;
+  },
+  insertText(text: string) {
+    this.inserted.push(text);
+  },
+  getResourceUsage() {
+    return {};
+  },
+  clearCache() {
+    this.cleared++;
+  },
 };
+
+export type WebFrame = typeof webFrame;
 
 /** 主进程侧 */
 
@@ -86,7 +107,7 @@ export class ClipboardItem {
   get types() {
     return Object.keys(this.items);
   }
-  async getType(type: string) {
+  async getType(type: string): Promise<any> {
     return this.items[type];
   }
 }

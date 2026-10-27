@@ -1,3 +1,7 @@
+---
+title: 升级指南
+---
+
 # 升级指南
 
 本文覆盖两次需要动手的升级：
@@ -7,7 +11,7 @@
 
 两个包通常一起用，建议同时升级，按 [一起升级的推荐顺序](#一起升级的推荐顺序) 走一遍即可。完整的逐条变更见各包的 `CHANGELOG.md`，可运行的完整示例见 [`playground/modules-basic`](https://github.com/QuiteerJs/electronup/tree/main/playground/modules-basic)。
 
-## electron-preload 2.x → 3.0
+## electron-preload 2.x → 3.0 {#electron-preload-2x--30}
 
 ### 环境要求
 
@@ -28,16 +32,16 @@
 
 ```ts
 // 2.x
-import preloadPath from '@quiteer/electron-preload';
+import preloadPath from '@quiteer/electron-preload'
 
 new BrowserWindow({
   webPreferences: { sandbox: true, preload: preloadPath },
-});
+})
 ```
 
 ```ts
 // 3.0
-import { createPreload } from '@quiteer/electron-preload/main';
+import { createPreload } from '@quiteer/electron-preload/main'
 
 new BrowserWindow({
   webPreferences: {
@@ -50,7 +54,7 @@ new BrowserWindow({
       },
     }),
   },
-});
+})
 ```
 
 怎么找出要声明的通道：在渲染层代码里搜 `$ipc.send(` / `$ipc.sendSync(` / `$ipc.invoke(` / `$ipc.on(` / `$ipc.once(`，按方法归到对应的组里。主进程侧对应的是 `ipcMain.on`（send）、`ipcMain.handle`（invoke）和 `webContents.send`（on）。
@@ -60,13 +64,13 @@ new BrowserWindow({
 - 白名单经 `additionalArguments` 传给预加载脚本，页面无法篡改。**如果你自己也在传 `additionalArguments`，要合并而不是覆盖**：
 
   ```ts
-  const preload = createPreload({ channels });
+  const preload = createPreload({ channels })
   new BrowserWindow({
     webPreferences: {
       ...preload,
       additionalArguments: [...preload.additionalArguments, '--my-flag'],
     },
-  });
+  })
   ```
 
 - 用了 `@quiteer/electron-ipc` 的契约时不必手写白名单，`channels: channelsOf(api)` 即可，见 [迁到 IPC 契约](#2-可选迁到-ipc-契约)。
@@ -79,7 +83,7 @@ new BrowserWindow({
 2.x 的 `$clipboard` 在 `sandbox: true` 下其实不可用（沙箱预加载里没有 `clipboard` 模块，调用即报错）。3.0 改为经主进程实现，并且默认不暴露：
 
 ```ts
-createPreload({ clipboard: true }); // 同时会在主进程注册剪贴板处理器, 重复调用无副作用
+createPreload({ clipboard: true }) // 同时会在主进程注册剪贴板处理器, 重复调用无副作用
 ```
 
 不经 `createPreload` 的写法可以手动调用 `registerClipboardHandler()`，但只有 `createPreload({ clipboard: true })` 才会让预加载脚本暴露 `window.$clipboard`。
@@ -95,11 +99,11 @@ createPreload({ clipboard: true }); // 同时会在主进程注册剪贴板处�
 
 ```ts
 // 2.x (实际在 sandbox 下跑不通)
-await window.$clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+await window.$clipboard.write([new ClipboardItem({ 'text/plain': blob })])
 
 // 3.0
-await window.$clipboard?.write([{ 'text/plain': 'hi', 'text/html': '<b>hi</b>' }]);
-const [item] = (await window.$clipboard?.read()) ?? [];
+await window.$clipboard?.write([{ 'text/plain': 'hi', 'text/html': '<b>hi</b>' }])
+const [item] = (await window.$clipboard?.read()) ?? []
 ```
 
 剪贴板处理器只接受主 frame 的调用，页面里嵌的 iframe 读写剪贴板会被拒绝。
@@ -126,11 +130,11 @@ const [item] = (await window.$clipboard?.read()) ?? [];
 
 ```ts
 // 2.x: 不再可用, 会报 ERR_PACKAGE_PATH_NOT_EXPORTED
-require.resolve('@quiteer/electron-preload/dist/preload.cjs');
+require.resolve('@quiteer/electron-preload/dist/preload.cjs')
 
 // 3.0: 二选一
-import preloadPath from '@quiteer/electron-preload';
-import { preloadPath } from '@quiteer/electron-preload/main';
+import preloadPath from '@quiteer/electron-preload'
+import { preloadPath } from '@quiteer/electron-preload/main'
 ```
 
 ### 6. 全局类型
@@ -140,9 +144,9 @@ import { preloadPath } from '@quiteer/electron-preload/main';
 interface Window {
   $ipc: import('@quiteer/electron-ipc/web').WithIpcChannels<
     import('@quiteer/electron-preload').PreloadIpc
-  >;
-  $webFrame: import('@quiteer/electron-preload').PreloadWebFrame;
-  $clipboard?: import('@quiteer/electron-preload').PreloadClipboard; // 开启 clipboard 时才有
+  >
+  $webFrame: import('@quiteer/electron-preload').PreloadWebFrame
+  $clipboard?: import('@quiteer/electron-preload').PreloadClipboard // 开启 clipboard 时才有
 }
 ```
 
@@ -156,7 +160,7 @@ interface Window {
 - [ ] 没有深引用 `@quiteer/electron-preload/dist/*`
 - [ ] 打开每个窗口跑一遍主要流程，控制台没有「未在 xxx 白名单中」的报错
 
-## electron-ipc 3.1 → 3.2
+## electron-ipc 3.1 → 3.2 {#electron-ipc-31--32}
 
 3.2 没有删改任何 API，现有代码可以直接升级。需要留意的是一处**行为变化**，以及一个推荐迁移的新能力。
 
@@ -178,7 +182,7 @@ interface Window {
 绝大多数应用只在主 frame 里调用，不需要改任何代码。建议顺手限定页面来源：
 
 ```ts
-Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] });
+Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] })
 ```
 
 `file://` 按协议匹配，其余按 `URL.origin` 精确匹配。开发时接 dev server，记得把它的 origin 也加上，否则调用会被拒。
@@ -188,15 +192,15 @@ Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] });
 ```ts
 Ipc.init({
   validateSender: (event) => {
-    const url = event.senderFrame?.url ?? '';
-    return url.startsWith('file://') || url.startsWith('https://widgets.example.com/');
+    const url = event.senderFrame?.url ?? ''
+    return url.startsWith('file://') || url.startsWith('https://widgets.example.com/')
   },
-});
+})
 ```
 
 `Ipc.init()` 是幂等的，以首次调用的选项为准；要换选项请先 `Ipc.destroy()` 再 `Ipc.init(newOptions)`。
 
-### 2. （可选）迁到 IPC 契约
+### 2. （可选）迁到 IPC 契约 {#2-可选迁到-ipc-契约}
 
 3.2 新增了端到端类型安全的契约：一份定义同时驱动主进程 handler、渲染层 client 和 preload 白名单。原来「通道名字符串 + `unknown` 参数」的写法照常可用，可以按通道逐个迁移。
 
@@ -204,41 +208,41 @@ Ipc.init({
 
 ```ts
 // main
-ipcMain.handle('user:get', (event, id: string) => db.users.find(id));
-ipcMain.on('app:log', (event, msg: string) => logger.info(msg));
-win.webContents.send('download:progress', 0.5);
+ipcMain.handle('user:get', (event, id: string) => db.users.find(id))
+ipcMain.on('app:log', (event, msg: string) => logger.info(msg))
+win.webContents.send('download:progress', 0.5)
 
 // createPreload
 createPreload({
   channels: { invoke: ['user:get'], send: ['app:log'], on: ['download:progress'] },
-});
+})
 
 // renderer
-const user = (await window.$ipc.invoke('user:get', '1')) as User;
-window.$ipc.on('download:progress', (_event, percent) => render(percent as number));
+const user = (await window.$ipc.invoke('user:get', '1')) as User
+window.$ipc.on('download:progress', (_event, percent) => render(percent as number))
 ```
 
 **迁移后**：
 
 ```ts
 // shared/ipc.ts —— 只依赖 /web 入口, 主进程、preload、渲染层都能引用
-import { channel, defineContract } from '@quiteer/electron-ipc/web';
+import { channel, defineContract } from '@quiteer/electron-ipc/web'
 
 export const api = defineContract({
   invoke: { 'user:get': channel<(id: string) => User>() },
   send: { 'app:log': channel<(msg: string) => void>() },
   on: { 'download:progress': channel<(percent: number) => void>() },
-});
+})
 ```
 
 ```ts
 // main
-import { channelsOf, createEmitter, handleContract, Ipc } from '@quiteer/electron-ipc';
-import { createPreload } from '@quiteer/electron-preload/main';
-import { api } from '../shared/ipc';
+import { channelsOf, createEmitter, handleContract, Ipc } from '@quiteer/electron-ipc'
+import { createPreload } from '@quiteer/electron-preload/main'
+import { api } from '../shared/ipc'
 
-const allowedOrigins = ['file://'];
-Ipc.init({ allowedOrigins });
+const allowedOrigins = ['file://']
+Ipc.init({ allowedOrigins })
 handleContract(
   api,
   {
@@ -246,24 +250,24 @@ handleContract(
     send: { 'app:log': (ctx, msg) => logger.info(ctx.window?.id, msg) },
   },
   { allowedOrigins },
-);
+)
 
-const emitter = createEmitter(api);
-emitter.emit(win, 'download:progress', 0.5);
+const emitter = createEmitter(api)
+emitter.emit(win, 'download:progress', 0.5)
 
 new BrowserWindow({
   webPreferences: { ...createPreload({ channels: channelsOf(api) }) },
-});
+})
 ```
 
 ```ts
 // renderer
-import { createClient } from '@quiteer/electron-ipc/web';
-import { api } from '../shared/ipc';
+import { createClient } from '@quiteer/electron-ipc/web'
+import { api } from '../shared/ipc'
 
-const client = createClient(api);
-const user = await client.invoke('user:get', '1'); // Promise<User>
-const off = client.on('download:progress', (percent) => render(percent));
+const client = createClient(api)
+const user = await client.invoke('user:get', '1') // Promise<User>
+const off = client.on('download:progress', (percent) => render(percent))
 ```
 
 迁移时容易踩的点：
@@ -281,7 +285,7 @@ const off = client.on('download:progress', (percent) => render(percent));
 需要在主进程边界校验参数时，给 `channel` 传任意 [Standard Schema](https://standardschema.dev)（zod / valibot / arktype 等）：
 
 ```ts
-channel<(id: string) => User>({ args: z.tuple([z.string().uuid()]) });
+channel<(id: string) => User>({ args: z.tuple([z.string().uuid()]) })
 ```
 
 校验失败时 `invoke` 以错误拒绝，`send` 丢弃并 `console.error`。
@@ -294,7 +298,7 @@ channel<(id: string) => User>({ args: z.tuple([z.string().uuid()]) });
 interface Window {
   $ipc: import('@quiteer/electron-ipc/web').WithIpcChannels<
     import('@quiteer/electron-preload').PreloadIpc
-  >;
+  >
 }
 ```
 
@@ -305,7 +309,7 @@ interface Window {
 - [ ] （可选）业务通道迁到 `defineContract`，并删掉对应的旧 `ipcMain.handle` / `ipcMain.on`
 - [ ] （可选）preload 白名单改为 `channelsOf(api)`
 
-## 一起升级的推荐顺序
+## 一起升级的推荐顺序 {#一起升级的推荐顺序}
 
 1. 升级依赖：`electron >= 44`、`@quiteer/electron-preload@^3`、`@quiteer/electron-ipc@^3.2`。
 2. 主进程 `app.whenReady()` 之后调用 `Ipc.init({ allowedOrigins })`。

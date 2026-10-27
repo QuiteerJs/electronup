@@ -27,6 +27,18 @@ class Emitter {
   }
 }
 
+declare global {
+  // electron 对 NodeJS.Process 的扩充; 测试的类型检查用替身代替 electron, 需要在这里补上
+  namespace NodeJS {
+    interface Process {
+      defaultApp?: boolean;
+    }
+  }
+}
+
+/** 对应 Electron.Event */
+export type Event = ReturnType<typeof createEvent>;
+
 /** 可被 preventDefault 的事件对象 */
 export function createEvent(): { defaultPrevented: boolean; preventDefault: () => void } {
   const event = {

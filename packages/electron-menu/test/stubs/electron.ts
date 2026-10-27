@@ -23,6 +23,21 @@ export interface StubMenuItemOptions {
 
 export type MenuItemConstructorOptions = StubMenuItemOptions;
 
+/** 只作类型使用, 对应 electron 的同名类型 */
+export interface BaseWindow {
+  id: number;
+}
+
+export interface PopupOptions {
+  window?: BaseWindow;
+  x?: number;
+  y?: number;
+  positioningItem?: number;
+  callback?: () => void;
+}
+
+type Listener = (...args: any[]) => void;
+
 export class MenuItem {
   id = '';
   label = '';
@@ -51,7 +66,7 @@ export class Menu {
   items: MenuItem[] = [];
   popped: unknown[] = [];
   closed = 0;
-  listeners: Record<string, ((...args: unknown[]) => void)[]> = {};
+  listeners: Record<string, Listener[]> = {};
 
   /** setApplicationMenu 调用次数, 用于验证平台刷新差异 */
   static applyCount = 0;
@@ -108,24 +123,24 @@ export class Menu {
     return null;
   }
 
-  popup(options?: unknown): void {
+  popup(options?: PopupOptions): void {
     this.popped.push(options);
   }
 
-  closePopup(): void {
+  closePopup(_window?: BaseWindow): void {
     this.closed++;
   }
 
-  on(event: string, listener: (...args: unknown[]) => void): this {
+  on(event: string, listener: Listener): this {
     (this.listeners[event] ||= []).push(listener);
     return this;
   }
 
-  once(event: string, listener: (...args: unknown[]) => void): this {
+  once(event: string, listener: Listener): this {
     return this.on(event, listener);
   }
 
-  off(event: string, listener: (...args: unknown[]) => void): this {
+  off(event: string, listener: Listener): this {
     this.listeners[event] = (this.listeners[event] ?? []).filter((fn) => fn !== listener);
     return this;
   }

@@ -1,8 +1,12 @@
 import type {
   DisplayBalloonOptions,
+  Event,
+  KeyboardEvent,
   Menu,
   MenuItemConstructorOptions,
   NativeImage,
+  Point,
+  Rectangle,
   Size,
   TitleOptions,
   Tray,
@@ -51,9 +55,9 @@ export interface TrayEventContext<N extends string = string, S extends string = 
 /** 点击类事件回调, 带事件坐标 (click) */
 export type TrayClickHandler<N extends string = string, S extends string = string> = (
   ctx: TrayEventContext<N, S>,
-  event: Electron.KeyboardEvent,
-  bounds: Electron.Rectangle,
-  position: Electron.Point,
+  event: KeyboardEvent,
+  bounds: Rectangle,
+  position: Point,
 ) => void;
 
 /**
@@ -63,8 +67,8 @@ export type TrayClickHandler<N extends string = string, S extends string = strin
  */
 export type TrayBoundsClickHandler<N extends string = string, S extends string = string> = (
   ctx: TrayEventContext<N, S>,
-  event: Electron.KeyboardEvent,
-  bounds: Electron.Rectangle,
+  event: KeyboardEvent,
+  bounds: Rectangle,
 ) => void;
 
 /** 无参事件回调 (balloon-* / drop 等) */
@@ -75,7 +79,7 @@ export type TraySimpleHandler<N extends string = string, S extends string = stri
 /** 文件拖放事件回调 */
 export type TrayDropFilesHandler<N extends string = string, S extends string = string> = (
   ctx: TrayEventContext<N, S>,
-  event: Electron.Event,
+  event: Event,
   files: string[],
 ) => void;
 

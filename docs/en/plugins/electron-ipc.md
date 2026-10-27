@@ -4,7 +4,7 @@ title: electron-ipc
 
 # @quiteer/electron-ipc
 
-> Part of the [electron-modules](https://github.com/QuiteerJs/electron-modules) family, designed to work with electronup. Source: [packages/ipc](https://github.com/QuiteerJs/electron-modules/tree/main/packages/ipc).
+> One of the Electron runtime packages maintained in the electronup repository, designed to work with electronup. Source: [packages/electron-ipc](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-ipc).
 
 Preset IPC channels for an Electron main process: one `init()` call lets the renderer control its own window and call `node:path` helpers.
 

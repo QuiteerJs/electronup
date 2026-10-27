@@ -4,7 +4,7 @@ title: electron-browser
 
 # @quiteer/electron-browser
 
-> Part of the [electron-modules](https://github.com/QuiteerJs/electron-modules) family, designed to work with electronup. Source: [packages/browser](https://github.com/QuiteerJs/electron-modules/tree/main/packages/browser).
+> One of the Electron runtime packages maintained in the electronup repository, designed to work with electronup. Source: [packages/electron-browser](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-browser).
 
 Window management for the Electron main process: central registration, lookups anywhere and reactive properties.
 

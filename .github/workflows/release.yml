@@ -1,12 +1,14 @@
 name: Release
 
-# 推送 electronup-v<版本> / create-electronup-v<版本> 标签后发布对应的包到 npm
+# 推送 electronup-v<版本> / create-electronup-v<版本> / electron-<模块>-v<版本> 标签后发布对应的包到 npm
+# 模块包标签去掉 @quiteer/ scope , 如 electron-ipc-v3.2.0 发布 @quiteer/electron-ipc@3.2.0
 # 使用 npm Trusted Publishing ( OIDC ) : 不需要 NPM_TOKEN , 发布物自动附带 provenance
 on:
   push:
     tags:
       - 'electronup-v*'
       - 'create-electronup-v*'
+      - 'electron-*-v*'
 
 permissions:
   contents: read
@@ -48,10 +50,13 @@ jobs:
           case "$GITHUB_REF_NAME" in
             electronup-v*) name=electronup ;;
             create-electronup-v*) name=create-electronup ;;
+            electron-*-v*) name="@quiteer/${GITHUB_REF_NAME%-v*}" ;;
             *) echo "unknown tag $GITHUB_REF_NAME" && exit 1 ;;
           esac
+          dir="packages/${name#@quiteer/}"
+          test -f "$dir/package.json" || { echo "no package for tag $GITHUB_REF_NAME" && exit 1; }
           echo "name=$name" >> "$GITHUB_OUTPUT"
-          echo "dir=packages/$name" >> "$GITHUB_OUTPUT"
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -65,6 +70,10 @@ jobs:
 
       - name: Build electronup CLI
         run: pnpm --filter electronup build
+
+      # electron-preload 的 index.d.cts 与 modules-smoke 的类型引用 dist , lint 前需先构建
+      - name: Build electron-* modules
+        run: pnpm modules:build
 
       - name: Lint
         run: pnpm lint

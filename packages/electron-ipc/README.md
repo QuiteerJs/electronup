@@ -4,7 +4,7 @@ Electron 主进程 IPC 预设通道：一次 `init()`，渲染进程即可安全
 
 包内不持有任何全局状态，所有窗口操作都来自 `event.sender` 定位的窗口，渲染进程无法越权操作别的窗口。
 
-> 从 3.1 升级请看 [升级指南](https://github.com/QuiteerJs/electron-modules/blob/main/docs/migration.md#electron-ipc-31--32)：3.2 起内置通道默认只接受主 frame 的调用；也介绍了如何把现有通道迁到 IPC 契约。
+> 从 3.1 升级请看 [升级指南](https://quiteerjs.github.io/electronup/plugins/migration#electron-ipc-31--32)：3.2 起内置通道默认只接受主 frame 的调用；也介绍了如何把现有通道迁到 IPC 契约。
 
 ## 安装
 
@@ -264,7 +264,7 @@ Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] });
 | `allowedOrigins` | 允许的页面来源，`file://` 按协议匹配，其余按 `URL.origin` 精确匹配 |
 | `validateSender` | `(event) => boolean`，传入后替代默认校验（包括主 frame 检查）      |
 
-配合 [@quiteer/electron-preload](https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload) 使用时，内置通道默认已在其通道白名单内。
+配合 [@quiteer/electron-preload](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-preload) 使用时，内置通道默认已在其通道白名单内。
 
 契约相关：
 
