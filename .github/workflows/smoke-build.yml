@@ -115,6 +115,10 @@ jobs:
       - name: Build electronup CLI
         run: pnpm --filter electronup build
 
+      # electronup-test 把 workspace 的 electron-ipc 打进主进程 , 需要先有它的 dist
+      - name: Build electron-* modules
+        run: pnpm modules:build
+
       - name: Run unit tests ( all packages )
         run: pnpm test
 
@@ -208,6 +212,10 @@ jobs:
 
       - name: Build electronup CLI
         run: pnpm --filter electronup build
+
+      # electronup-test 把 workspace 的 electron-ipc 打进主进程 , 需要先有它的 dist
+      - name: Build electron-* modules
+        run: pnpm modules:build
 
       - name: Generate self-signed code signing certificate
         shell: powershell

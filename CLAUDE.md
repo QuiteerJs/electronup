@@ -17,7 +17,7 @@ pnpm --filter electronup build
 pnpm docs:build
 ```
 
-端到端（先构建 CLI）：
+端到端（先构建 CLI 与模块包：`pnpm --filter electronup build && pnpm modules:build`）：
 
 ```bash
 cd playground/electronup-test

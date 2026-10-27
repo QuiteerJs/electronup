@@ -43,7 +43,7 @@ $env:ELECTRON_CUSTOM_DIR = '{{ version }}'
 | 构建模块包 | `pnpm modules:build`（lint 前需先构建：preload 的 `index.d.cts` 与 playground 引用 dist） |
 | 文档开发 / 构建 | `pnpm docs:dev` / `pnpm docs:build` |
 | 示例项目构建（走 workspace bin） | `pnpm --filter electronup-test build:web` / `build:dir` |
-| 端到端（与 CI 一致，直连 dist） | 先 `pnpm --filter electronup build`，再进入 `playground/electronup-test` 执行 `node ../../packages/electronup/dist/bin/electronup.mjs build --web`（或 `--dir`） |
+| 端到端（与 CI 一致，直连 dist） | 先 `pnpm --filter electronup build` 与 `pnpm modules:build`（示例会打包 workspace 的 electron-ipc），再进入 `playground/electronup-test` 执行 `node ../../packages/electronup/dist/bin/electronup.mjs build --web`（或 `--dir`） |
 | 发布物自检 | `pnpm --filter electronup pack --pack-destination <临时目录>`，确认 tarball 只含 `dist` 与 README/LICENSE/package.json |
 | 交互式提交 | `pnpm commit`（`qui gc`） |
 
