@@ -151,5 +151,5 @@ interface ExpandPreloadIpc {
 }
 
 export type { ExpandPreloadIpc };
-export * from './eventKays';
+export * from './eventKeys';
 export * from './options';

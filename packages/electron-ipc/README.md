@@ -129,16 +129,21 @@ ipcMain.on('custom', (event) => {
 
 ## API
 
-`Ipc` 是单例，直接取用即可。
+`Ipc` 是模块级单例，直接取用即可。
 
-| 成员            | 说明                                       |
-| --------------- | ------------------------------------------ |
-| `Ipc.init()`    | 注册两个内置通道的监听与处理器             |
-| `Ipc.destroy()` | 注销监听与处理器，应用退出前或热重载时调用 |
+| 成员              | 说明                                             |
+| ----------------- | ------------------------------------------------ |
+| `Ipc.init()`      | 注册两个内置通道的监听与处理器，重复调用无副作用 |
+| `Ipc.destroy()`   | 注销本包注册的监听与处理器，之后可再次 `init()`  |
+| `Ipc.initialized` | 当前是否已注册                                   |
+
+主入口同时导出 `EventKeys`、`IpcWindowOptions`、`IpcFileOptions`，主进程里需要引用通道名时不必再走 `/web`。
 
 ## 注意事项
 
-- 只需在主进程 `app.whenReady()` 之后 `init()`；重复 `init()` 会叠加 `ipcMain.on` 监听，建议与 `destroy()` 成对使用。
+- 只需在主进程 `app.whenReady()` 之后 `init()`；`init()` 是幂等的，热重载时可先 `destroy()` 再 `init()`。
+- `destroy()` 只移除本包自己的监听，业务方挂在同名通道上的回调不受影响。
+- 渲染层传入未知操作时：窗口通道静默忽略，路径通道 `invoke` 会以错误拒绝。
 - 窗口类操作只作用于发起调用的窗口，渲染进程无法指定其他窗口——这是刻意的约束。
 - 通道常量统一走 `EventKeys`，不要手写字符串，避免拼写漂移。
 - 包为 ESM-only：主进程需使用 ESM，或交由打包器（electron-builder / vite / esbuild）一起编译。CJS 主进程直接 `require()` 会抛 `ERR_PACKAGE_PATH_NOT_EXPORTED`。

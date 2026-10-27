@@ -1,5 +1,4 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["*.ts", "*.d.ts", "enums", "ipcBus"],
-  "exclude": ["vite.config.ts"]
+  "include": ["src"]
 }
