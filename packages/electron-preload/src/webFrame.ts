@@ -1,5 +1,5 @@
-import type { WebFrame } from 'electron';
-import { webFrame } from 'electron';
+import type { WebFrame } from 'electron'
+import { webFrame } from 'electron'
 
 /**
  * 只保留不会越过 contextIsolation 的能力
@@ -8,19 +8,19 @@ import { webFrame } from 'electron';
  */
 export interface PreloadWebFrame {
   /** 更改缩放倍数, 1 为原始比例 */
-  setZoomFactor(factor: number): void;
+  setZoomFactor(factor: number): void
   /** 当前缩放倍数 */
-  getZoomFactor(): number;
+  getZoomFactor(): number
   /** 更改缩放等级 */
-  setZoomLevel(level: number): void;
+  setZoomLevel(level: number): void
   /** 当前缩放等级 */
-  getZoomLevel(): number;
+  getZoomLevel(): number
   /** 向焦点元素插入文本 */
-  insertText(text: string): void;
+  insertText(text: string): void
   /** 资源占用 */
-  getResourceUsage(): ReturnType<WebFrame['getResourceUsage']>;
+  getResourceUsage(): ReturnType<WebFrame['getResourceUsage']>
   /** 清空缓存 */
-  clearCache(): void;
+  clearCache(): void
 }
 
 export const $webFrame: PreloadWebFrame = {
@@ -31,4 +31,4 @@ export const $webFrame: PreloadWebFrame = {
   insertText: (text) => webFrame.insertText(text),
   getResourceUsage: () => webFrame.getResourceUsage(),
   clearCache: () => webFrame.clearCache(),
-};
+}

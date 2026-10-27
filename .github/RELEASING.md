@@ -2,6 +2,16 @@
 
 固定分为准备与上传两步：agent 完成版本、检查与提交，合入 main；维护者推送版本标签后，由 `.github/workflows/release.yml` 自动发布到 npm（也可以在包目录手动 `pnpm publish`）。不再提供将这些动作串联的 `release` 命令。
 
+## 两条流程各管哪些包
+
+| 包 | 升版 | CHANGELOG | 标签 |
+| --- | --- | --- | --- |
+| `electronup` | `pnpm version:core`（bumpp） | `pnpm changelog`（`qui cl`，按提交生成到根目录 CHANGELOG） | `electronup-v<版本>` |
+| `create-electronup` | `pnpm version:scaffold`（bumpp） | 同上 | `create-electronup-v<版本>` |
+| `@quiteer/electron-*` | `pnpm version:modules`（changesets） | changesets 写入各包自己的 `CHANGELOG.md` | `electron-<模块>-v<版本>` |
+
+下面第 1 到 4 节是核心包流程，模块包见最后一节。两条流程互不影响：`.changeset/config.json` 忽略了 electronup 与 create-electronup，`qui cl` 也不要用来生成模块包的 CHANGELOG。
+
 ## 1. 确定版本
 
 在仓库根目录查询官方注册表，确认新版本未被使用：

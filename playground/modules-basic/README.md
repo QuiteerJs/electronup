@@ -1,10 +1,10 @@
-# playground/basic
+# playground/modules-basic
 
 把 `@quiteer/electron-app` / `electron-browser` / `electron-ipc` / `electron-preload` 串起来的最小可运行示例，全程 `sandbox: true`。
 
 ```bash
 pnpm install
-pnpm build                                  # 先构建 packages/*
+pnpm modules:build                          # 先构建 packages/electron-*
 pnpm --filter @quiteer/playground-basic start
 ```
 

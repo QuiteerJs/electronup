@@ -1,8 +1,14 @@
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from 'node:url'
 
-import { defineConfig } from 'vite-plus';
+import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
+  test: {
+    // 单元测试不启动 electron , 统一换成 test/stubs 下的替身
+    alias: {
+      electron: fileURLToPath(new URL('test/stubs/electron.ts', import.meta.url)),
+    },
+  },
   pack: [
     {
       name: 'electron-preload',
@@ -27,23 +33,5 @@ export default defineConfig({
       minify: true,
       deps: { neverBundle: ['electron'] },
     },
-    {
-      name: 'electron-preload-test',
-      entry: [
-        fileURLToPath(new URL('test/preload.test.ts', import.meta.url)),
-        fileURLToPath(new URL('test/main.test.ts', import.meta.url)),
-      ],
-      outDir: fileURLToPath(new URL('test/.out', import.meta.url)),
-      alias: {
-        electron: fileURLToPath(new URL('test/stubs/electron.ts', import.meta.url)),
-      },
-      // electron 是 peerDependency, 默认不打包; 测试需要把它换成替身打进去
-      deps: { alwaysBundle: ['electron'] },
-      dts: false,
-      format: 'esm',
-      fixedExtension: false,
-      platform: 'node',
-      clean: true,
-    },
   ],
-});
+})

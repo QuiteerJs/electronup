@@ -1,11 +1,7 @@
-import { Menu, app } from 'electron';
-import type {
-  BaseWindow,
-  MenuItem as MenuItemType,
-  Menu as MenuType,
-} from 'electron';
+import { Menu, app } from 'electron'
+import type { BaseWindow, MenuItem as MenuItemType, Menu as MenuType } from 'electron'
 
-import { findItem, normalizeTemplate } from './path';
+import { findItem, normalizeTemplate } from './path'
 import type {
   MenuController,
   MenuItemHandle,
@@ -14,26 +10,26 @@ import type {
   MenuOptions,
   MenuTemplate,
   MenuTemplateInput,
-} from './types';
+} from './types'
 
 /** 菜单内部状态, 通过 WeakMap 与控制句柄关联, 不进入公开类型 */
 export interface MenuState<N extends string = string> {
-  name: N;
-  kind: MenuKind;
+  name: N
+  kind: MenuKind
   /** 当前原生菜单实例, refresh() 后会替换为新实例 */
-  menu: MenuType;
-  template: MenuTemplateInput | undefined;
-  window: BaseWindow | undefined;
-  controller: MenuController<N> | undefined;
+  menu: MenuType
+  template: MenuTemplateInput | undefined
+  window: BaseWindow | undefined
+  controller: MenuController<N> | undefined
   /** 由仓库注入, destroy() 时回调以摘除注册 */
-  onDestroy: ((name: N) => void) | undefined;
+  onDestroy: ((name: N) => void) | undefined
 }
 
-const states = new WeakMap<object, MenuState<any>>();
+const states = new WeakMap<object, MenuState<any>>()
 
 /** 取控制句柄关联的内部状态 */
 export function getMenuState<N extends string>(controller: MenuController<N>): MenuState<N> {
-  return states.get(controller) as MenuState<N>;
+  return states.get(controller) as MenuState<N>
 }
 
 /** 构造菜单内部状态 */
@@ -49,23 +45,23 @@ export function createMenuState<N extends string>(
     controller: undefined,
     onDestroy: undefined,
     ...init,
-  };
+  }
 }
 
 /** 求值模板, 函数模板在此刻执行 */
 function resolveTemplate(template: MenuTemplateInput | undefined): MenuTemplate | undefined {
   if (template === undefined) {
-    return undefined;
+    return undefined
   }
-  return typeof template === 'function' ? template() : template;
+  return typeof template === 'function' ? template() : template
 }
 
 /** 按模板构建原生菜单, 自动补全 id */
 function buildMenu(template: MenuTemplate | undefined): MenuType {
   if (template === undefined) {
-    return Menu.buildFromTemplate([]);
+    return Menu.buildFromTemplate([])
   }
-  return Menu.buildFromTemplate(normalizeTemplate(template));
+  return Menu.buildFromTemplate(normalizeTemplate(template))
 }
 
 /**
@@ -77,9 +73,9 @@ function buildMenu(template: MenuTemplate | undefined): MenuType {
  */
 function applyMenu(menu: MenuType, kind: MenuKind): void {
   if (kind === 'application') {
-    Menu.setApplicationMenu(menu);
+    Menu.setApplicationMenu(menu)
   } else if (kind === 'dock') {
-    app.dock?.setMenu(menu);
+    app.dock?.setMenu(menu)
   }
 }
 
@@ -91,9 +87,9 @@ function applyMenu(menu: MenuType, kind: MenuKind): void {
  */
 function needsReapply(kind: MenuKind): boolean {
   if (process.platform === 'darwin') {
-    return kind === 'dock';
+    return kind === 'dock'
   }
-  return kind === 'application';
+  return kind === 'application'
 }
 
 /**
@@ -102,7 +98,7 @@ function needsReapply(kind: MenuKind): boolean {
  * 自动补全模板项 id, 使每一项都能被点分路径定位
  */
 export function createMenu<N extends string>(options: MenuOptions<N>): MenuType {
-  return buildMenu(resolveTemplate(options.template));
+  return buildMenu(resolveTemplate(options.template))
 }
 
 /**
@@ -116,24 +112,24 @@ export function toController<N extends string>(
   menu: MenuType,
   state: MenuState<N>,
 ): MenuController<N> {
-  state.menu = menu;
+  state.menu = menu
 
   /** 重新应用菜单, 仅当平台需要时 */
   const reapply = (): void => {
     if (needsReapply(state.kind)) {
-      applyMenu(state.menu, state.kind);
+      applyMenu(state.menu, state.kind)
     }
-  };
+  }
 
   /** 按模板重建菜单, 模板为函数时重新求值 */
   const rebuild = (): void => {
-    const template = resolveTemplate(state.template);
+    const template = resolveTemplate(state.template)
     if (template === undefined) {
-      return;
+      return
     }
-    state.menu = buildMenu(template);
-    applyMenu(state.menu, state.kind);
-  };
+    state.menu = buildMenu(template)
+    applyMenu(state.menu, state.kind)
+  }
 
   /** 把原生 MenuItem 包装成响应式句柄 */
   const toHandle = (menuItem: MenuItemType, path: string): MenuItemHandle => {
@@ -142,79 +138,79 @@ export function toController<N extends string>(
         switch (key) {
           case 'target':
           case 'raw':
-            return target;
+            return target
           case 'path':
-            return path;
+            return path
           case 'update':
             return (patch: MenuItemPatch): void => {
-              const record = target as unknown as Record<string, unknown>;
+              const record = target as unknown as Record<string, unknown>
               for (const [prop, value] of Object.entries(patch)) {
-                record[prop] = value;
+                record[prop] = value
               }
-              reapply();
-            };
+              reapply()
+            }
         }
 
-        const value = Reflect.get(target, key);
-        return typeof value === 'function' ? value.bind(target) : value;
+        const value = Reflect.get(target, key)
+        return typeof value === 'function' ? value.bind(target) : value
       },
       set(target, key, value) {
         if (key === 'target' || key === 'raw' || key === 'path' || key === 'update') {
-          return false;
+          return false
         }
-        Reflect.set(target, key, value);
-        reapply();
-        return true;
+        Reflect.set(target, key, value)
+        reapply()
+        return true
       },
-    }) as MenuItemHandle;
-  };
+    }) as MenuItemHandle
+  }
 
   const controller: MenuController<N> = {
     get name() {
-      return state.name;
+      return state.name
     },
     get kind() {
-      return state.kind;
+      return state.kind
     },
     get target() {
-      return state.menu;
+      return state.menu
     },
     get template() {
-      return state.template;
+      return state.template
     },
     set template(next: MenuTemplateInput | undefined) {
-      state.template = next;
+      state.template = next
     },
 
     item: (path) => {
-      const found = findItem(state.menu, path);
-      return found ? toHandle(found, path) : undefined;
+      const found = findItem(state.menu, path)
+      return found ? toHandle(found, path) : undefined
     },
     update: (path, patch) => {
-      const found = findItem(state.menu, path);
+      const found = findItem(state.menu, path)
       if (!found) {
-        return false;
+        return false
       }
-      toHandle(found, path).update(patch);
-      return true;
+      toHandle(found, path).update(patch)
+      return true
     },
     items: () => state.menu.items.map((item, index) => toHandle(item, item.id || `${index}`)),
     get: (id) => {
-      const found = state.menu.getMenuItemById(id);
-      return found ? toHandle(found, id) : undefined;
+      const found = state.menu.getMenuItemById(id)
+      return found ? toHandle(found, id) : undefined
     },
     append: (item) => {
-      state.menu.append(item);
-      reapply();
+      state.menu.append(item)
+      reapply()
     },
     insert: (pos, item) => {
-      state.menu.insert(pos, item);
-      reapply();
+      state.menu.insert(pos, item)
+      reapply()
     },
     refresh: rebuild,
     apply: () => applyMenu(state.menu, state.kind),
     popup: (options) => {
-      state.menu.popup(options ?? (state.window ? { window: state.window } : undefined));
+      state.menu.popup(options ?? (state.window ? { window: state.window } : undefined))
     },
     closePopup: (window) => state.menu.closePopup(window),
     on: (event, listener) =>
@@ -230,11 +226,11 @@ export function toController<N extends string>(
         ? state.menu.off('menu-will-show', listener)
         : state.menu.off('menu-will-close', listener),
     destroy: () => {
-      state.onDestroy?.(state.name);
+      state.onDestroy?.(state.name)
     },
-  };
+  }
 
-  states.set(controller, state);
-  state.controller = controller;
-  return controller;
+  states.set(controller, state)
+  state.controller = controller
+  return controller
 }

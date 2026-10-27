@@ -1,7 +1,7 @@
-import type { BaseWindow, Menu as MenuType, PopupOptions } from 'electron';
+import type { BaseWindow, Menu as MenuType, PopupOptions } from 'electron'
 
-import { createMenu, createMenuState, toController } from './menu';
-import { MenuStore } from './store';
+import { createMenu, createMenuState, toController } from './menu'
+import { MenuStore } from './store'
 import type {
   MenuConflictStrategy,
   MenuController,
@@ -9,44 +9,44 @@ import type {
   MenuItemPatch,
   MenuKind,
   MenuOptions,
-} from './types';
+} from './types'
 
 export interface MenuManager<N extends string = string> {
   /** 菜单仓库 */
-  store: MenuStore<N>;
+  store: MenuStore<N>
   /** 已注册菜单数量 */
-  readonly size: number;
+  readonly size: number
   /** 创建菜单并注册 */
-  create: (options: MenuOptions<N>) => MenuController<N>;
+  create: (options: MenuOptions<N>) => MenuController<N>
   /** 把外部创建的菜单纳入管理 */
-  register: (name: N, menu: MenuType, kind?: MenuKind) => MenuController<N>;
+  register: (name: N, menu: MenuType, kind?: MenuKind) => MenuController<N>
   /** 按名取原生菜单实例 */
-  get: (name: N) => MenuType | undefined;
+  get: (name: N) => MenuType | undefined
   /** 按名取控制句柄 */
-  getController: (name: N) => MenuController<N> | undefined;
+  getController: (name: N) => MenuController<N> | undefined
   /** 按名取原生菜单实例, 不存在时抛错 */
-  getOrThrow: (name: N) => MenuType;
+  getOrThrow: (name: N) => MenuType
   /** 按点分路径取菜单项句柄 */
-  item: (name: N, path: string) => MenuItemHandle | undefined;
+  item: (name: N, path: string) => MenuItemHandle | undefined
   /** 按点分路径更新菜单项 */
-  update: (name: N, path: string, patch: MenuItemPatch) => boolean;
+  update: (name: N, path: string, patch: MenuItemPatch) => boolean
   /** 按模板重建菜单 */
-  refresh: (name: N) => boolean;
+  refresh: (name: N) => boolean
   /** 重新应用菜单 */
-  apply: (name: N) => boolean;
+  apply: (name: N) => boolean
   /** 弹出上下文菜单 */
-  popup: (name: N, options?: PopupOptions) => boolean;
+  popup: (name: N, options?: PopupOptions) => boolean
   /** 关闭已弹出的上下文菜单 */
-  closePopup: (name: N, window?: BaseWindow) => boolean;
-  has: (name: N) => boolean;
+  closePopup: (name: N, window?: BaseWindow) => boolean
+  has: (name: N) => boolean
   /** 摘除注册 */
-  destroy: (name: N) => boolean;
+  destroy: (name: N) => boolean
   /** 摘除所有注册 */
-  destroyAll: () => void;
+  destroyAll: () => void
   /** 所有原生菜单实例 */
-  list: () => MenuType[];
+  list: () => MenuType[]
   /** 所有菜单名称 */
-  names: () => N[];
+  names: () => N[]
 }
 
 /**
@@ -67,33 +67,33 @@ export interface MenuManager<N extends string = string> {
  * ```
  */
 export function createMenuManager<N extends string = string>(): MenuManager<N> {
-  const store = new MenuStore<N>();
+  const store = new MenuStore<N>()
 
   const withController = (name: N, fn: (controller: MenuController<N>) => void): boolean => {
-    const controller = store.getController(name);
+    const controller = store.getController(name)
     if (!controller) {
-      return false;
+      return false
     }
-    fn(controller);
-    return true;
-  };
+    fn(controller)
+    return true
+  }
 
   const create = (options: MenuOptions<N>): MenuController<N> => {
-    const strategy: MenuConflictStrategy = options.conflict ?? 'reuse';
-    const existing = store.getController(options.name);
+    const strategy: MenuConflictStrategy = options.conflict ?? 'reuse'
+    const existing = store.getController(options.name)
 
     if (existing) {
       if (strategy === 'error') {
-        throw new Error(`[electron-menu] 菜单 "${options.name}" 已存在`);
+        throw new Error(`[electron-menu] 菜单 "${options.name}" 已存在`)
       }
       if (strategy === 'reuse') {
-        return existing;
+        return existing
       }
-      store.remove(options.name);
+      store.remove(options.name)
     }
 
-    const kind: MenuKind = options.kind ?? 'application';
-    const menu = createMenu(options);
+    const kind: MenuKind = options.kind ?? 'application'
+    const menu = createMenu(options)
     const controller = toController(
       menu,
       createMenuState<N>(options.name, {
@@ -102,36 +102,36 @@ export function createMenuManager<N extends string = string>(): MenuManager<N> {
         template: options.template,
         window: options.window,
       }),
-    );
+    )
 
     if (options.apply !== false && kind !== 'context') {
-      controller.apply();
+      controller.apply()
     }
 
-    return store.register(options.name, controller);
-  };
+    return store.register(options.name, controller)
+  }
 
   const getOrThrow = (name: N): MenuType => {
-    const menu = store.get(name);
+    const menu = store.get(name)
     if (!menu) {
-      throw new Error(`[electron-menu] 菜单 "${name}" 不存在`);
+      throw new Error(`[electron-menu] 菜单 "${name}" 不存在`)
     }
-    return menu;
-  };
+    return menu
+  }
 
   const destroy = (name: N): boolean => {
-    const controller = store.getController(name);
+    const controller = store.getController(name)
     if (!controller) {
-      return false;
+      return false
     }
-    controller.destroy();
-    return true;
-  };
+    controller.destroy()
+    return true
+  }
 
   return {
     store,
     get size() {
-      return store.size;
+      return store.size
     },
     create,
     register: (name, menu, kind = 'application') =>
@@ -151,5 +151,5 @@ export function createMenuManager<N extends string = string>(): MenuManager<N> {
     destroyAll: () => store.destroyAll(),
     list: () => store.list(),
     names: () => store.names(),
-  };
+  }
 }

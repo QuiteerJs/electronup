@@ -26,3 +26,19 @@ electronup 本身只负责构建流程；下面这些包按需安装，用于创
 从旧版本升级 electron-preload / electron-ipc 请看[升级指南](./migration)。
 
 这些运行时包不依赖 electronup 的命令行，也不影响构建产物目录；请根据自己的主进程入口按需引入。
+
+### 在 electronup 项目里安装
+
+electronup 把主进程打成 CJS（`electron.cjs`），`dependencies` 里的包不会打进产物，而是在运行期 `require`。除 electron-preload 外，这些包都是纯 ESM，`require` 会报 `ERR_PACKAGE_PATH_NOT_EXPORTED`，所以：
+
+| 包 | 放在 | 原因 |
+| --- | --- | --- |
+| electron-ipc / browser / menu / tray / app / shortcut | `devDependencies` | electronup 会把 devDependencies 打进 `electron.cjs`，安装包里也不用再带一份 |
+| electron-preload | `dependencies` | `preloadPath` / `createPreload()` 指向包里预构建的 `index.cjs`，运行期必须能找到这个文件，由 electron-builder 打进安装包 |
+
+```bash
+pnpm add -D @quiteer/electron-ipc @quiteer/electron-browser
+pnpm add @quiteer/electron-preload
+```
+
+已经放在 `dependencies` 里的话，也可以在 `electronup.config.ts` 的 `packConfig.noExternal` 里列出它们，让 electronup 打包进主进程。使用 electron-preload 时不需要再在 electronup 的 `preload` 配置里构建它。

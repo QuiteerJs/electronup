@@ -1,11 +1,11 @@
-import { basename, dirname, extname, join, parse, relative, resolve } from 'node:path';
+import { basename, dirname, extname, join, parse, relative, resolve } from 'node:path'
 
-import type { BrowserWindow } from 'electron';
+import type { BrowserWindow } from 'electron'
 
-import { IpcFileOptions, IpcWindowOptions } from './options';
+import { IpcFileOptions, IpcWindowOptions } from './options'
 
-type WindowHandler = (win: BrowserWindow, ...args: any[]) => void;
-type FileHandler = (...args: any[]) => unknown;
+type WindowHandler = (win: BrowserWindow, ...args: any[]) => void
+type FileHandler = (...args: any[]) => unknown
 
 /**
  * 窗口操作表, 操作对象恒为发起调用的窗口
@@ -34,23 +34,23 @@ export const windowHandlers: Record<IpcWindowOptions, WindowHandler> = {
   // 可以切换的事件
   [IpcWindowOptions.SWITCH_FOCUS]: (win) => {
     if (win.isFocused()) {
-      win.blur();
+      win.blur()
     } else {
-      win.focus();
+      win.focus()
     }
   },
   [IpcWindowOptions.SWITCH_MAX]: (win) => {
     if (win.isMaximized()) {
-      win.unmaximize();
+      win.unmaximize()
     } else {
-      win.maximize();
+      win.maximize()
     }
   },
   [IpcWindowOptions.SWITCH_MIN]: (win) => {
     if (win.isMinimized()) {
-      win.restore();
+      win.restore()
     } else {
-      win.minimize();
+      win.minimize()
     }
   },
   [IpcWindowOptions.SWITCH_FULL]: (win) => win.setFullScreen(!win.isFullScreen()),
@@ -60,7 +60,7 @@ export const windowHandlers: Record<IpcWindowOptions, WindowHandler> = {
   [IpcWindowOptions.SWITCH_MINIMIZABLE]: (win) => win.setMinimizable(!win.isMinimizable()),
   [IpcWindowOptions.SWITCH_MAXIMIZABLE]: (win) => win.setMaximizable(!win.isMaximizable()),
   [IpcWindowOptions.SWITCH_ALWAYS_ON_TOP]: (win) => win.setAlwaysOnTop(!win.isAlwaysOnTop()),
-};
+}
 
 /** 路径操作表, 等价于 node:path 同名方法 */
 export const fileHandlers: Record<IpcFileOptions, FileHandler> = {
@@ -71,12 +71,12 @@ export const fileHandlers: Record<IpcFileOptions, FileHandler> = {
   [IpcFileOptions.PARSE]: (path: string) => parse(path),
   [IpcFileOptions.RELATIVE]: (from: string, to: string) => relative(from, to),
   [IpcFileOptions.RESOLVE]: (...paths: string[]) => resolve(...paths),
-};
+}
 
 /** 只认自有键, 防止渲染层传入 `toString` / `__proto__` 之类命中原型链 */
 export function pick<T extends Record<string, unknown>>(
   table: T,
   key: unknown,
 ): T[keyof T] | undefined {
-  return typeof key === 'string' && Object.hasOwn(table, key) ? table[key as keyof T] : undefined;
+  return typeof key === 'string' && Object.hasOwn(table, key) ? table[key as keyof T] : undefined
 }

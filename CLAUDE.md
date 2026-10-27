@@ -10,14 +10,14 @@ electronup monorepo：`packages/electronup` 是核心 CLI/构建工具（Vite + 
 
 ```bash
 pnpm install            # 只用 pnpm（packageManager: pnpm@10.30.3）
-pnpm test               # 单元测试（vitest 5 + electron-* 包的 node:test）
+pnpm test               # 单元测试（vitest 5，electronup、create-electronup 与 electron-* 包）
 pnpm typecheck          # tsc：electronup、create-electronup 与 electron-* 包
 pnpm lint               # oxlint；不支持 Markdown
 pnpm --filter electronup build
 pnpm docs:build
 ```
 
-端到端（先构建 CLI）：
+端到端（先构建 CLI 与模块包：`pnpm --filter electronup build && pnpm modules:build`）：
 
 ```bash
 cd playground/electronup-test

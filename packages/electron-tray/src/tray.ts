@@ -1,12 +1,12 @@
-import { Menu, Tray } from 'electron';
+import { Menu, Tray } from 'electron'
 import type {
   DisplayBalloonOptions,
   Menu as MenuType,
   TitleOptions,
   Tray as TrayType,
-} from 'electron';
+} from 'electron'
 
-import { isIconMap, resolveIcon } from './icon';
+import { isIconMap, resolveIcon } from './icon'
 import type {
   TrayController,
   TrayEventContext,
@@ -15,32 +15,32 @@ import type {
   TrayIconSource,
   TrayMenuTemplate,
   TrayOptions,
-} from './types';
+} from './types'
 
 /** 托盘内部状态, 通过 WeakMap 与控制器关联, 不进入公开类型 */
 export interface TrayState<N extends string = string, S extends string = string> {
-  name: N;
-  icons: TrayIconMap<S> | undefined;
-  state: S | undefined;
-  icon: TrayIconSource | undefined;
-  tooltip: string | undefined;
-  menuTemplate: TrayMenuTemplate<N, S> | undefined;
-  menu: MenuType | undefined;
-  iconOptions: TrayIconOptions;
-  titleOptions: TitleOptions | undefined;
-  context: TrayEventContext<N, S> | undefined;
-  controller: TrayController<N, S> | undefined;
+  name: N
+  icons: TrayIconMap<S> | undefined
+  state: S | undefined
+  icon: TrayIconSource | undefined
+  tooltip: string | undefined
+  menuTemplate: TrayMenuTemplate<N, S> | undefined
+  menu: MenuType | undefined
+  iconOptions: TrayIconOptions
+  titleOptions: TitleOptions | undefined
+  context: TrayEventContext<N, S> | undefined
+  controller: TrayController<N, S> | undefined
   /** 由仓库注入, destroy() 时回调以摘除注册 */
-  onDestroy: ((name: N) => void) | undefined;
+  onDestroy: ((name: N) => void) | undefined
 }
 
-const states = new WeakMap<object, TrayState<any, any>>();
+const states = new WeakMap<object, TrayState<any, any>>()
 
 /** 取控制器关联的内部状态 */
 export function getTrayState<N extends string, S extends string>(
   controller: TrayController<N, S>,
 ): TrayState<N, S> {
-  return states.get(controller) as TrayState<N, S>;
+  return states.get(controller) as TrayState<N, S>
 }
 
 /** 构造托盘内部状态 */
@@ -62,7 +62,7 @@ export function createTrayState<N extends string, S extends string>(
     controller: undefined,
     onDestroy: undefined,
     ...init,
-  };
+  }
 }
 
 /**
@@ -79,103 +79,103 @@ export function toController<N extends string, S extends string>(
 ): TrayController<N, S> {
   const applyIcon = (source: TrayIconSource | undefined): void => {
     if (source === undefined) {
-      return;
+      return
     }
-    state.icon = source;
+    state.icon = source
     if (!tray.isDestroyed()) {
-      tray.setImage(resolveIcon(source, state.iconOptions));
+      tray.setImage(resolveIcon(source, state.iconOptions))
     }
-  };
+  }
 
   const applyState = (next: S | undefined): void => {
     if (next === undefined) {
-      return;
+      return
     }
-    const source = state.icons?.[next];
+    const source = state.icons?.[next]
     if (source === undefined) {
-      throw new Error(`[electron-tray] 托盘 "${state.name}" 未定义状态 "${next}" 的图标`);
+      throw new Error(`[electron-tray] 托盘 "${state.name}" 未定义状态 "${next}" 的图标`)
     }
-    applyIcon(source);
-    state.state = next;
-  };
+    applyIcon(source)
+    state.state = next
+  }
 
   const buildMenu = (): MenuType | undefined => {
-    const { menuTemplate } = state;
+    const { menuTemplate } = state
     if (menuTemplate === undefined) {
-      return state.menu;
+      return state.menu
     }
 
-    const items = typeof menuTemplate === 'function' ? menuTemplate(state.context!) : menuTemplate;
-    const menu = Menu.buildFromTemplate(items);
-    state.menu = menu;
+    const items = typeof menuTemplate === 'function' ? menuTemplate(state.context!) : menuTemplate
+    const menu = Menu.buildFromTemplate(items)
+    state.menu = menu
     if (!tray.isDestroyed()) {
-      tray.setContextMenu(menu);
+      tray.setContextMenu(menu)
     }
-    return menu;
-  };
+    return menu
+  }
 
   const applyMenu = (next: TrayMenuTemplate<N, S> | MenuType | null): void => {
     if (next === null) {
-      state.menuTemplate = undefined;
-      state.menu = undefined;
+      state.menuTemplate = undefined
+      state.menu = undefined
       if (!tray.isDestroyed()) {
-        tray.setContextMenu(null);
+        tray.setContextMenu(null)
       }
-      return;
+      return
     }
 
     if (next instanceof Menu) {
-      state.menuTemplate = undefined;
-      state.menu = next;
+      state.menuTemplate = undefined
+      state.menu = next
       if (!tray.isDestroyed()) {
-        tray.setContextMenu(next);
+        tray.setContextMenu(next)
       }
-      return;
+      return
     }
 
-    state.menuTemplate = next;
-    buildMenu();
-  };
+    state.menuTemplate = next
+    buildMenu()
+  }
 
   const controller = new Proxy(tray, {
     get(target, key) {
       switch (key) {
         case 'name':
-          return state.name;
+          return state.name
         case 'target':
         case 'raw':
-          return target;
+          return target
         case 'state':
-          return state.state;
+          return state.state
         case 'icon':
-          return state.icon;
+          return state.icon
         case 'tooltip':
-          return state.tooltip;
+          return state.tooltip
         case 'title':
-          return target.getTitle();
+          return target.getTitle()
         case 'menu':
-          return state.menu;
+          return state.menu
         case 'refreshMenu':
-          return buildMenu;
+          return buildMenu
         case 'balloon':
           return (options: DisplayBalloonOptions): boolean => {
             if (process.platform !== 'win32' || target.isDestroyed()) {
-              return false;
+              return false
             }
-            target.displayBalloon(options);
-            return true;
-          };
+            target.displayBalloon(options)
+            return true
+          }
         case 'destroy':
           return (): void => {
             if (!target.isDestroyed()) {
-              target.destroy();
+              target.destroy()
             }
-            state.onDestroy?.(state.name);
-          };
+            state.onDestroy?.(state.name)
+          }
       }
 
-      const value = Reflect.get(target, key, target);
-      return typeof value === 'function' ? value.bind(target) : value;
+      const value = Reflect.get(target, key, target)
+      return typeof value === 'function' ? value.bind(target) : value
     },
 
     set(target, key, value) {
@@ -183,47 +183,47 @@ export function toController<N extends string, S extends string>(
         case 'name':
         case 'target':
         case 'raw':
-          return false;
+          return false
         case 'state':
-          applyState(value);
-          return true;
+          applyState(value)
+          return true
         case 'icon':
-          applyIcon(value);
-          return true;
+          applyIcon(value)
+          return true
         case 'tooltip':
-          state.tooltip = value;
-          target.setToolTip(value);
-          return true;
+          state.tooltip = value
+          target.setToolTip(value)
+          return true
         case 'title':
-          target.setTitle(value, state.titleOptions);
-          return true;
+          target.setTitle(value, state.titleOptions)
+          return true
         case 'menu':
-          applyMenu(value);
-          return true;
+          applyMenu(value)
+          return true
       }
 
-      Reflect.set(target, key, value, target);
-      return true;
+      Reflect.set(target, key, value, target)
+      return true
     },
 
     has(target, key) {
-      return key === 'name' || key === 'target' || Reflect.has(target, key);
+      return key === 'name' || key === 'target' || Reflect.has(target, key)
     },
-  }) as unknown as TrayController<N, S>;
+  }) as unknown as TrayController<N, S>
 
-  state.controller = controller;
+  state.controller = controller
   state.context = {
     name: state.name,
     get state() {
-      return state.state;
+      return state.state
     },
     get tray() {
-      return controller;
+      return controller
     },
-  };
-  states.set(controller, state);
+  }
+  states.set(controller, state)
 
-  return controller;
+  return controller
 }
 
 /** 创建托盘并返回控制句柄 (不注册到仓库) */
@@ -252,19 +252,19 @@ export function createTray<N extends string, S extends string>(
     onBalloonShow,
     onBalloonClosed,
     onDropFiles,
-  } = options;
+  } = options
 
-  const iconOptions: TrayIconOptions = { size: iconSize, template: templateIcon };
-  const icons = isIconMap<S>(icon) ? icon : undefined;
-  const stateName = icons ? (initialState ?? (Object.keys(icons)[0] as S)) : undefined;
-  const firstIcon = icons ? icons[stateName as S] : (icon as TrayIconSource);
+  const iconOptions: TrayIconOptions = { size: iconSize, template: templateIcon }
+  const icons = isIconMap<S>(icon) ? icon : undefined
+  const stateName = icons ? (initialState ?? (Object.keys(icons)[0] as S)) : undefined
+  const firstIcon = icons ? icons[stateName as S] : (icon as TrayIconSource)
 
   if (firstIcon === undefined) {
-    throw new Error(`[electron-tray] 托盘 "${name}" 缺少可用图标`);
+    throw new Error(`[electron-tray] 托盘 "${name}" 缺少可用图标`)
   }
 
-  const image = resolveIcon(firstIcon, iconOptions);
-  const tray: TrayType = guid === undefined ? new Tray(image) : new Tray(image, guid);
+  const image = resolveIcon(firstIcon, iconOptions)
+  const tray: TrayType = guid === undefined ? new Tray(image) : new Tray(image, guid)
 
   const state = createTrayState<N, S>(name, {
     icons,
@@ -273,59 +273,59 @@ export function createTray<N extends string, S extends string>(
     iconOptions,
     titleOptions,
     menuTemplate: contextMenu,
-  });
+  })
 
-  const controller = toController<N, S>(tray, state);
+  const controller = toController<N, S>(tray, state)
 
   if (onClick) {
-    tray.on('click', (event, bounds, position) => onClick(state.context!, event, bounds, position));
+    tray.on('click', (event, bounds, position) => onClick(state.context!, event, bounds, position))
   }
   if (onDoubleClick) {
-    tray.on('double-click', (event, bounds) => onDoubleClick(state.context!, event, bounds));
+    tray.on('double-click', (event, bounds) => onDoubleClick(state.context!, event, bounds))
   }
   if (onRightClick) {
-    tray.on('right-click', (event, bounds) => onRightClick(state.context!, event, bounds));
+    tray.on('right-click', (event, bounds) => onRightClick(state.context!, event, bounds))
   }
   if (onMiddleClick) {
-    tray.on('middle-click', (event, bounds) => onMiddleClick(state.context!, event, bounds));
+    tray.on('middle-click', (event, bounds) => onMiddleClick(state.context!, event, bounds))
   }
   if (onBalloonClick) {
-    tray.on('balloon-click', () => onBalloonClick(state.context!));
+    tray.on('balloon-click', () => onBalloonClick(state.context!))
   }
   if (onBalloonShow) {
-    tray.on('balloon-show', () => onBalloonShow(state.context!));
+    tray.on('balloon-show', () => onBalloonShow(state.context!))
   }
   if (onBalloonClosed) {
-    tray.on('balloon-closed', () => onBalloonClosed(state.context!));
+    tray.on('balloon-closed', () => onBalloonClosed(state.context!))
   }
   if (onDropFiles) {
-    tray.on('drop-files', (event, files) => onDropFiles(state.context!, event, files));
+    tray.on('drop-files', (event, files) => onDropFiles(state.context!, event, files))
   }
 
   if (popupOnClick) {
     tray.on('click', () => {
-      const menu = controller.refreshMenu();
+      const menu = controller.refreshMenu()
       if (menu && !tray.isDestroyed()) {
-        tray.popUpContextMenu(menu);
+        tray.popUpContextMenu(menu)
       }
-    });
+    })
   }
 
   if (ignoreDoubleClick) {
-    tray.setIgnoreDoubleClickEvents(true);
+    tray.setIgnoreDoubleClickEvents(true)
   }
   if (pressedIcon !== undefined) {
-    tray.setPressedImage(resolveIcon(pressedIcon, iconOptions));
+    tray.setPressedImage(resolveIcon(pressedIcon, iconOptions))
   }
   if (tooltip !== undefined) {
-    controller.tooltip = tooltip;
+    controller.tooltip = tooltip
   }
   if (title !== undefined) {
-    controller.title = title;
+    controller.title = title
   }
   if (contextMenu !== undefined) {
-    controller.refreshMenu();
+    controller.refreshMenu()
   }
 
-  return controller;
+  return controller
 }

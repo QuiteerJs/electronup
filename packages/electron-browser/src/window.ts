@@ -1,10 +1,10 @@
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url'
 
-import { BrowserWindow } from 'electron';
+import { BrowserWindow } from 'electron'
 
-import { applyNavigationGuard, withSecureDefaults } from './security';
-import { fitToDisplays, getDefaultStateStorage, trackWindowState } from './state';
-import type { WindowController, WindowOptions, WindowStateStorage } from './types';
+import { applyNavigationGuard, withSecureDefaults } from './security'
+import { fitToDisplays, getDefaultStateStorage, trackWindowState } from './state'
+import type { WindowController, WindowOptions, WindowStateStorage } from './types'
 
 /**
  * 把 BrowserWindow 包装成带响应式属性的控制句柄
@@ -18,28 +18,28 @@ export function toController<N extends string>(win: BrowserWindow, name: N): Win
     get(target, key) {
       switch (key) {
         case 'name':
-          return name;
+          return name
         case 'target':
         case 'raw':
-          return target;
+          return target
         case 'width':
-          return target.getSize()[0];
+          return target.getSize()[0]
         case 'height':
-          return target.getSize()[1];
+          return target.getSize()[1]
         case 'x':
-          return target.getPosition()[0];
+          return target.getPosition()[0]
         case 'y':
-          return target.getPosition()[1];
+          return target.getPosition()[1]
         case 'title':
-          return target.getTitle();
+          return target.getTitle()
         case 'visible':
-          return target.isVisible();
+          return target.isVisible()
         case 'centered':
-          return undefined;
+          return undefined
       }
 
-      const value = Reflect.get(target, key, target);
-      return typeof value === 'function' ? value.bind(target) : value;
+      const value = Reflect.get(target, key, target)
+      return typeof value === 'function' ? value.bind(target) : value
     },
 
     set(target, key, value) {
@@ -47,48 +47,48 @@ export function toController<N extends string>(win: BrowserWindow, name: N): Win
         case 'name':
         case 'target':
         case 'raw':
-          return false;
+          return false
         case 'width': {
-          const [, height] = target.getSize();
-          target.setSize(value, height);
-          return true;
+          const [, height] = target.getSize()
+          target.setSize(value, height)
+          return true
         }
         case 'height': {
-          const [width] = target.getSize();
-          target.setSize(width, value);
-          return true;
+          const [width] = target.getSize()
+          target.setSize(width, value)
+          return true
         }
         case 'x':
         case 'y': {
-          const [x, y] = target.getPosition();
-          target.setPosition(key === 'x' ? value : x, key === 'y' ? value : y);
-          return true;
+          const [x, y] = target.getPosition()
+          target.setPosition(key === 'x' ? value : x, key === 'y' ? value : y)
+          return true
         }
         case 'title':
-          target.setTitle(value);
-          return true;
+          target.setTitle(value)
+          return true
         case 'visible':
           if (value) {
-            target.show();
+            target.show()
           } else {
-            target.hide();
+            target.hide()
           }
-          return true;
+          return true
         case 'centered':
           if (value) {
-            target.center();
+            target.center()
           }
-          return true;
+          return true
       }
 
-      Reflect.set(target, key, value, target);
-      return true;
+      Reflect.set(target, key, value, target)
+      return true
     },
 
     has(target, key) {
-      return key === 'name' || key === 'target' || Reflect.has(target, key);
+      return key === 'name' || key === 'target' || Reflect.has(target, key)
     },
-  }) as unknown as WindowController<N>;
+  }) as unknown as WindowController<N>
 }
 
 function resolvePersist(
@@ -96,10 +96,10 @@ function resolvePersist(
   name: string,
 ): { key: string; storage: WindowStateStorage } | undefined {
   if (!option) {
-    return undefined;
+    return undefined
   }
-  const { key = name, storage = getDefaultStateStorage() } = option === true ? {} : option;
-  return { key, storage };
+  const { key = name, storage = getDefaultStateStorage() } = option === true ? {} : option
+  return { key, storage }
 }
 
 /**
@@ -123,25 +123,25 @@ export function createWindow<N extends string>(options: WindowOptions<N>): Windo
     onLoadError,
     webPreferences,
     ...winOptions
-  } = options;
+  } = options
 
   if (url && file) {
-    throw new Error(`[electron-browser] 窗口 "${name}" 的 url 与 file 只能二选一`);
+    throw new Error(`[electron-browser] 窗口 "${name}" 的 url 与 file 只能二选一`)
   }
   if (typeof parent === 'string') {
     throw new TypeError(
       `[electron-browser] 窗口 "${name}" 按名指定 parent "${parent}" 需通过 manager.create 创建`,
-    );
+    )
   }
 
-  const persist = resolvePersist(persistState, name);
-  const saved = persist && persist.storage.get(persist.key);
-  const restored = saved && fitToDisplays(saved);
+  const persist = resolvePersist(persistState, name)
+  const saved = persist && persist.storage.get(persist.key)
+  const restored = saved && fitToDisplays(saved)
   // 要恢复最大化 / 全屏时先隐藏创建, 避免先以普通尺寸闪一下
   const deferShow =
     winOptions.show === undefined &&
     showOnReady &&
-    (restored?.isMaximized || restored?.isFullScreen);
+    (restored?.isMaximized || restored?.isFullScreen)
 
   const win = new BrowserWindow({
     ...winOptions,
@@ -153,48 +153,48 @@ export function createWindow<N extends string>(options: WindowOptions<N>): Windo
     }),
     ...(parent && { parent }),
     webPreferences: withSecureDefaults(webPreferences),
-  });
-  const controller = toController(win, name);
+  })
+  const controller = toController(win, name)
 
   if (navigation) {
-    applyNavigationGuard(win, navigation, url ?? (file && pathToFileURL(file).href));
+    applyNavigationGuard(win, navigation, url ?? (file && pathToFileURL(file).href))
   }
   if (persist) {
-    trackWindowState(win, persist.key, persist.storage);
+    trackWindowState(win, persist.key, persist.storage)
   }
 
-  const load = url ? win.loadURL(url) : file ? win.loadFile(file) : undefined;
+  const load = url ? win.loadURL(url) : file ? win.loadFile(file) : undefined
   load?.catch((error: Error) => {
     if (onLoadError) {
-      onLoadError(error, controller);
+      onLoadError(error, controller)
     } else {
-      console.error(`[electron-browser] 窗口 "${name}" 加载失败`, error);
+      console.error(`[electron-browser] 窗口 "${name}" 加载失败`, error)
     }
-  });
+  })
 
   if (openDevTools) {
-    win.webContents.openDevTools();
+    win.webContents.openDevTools()
   }
 
   const reveal = () => {
     if (win.isDestroyed()) {
-      return;
+      return
     }
     if (restored?.isFullScreen) {
-      win.setFullScreen(true);
+      win.setFullScreen(true)
     } else if (restored?.isMaximized) {
-      win.maximize();
+      win.maximize()
     }
     if (!win.isVisible()) {
-      win.show();
+      win.show()
     }
-  };
-
-  if (winOptions.show) {
-    reveal();
-  } else if (showOnReady) {
-    win.once('ready-to-show', reveal);
   }
 
-  return controller;
+  if (winOptions.show) {
+    reveal()
+  } else if (showOnReady) {
+    win.once('ready-to-show', reveal)
+  }
+
+  return controller
 }

@@ -119,7 +119,7 @@ No check runs in development (`app.isPackaged` is `false`). Use NSIS on Windows,
 
 ## AI Agent Skills
 
-The [`skills/`](./skills) directory ships Agent Skills (`SKILL.md` format, written in Chinese) for AI coding assistants, covering project creation, configuration, dev and packaging, and auto update. Install them in Claude Code with:
+The [`skills/`](./skills) directory ships Agent Skills (`SKILL.md` format, written in Chinese) for AI coding assistants, covering project creation, configuration, dev and packaging, auto update, and the `@quiteer/electron-*` runtime packages. Install them in Claude Code with:
 
 ```bash
 /plugin marketplace add QuiteerJs/electronup

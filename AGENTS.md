@@ -10,13 +10,13 @@ electronup 是把 **Vite**（渲染进程、主进程 / preload）+ **electron-b
 | --- | --- |
 | `packages/electronup` | 核心包：CLI、配置解析、dev/build 流程、updater 导出（发布名 `electronup`） |
 | `packages/create-electronup` | 脚手架，用 degit 拉取 `electronup-template` 模板 |
-| `packages/electron-*` | 7 个可选的 Electron 运行时模块包（发布名 `@quiteer/electron-*`），vp pack 构建，node:test + electron 替身测试，changesets 管理版本 |
+| `packages/electron-*` | 7 个可选的 Electron 运行时模块包（发布名 `@quiteer/electron-*`），vp pack 构建，vitest（`vp test`）+ `test/stubs` 下的 electron 替身测试，changesets 管理版本 |
 | `playground/modules-basic` / `modules-smoke` | 模块包的最小示例与真 Electron 冒烟（playwright） |
 | `playground/electronup-test` | 端到端示例项目，CI 冒烟构建也用它 |
 | `template` | 脚手架测试入口；仅 `template/package.json` 被跟踪，`template/*` 其余内容被忽略 |
 | `docs` | VitePress 中英双语文档站（`docs/` 中文，`docs/en/` 英文） |
 | `skills` | 面向 electronup 使用者的 Agent Skills（`SKILL.md`），通过根目录 `.claude-plugin/` 作为 Claude Code 插件分发；维护者 skill 在 `.claude/skills/` |
-| `.github/workflows/smoke-build.yml` | 全包 typecheck / lint / test + 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 |
+| `.github/workflows/smoke-build.yml` | 全包 typecheck / lint / test + 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 + 模块包真 Electron 冒烟（Linux） |
 | `.github/workflows/release.yml` | 推送 `electronup-v*` / `create-electronup-v*` 标签后经 npm Trusted Publishing 自动发布 |
 
 ## 环境与安装
@@ -43,7 +43,7 @@ $env:ELECTRON_CUSTOM_DIR = '{{ version }}'
 | 构建模块包 | `pnpm modules:build`（lint 前需先构建：preload 的 `index.d.cts` 与 playground 引用 dist） |
 | 文档开发 / 构建 | `pnpm docs:dev` / `pnpm docs:build` |
 | 示例项目构建（走 workspace bin） | `pnpm --filter electronup-test build:web` / `build:dir` |
-| 端到端（与 CI 一致，直连 dist） | 先 `pnpm --filter electronup build`，再进入 `playground/electronup-test` 执行 `node ../../packages/electronup/dist/bin/electronup.mjs build --web`（或 `--dir`） |
+| 端到端（与 CI 一致，直连 dist） | 先 `pnpm --filter electronup build` 与 `pnpm modules:build`（示例会打包 workspace 的 electron-ipc），再进入 `playground/electronup-test` 执行 `node ../../packages/electronup/dist/bin/electronup.mjs build --web`（或 `--dir`） |
 | 发布物自检 | `pnpm --filter electronup pack --pack-destination <临时目录>`，确认 tarball 只含 `dist` 与 README/LICENSE/package.json |
 | 交互式提交 | `pnpm commit`（`qui gc`） |
 
@@ -79,7 +79,7 @@ src/cli.ts (cac 命令解析)
 9. **文档中英同步**：`docs/` 与 `docs/en/` 各 20 篇一一对应；新增页面要在 `docs/.vitepress/config.ts` 的两种语言 nav/sidebar 里都登记。站点 base 在 Vercel 为 `/`，GitHub Pages 为 `/electronup/`。
 10. **目录清理只走 `cleanDirs`**：`resourceDir` / `outDir` 的清空统一由 `runner/clean.ts` → `utils/clean.ts` 完成（拒绝项目根及上级、用户主目录、文件系统根、`node_modules` / `.git`、链接目标；整体 rename 后再删除），并且必须放在配置函数执行、平台 / 架构校验与 `-o` 向导之后；不要在 CLI 层或别处直接 `rmSync` 输出目录。
 11. **不要提交构建产物与临时文件**：`dist/`、`docs/.vitepress/{cache,dist}`、`*.tgz`、验收日志、误克隆的目录都不要进仓库；提交前用 `git status` 确认。
-12. **skills 与实现同步**：修改 CLI 参数、配置项默认值或 updater 行为时，同步更新 `skills/*/SKILL.md` 中对应描述。
+12. **skills 与实现同步**：修改 CLI 参数、配置项默认值或 updater 行为时，同步更新 `skills/*/SKILL.md` 中对应描述；改动模块包公开 API 时同步 `skills/electronup-modules/SKILL.md`。
 
 ## 代码风格
 
