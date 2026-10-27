@@ -1,0 +1,52 @@
+{
+  "name": "@quiteer/electron-tray",
+  "version": "0.0.1",
+  "description": "基于electron , 提供系统托盘创建与托盘实例统一管理",
+  "keywords": [
+    "electron",
+    "tray"
+  ],
+  "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/tray",
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+  },
+  "license": "MIT",
+  "author": "quiteer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electron-modules.git",
+    "directory": "packages/tray"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp pack && node --test test/.out/tray.test.js"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "electron": ">=30"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

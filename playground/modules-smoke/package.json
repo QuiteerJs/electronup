@@ -1,0 +1,23 @@
+{
+  "name": "@quiteer/playground-smoke",
+  "version": "0.0.0",
+  "private": true,
+  "description": "用全部包拼出的最小 Electron 应用, 供真 Electron 冒烟测试使用",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test:e2e": "install-electron && playwright test"
+  },
+  "dependencies": {
+    "@quiteer/electron-browser": "workspace:*",
+    "@quiteer/electron-ipc": "workspace:*",
+    "@quiteer/electron-menu": "workspace:*",
+    "@quiteer/electron-preload": "workspace:*",
+    "@quiteer/electron-tray": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "electron": "^44.0.0"
+  }
+}

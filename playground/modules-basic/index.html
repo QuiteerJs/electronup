@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <title>electron-modules playground</title>
+    <style>
+      body {
+        font:
+          14px/1.6 system-ui,
+          sans-serif;
+        margin: 24px;
+      }
+      pre {
+        background: #f4f4f5;
+        padding: 12px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>electron-modules playground</h1>
+    <p>应用：<span id="info">…</span></p>
+    <p>主进程推送：<code id="clock">等待中</code></p>
+    <p>
+      <button data-window="switch-max">最大化 / 还原</button>
+      <button data-window="switch-always-on-top">置顶切换</button>
+      <button data-window="minimize">最小化</button>
+    </p>
+    <pre id="log"></pre>
+    <script src="./dist/renderer.iife.js"></script>
+  </body>
+</html>
