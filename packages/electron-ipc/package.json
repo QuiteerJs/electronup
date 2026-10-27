@@ -1,23 +1,30 @@
 {
   "name": "@quiteer/electron-ipc",
-  "type": "module",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "基于electron , 提供了一些 独立无副作用的 ipc 事件相关操作",
-  "author": "quiteer",
-  "license": "MIT",
+  "keywords": [
+    "electron",
+    "ipc"
+  ],
   "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/ipc",
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+  },
+  "license": "MIT",
+  "author": "quiteer",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/QuiteerJs/electron-modules.git",
     "directory": "packages/ipc"
   },
-  "bugs": {
-    "url": "https://github.com/QuiteerJs/electron-modules/issues"
-  },
-  "keywords": [
-    "electron",
-    "ipc"
+  "files": [
+    "CHANGELOG.md",
+    "dist",
+    "web"
   ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,13 +35,6 @@
       "import": "./web/index.js"
     }
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "CHANGELOG.md",
-    "dist",
-    "web"
-  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -42,6 +42,7 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
+    "test": "vp pack && node --test test/.out/ipc.test.js",
     "update-version": "bumpp package.json"
   },
   "devDependencies": {

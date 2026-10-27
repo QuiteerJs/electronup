@@ -15,76 +15,86 @@ pnpm add @quiteer/electron-preload
 包默认导出预加载脚本的绝对路径，直接交给 `preload` 即可：
 
 ```ts
-import { BrowserWindow } from 'electron'
-import preloadPath from '@quiteer/electron-preload'
+import { BrowserWindow } from 'electron';
+import preloadPath from '@quiteer/electron-preload';
 
 const win = new BrowserWindow({
   width: 800,
   height: 600,
   webPreferences: {
     sandbox: true,
-    preload: preloadPath
-  }
-})
+    preload: preloadPath,
+  },
+});
 ```
 
 CommonJS 主进程下一致：
 
 ```js
-const preloadPath = require('@quiteer/electron-preload')
+const preloadPath = require('@quiteer/electron-preload');
 ```
 
 渲染进程里直接使用：
 
 ```ts
-await window.$clipboard.writeText('hello')
-const text = await window.$clipboard.readText()
+await window.$clipboard.writeText('hello');
+const text = await window.$clipboard.readText();
 
-window.$ipc.send('some-channel', { id: 1 })
-window.$webFrame.setZoomFactor(1.2)
+window.$ipc.send('some-channel', { id: 1 });
+window.$webFrame.setZoomFactor(1.2);
 ```
 
 ## 暴露的 API
 
 ### `$ipc`
 
-| 方法 | 说明 |
-| --- | --- |
-| `send(channel, ...args)` | 单向发送 |
-| `sendSync(channel, ...args)` | 同步发送，阻塞渲染进程，非必要请用 `invoke` |
-| `invoke(channel, ...args)` | 双向调用，返回 `Promise` |
-| `on(channel, listener)` | 监听主进程推送 |
-| `once(channel, listener)` | 监听一次 |
-| `removeAllListeners(channel?)` | 移除监听，不传通道则清空全部 |
+| 方法                           | 说明                                        |
+| ------------------------------ | ------------------------------------------- |
+| `send(channel, ...args)`       | 单向发送                                    |
+| `sendSync(channel, ...args)`   | 同步发送，阻塞渲染进程，非必要请用 `invoke` |
+| `invoke(channel, ...args)`     | 双向调用，返回 `Promise`                    |
+| `on(channel, listener)`        | 监听主进程推送，**返回取消监听的函数**      |
+| `once(channel, listener)`      | 监听一次，同样返回取消函数                  |
+| `removeAllListeners(channel?)` | 移除监听，不传通道则清空全部                |
+
+```ts
+const off = window.$ipc.on('progress', (_event, value) => render(value));
+// 组件卸载时
+off();
+```
+
+回调的第一个参数是空对象占位，不是原生 `IpcRendererEvent`：原生事件的 `sender` 就是 `ipcRenderer` 本身，透出去等于把整个 `ipcRenderer` 交给页面（Electron 安全指南明确禁止）。参数位置保持不变，`(_event, ...args)` 的写法无需改动。
+
+> 不提供 `removeListener(channel, listener)`：页面函数每次跨越 `contextBridge` 都会变成新的代理，按引用移除永远对不上，请使用 `on` / `once` 返回的取消函数。
 
 ### `$clipboard`
 
 与新版 Electron 保持一致，全部为异步（返回 `Promise`）：
 
-| 方法 | 说明 |
-| --- | --- |
-| `clear(type?)` | 清空，`type` 仅 Linux 生效，默认 `clipboard` |
-| `has(mimetype)` | 是否存在指定格式 |
-| `read()` | 读取全部内容，返回 `ClipboardItem[]` |
-| `readText()` | 读取文本 |
-| `write(data)` | 写入 `ClipboardItem[]` |
-| `writeText(text)` | 写入文本 |
+| 方法              | 说明                                         |
+| ----------------- | -------------------------------------------- |
+| `clear(type?)`    | 清空，`type` 仅 Linux 生效，默认 `clipboard` |
+| `has(mimetype)`   | 是否存在指定格式                             |
+| `read()`          | 读取全部内容，返回 `ClipboardItem[]`         |
+| `readText()`      | 读取文本                                     |
+| `write(data)`     | 写入 `ClipboardItem[]`                       |
+| `writeText(text)` | 写入文本                                     |
 
 ### `$webFrame`
 
-| 方法 | 说明 |
-| --- | --- |
-| `setZoomFactor(factor)` / `getZoomFactor()` | 缩放倍数，`1` 为原始比例 |
-| `setZoomLevel(level)` / `getZoomLevel()` | 缩放等级 |
-| `insertText(text)` | 向焦点元素插入文本 |
-| `executeJavaScript(code, userGesture?)` | 执行脚本，返回 `Promise` |
-| `executeJavaScriptInIsolatedWorld(...)` | 在隔离世界执行 |
-| `setIsolatedWorldInfo(...)` | 设置隔离世界信息 |
-| `getResourceUsage()` | 资源占用 |
-| `clearCache()` | 清空缓存 |
-| `getFrameForSelector(selector)` | 按选择器取 frame |
+| 方法                                                       | 说明                            |
+| ---------------------------------------------------------- | ------------------------------- |
+| `setZoomFactor(factor)` / `getZoomFactor()`                | 缩放倍数，`1` 为原始比例        |
+| `setZoomLevel(level)` / `getZoomLevel()`                   | 缩放等级                        |
+| `insertText(text)`                                         | 向焦点元素插入文本              |
+| `executeJavaScript(code, userGesture?)`                    | 执行脚本，返回 `Promise`        |
+| `executeJavaScriptInIsolatedWorld(...)`                    | 在隔离世界执行                  |
+| `setIsolatedWorldInfo(...)`                                | 设置隔离世界信息                |
+| `getResourceUsage()`                                       | 资源占用                        |
+| `clearCache()`                                             | 清空缓存                        |
+| `getFrameForSelector(selector)`                            | 按选择器取 frame                |
 | `firstChild()` / `nextSibling()` / `opener()` / `parent()` | 关联 frame，不存在时返回 `null` |
-| `routingId()` | 当前 frame 的路由 id |
+| `routingId()`                                              | 当前 frame 的路由 id            |
 
 `firstChild` / `nextSibling` / `opener` / `parent` / `routingId` 在原生 `WebFrame` 上是属性，这里做成了方法——`WebFrame` 实例无法跨越 `contextBridge` 传递，只能取到值。
 
@@ -95,9 +105,9 @@ window.$webFrame.setZoomFactor(1.2)
 ```ts
 // global.d.ts
 interface Window {
-  $ipc: import('@quiteer/electron-preload').PreloadIpc
-  $clipboard: import('@quiteer/electron-preload').PreloadClipboard
-  $webFrame: import('@quiteer/electron-preload').PreloadWebFrame
+  $ipc: import('@quiteer/electron-preload').PreloadIpc;
+  $clipboard: import('@quiteer/electron-preload').PreloadClipboard;
+  $webFrame: import('@quiteer/electron-preload').PreloadWebFrame;
 }
 ```
 
@@ -105,7 +115,9 @@ interface Window {
 
 ```ts
 interface Window {
-  $ipc: import('@quiteer/electron-preload').PreloadIpc & import('@quiteer/electron-ipc/web').ExpandPreloadIpc
+  $ipc: import('@quiteer/electron-ipc/web').WithIpcChannels<
+    import('@quiteer/electron-preload').PreloadIpc
+  >;
 }
 ```
 

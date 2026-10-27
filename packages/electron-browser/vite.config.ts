@@ -1,5 +1,6 @@
-import { defineConfig } from 'vite-plus';
 import { fileURLToPath } from 'node:url';
+
+import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
   pack: [
@@ -7,7 +8,6 @@ export default defineConfig({
       name: 'electron-browser',
       entry: ['src/index.ts'],
       dts: true,
-      splitting: false,
       clean: true,
       format: 'esm',
       fixedExtension: false,

@@ -1,11 +1,13 @@
+import { fileURLToPath } from 'node:url';
+
 import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
   pack: [
     {
-      entry: ['index.ts'],
+      name: 'electron-ipc',
+      entry: ['src/index.ts'],
       dts: true,
-      splitting: false,
       clean: true,
       minify: true,
       format: 'esm',
@@ -13,15 +15,28 @@ export default defineConfig({
       deps: { neverBundle: ['electron'] },
     },
     {
-      entry: ['event-enum/index.ts'],
+      // 渲染层入口: 只有枚举与类型, 不依赖 electron / node
+      name: 'electron-ipc-web',
+      entry: { index: 'src/web.ts' },
       dts: true,
       outDir: 'web',
-      splitting: false,
       clean: true,
       minify: true,
       format: 'esm',
       fixedExtension: false,
-      deps: { neverBundle: ['electron'] },
+    },
+    {
+      name: 'electron-ipc-test',
+      entry: [fileURLToPath(new URL('test/ipc.test.ts', import.meta.url))],
+      outDir: fileURLToPath(new URL('test/.out', import.meta.url)),
+      alias: {
+        electron: fileURLToPath(new URL('test/stubs/electron.ts', import.meta.url)),
+      },
+      dts: false,
+      format: 'esm',
+      fixedExtension: false,
+      platform: 'node',
+      clean: true,
     },
   ],
 });

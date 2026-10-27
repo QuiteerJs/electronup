@@ -1,8 +1,9 @@
-import type { MenuItem as MenuItemType, Menu as MenuType } from 'electron'
-import type { MenuTemplate, MenuTemplateItem } from './types'
+import type { MenuItem as MenuItemType, Menu as MenuType } from 'electron';
+
+import type { MenuTemplate, MenuTemplateItem } from './types';
 
 /** 路径分隔符 */
-const SEP = '.'
+const SEP = '.';
 
 /**
  * 递归补全模板项 id
@@ -13,14 +14,15 @@ const SEP = '.'
  */
 export function normalizeTemplate(template: MenuTemplate, parent = ''): MenuTemplate {
   return template.map((item, index) => {
-    const id = item.id ?? (parent === '' ? `${index}` : `${parent}${SEP}${index}`)
-    const next: MenuTemplateItem = { ...item, id }
+    const id = item.id ?? (parent === '' ? `${index}` : `${parent}${SEP}${index}`);
+    const next: MenuTemplateItem = { ...item, id };
 
-    if (Array.isArray(item.submenu))
-      next.submenu = normalizeTemplate(item.submenu, id)
+    if (Array.isArray(item.submenu)) {
+      next.submenu = normalizeTemplate(item.submenu, id);
+    }
 
-    return next
-  })
+    return next;
+  });
 }
 
 /**
@@ -30,21 +32,24 @@ export function normalizeTemplate(template: MenuTemplate, parent = ''): MenuTemp
  * 每一层用累计路径匹配, 因此支持任意深度。
  */
 export function findItem(menu: MenuType, path: string): MenuItemType | undefined {
-  const segments = path.split(SEP).filter(Boolean)
-  if (segments.length === 0)
-    return undefined
-
-  let items = menu.items
-  let found: MenuItemType | undefined
-
-  for (let depth = 0; depth < segments.length; depth++) {
-    const id = segments.slice(0, depth + 1).join(SEP)
-    found = items.find(item => item.id === id)
-    if (!found)
-      return undefined
-    if (depth < segments.length - 1)
-      items = found.submenu?.items ?? []
+  const segments = path.split(SEP).filter(Boolean);
+  if (segments.length === 0) {
+    return undefined;
   }
 
-  return found
+  let items = menu.items;
+  let found: MenuItemType | undefined;
+
+  for (let depth = 0; depth < segments.length; depth++) {
+    const id = segments.slice(0, depth + 1).join(SEP);
+    found = items.find((item) => item.id === id);
+    if (!found) {
+      return undefined;
+    }
+    if (depth < segments.length - 1) {
+      items = found.submenu?.items ?? [];
+    }
+  }
+
+  return found;
 }
