@@ -7,7 +7,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "test:e2e": "playwright test"
+    "test:e2e": "install-electron && playwright test"
   },
   "dependencies": {
     "@quiteer/electron-browser": "workspace:*",
