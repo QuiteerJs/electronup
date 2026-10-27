@@ -15,8 +15,8 @@ title: Overview
 
 You only need to maintain one `electronup.config.ts` file in the project root. Most common options of the underlying tools are preset, and most presets can be overridden.
 
-::: warning TypeScript only
-The main process and preload scripts are built with Vite, and the main entry is fixed to `${mainDir}/index.ts`. JavaScript main entries are not supported in the current version. The config file is meant to be `electronup.config.ts` as well.
+::: tip TypeScript recommended
+The main process and preload scripts are built with Vite. The main entry defaults to `${mainDir}/index.ts`; `index.mts` / `index.cts` / `index.js` / `index.mjs` / `index.cjs` also work (the first existing one in this order wins). `electronup.config.ts` is the recommended config file.
 :::
 
 ## What it does

@@ -49,7 +49,7 @@ These top-level options decide the input and output directories of each stage:
 | Option | Default | Used by |
 | --- | --- | --- |
 | `renderDir` | `render` | Renderer root, used as Vite `root` |
-| `mainDir` | `main` | Main process directory; entry is fixed to `${mainDir}/index.ts` |
+| `mainDir` | `main` | Main process directory; the entry is its `index.ts` (`.mts` / `.cts` / `.js` / `.mjs` / `.cjs` also work) |
 | `publicDir` | `public` | Vite `publicDir`, copied as-is |
 | `libDir` | `lib` | electron-builder `extraFiles`, copied into the app directory |
 | `resourceDir` | `dist/resource` | Renderer, main process and preload output |
@@ -131,7 +131,7 @@ Presets:
 
 | Item | Value |
 | --- | --- |
-| Entry | `${mainDir}/index.ts` (fixed) |
+| Entry | `${mainDir}/index.{ts,mts,cts,js,mjs,cjs}`, the first one that exists in this order |
 | Output | `resourceDir/electron.cjs` |
 | Format | `cjs` (fixed) |
 | `build.target` | `node18` (the Node version bundled with Electron 28) |

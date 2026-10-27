@@ -48,7 +48,7 @@ electronup dev build/electronup.config.ts   # 指定配置文件
 | 路径 | 内容 |
 | --- | --- |
 | `dist/resource/` | `index.html` 等渲染产物、`electron.cjs`（主进程）、`preload*.cjs` |
-| `dist/out/` | 安装包、`*-unpacked` 目录、更新元数据（`latest*.yml`）、`electronup-effective-config.yaml` |
+| `dist/out/` | 安装包、`*-unpacked` 目录（Windows x64 为 `dist/out/win-unpacked`，ia32 为 `win-ia32-unpacked`；macOS 为 `mac` / `mac-arm64`；Linux 为 `linux-unpacked`）、更新元数据（`latest*.yml`）、`electronup-effective-config.yaml` |
 
 `electronup-effective-config.yaml` 是本次实际生效的合并配置快照（`--web` 不生成），排查“配置有没有生效”先看它。
 
@@ -63,7 +63,7 @@ electronup dev build/electronup.config.ts   # 指定配置文件
 | 报错 / 现象 | 处理 |
 | --- | --- |
 | 下载 electron 压缩包超时 / 失败 | 设置镜像：`ELECTRON_MIRROR=https://cdn.npmmirror.com/binaries/electron/`，`ELECTRON_CUSTOM_DIR={{ version }}` |
-| 找不到主进程入口 | 入口必须是 `${mainDir}/index.ts`（TypeScript） |
+| 找不到主进程入口 | 入口必须是 `${mainDir}/index.{ts,mts,cts,js,mjs,cjs}` 之一 |
 | 拒绝清空目录 | `resourceDir` / `outDir` 指向了项目根、主目录、`node_modules`、`.git` 或符号链接，改成项目内专用输出目录 |
 | 清空时报占用 | 关闭仍在运行的打包应用或占用 `dist` 的进程后重试 |
 | Linux 构建要求 snapcraft | electron-builder 默认 Linux 目标含 snap，配置 `builderConfig.linux.target: ['AppImage']`（或 deb/rpm） |

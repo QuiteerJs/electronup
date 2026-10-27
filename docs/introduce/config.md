@@ -49,7 +49,7 @@ export default defineConfig(({ command, mode, root }) => {
 | 配置项 | 默认值 | 作用 |
 | --- | --- | --- |
 | `renderDir` | `render` | 渲染进程根目录，作为 Vite 的 `root` |
-| `mainDir` | `main` | 主进程目录，入口固定为 `${mainDir}/index.ts` |
+| `mainDir` | `main` | 主进程目录，入口为其中的 `index.ts`（也支持 `.mts` / `.cts` / `.js` / `.mjs` / `.cjs`） |
 | `publicDir` | `public` | Vite 的 `publicDir`，构建时原样拷贝 |
 | `libDir` | `lib` | electron-builder 的 `extraFiles`，打包时复制到应用目录 |
 | `resourceDir` | `dist/resource` | 渲染进程、主进程、preload 的构建输出目录 |
@@ -131,7 +131,7 @@ export default defineConfig({
 
 | 项 | 值 |
 | --- | --- |
-| 入口 | `${mainDir}/index.ts`（固定） |
+| 入口 | `${mainDir}/index.{ts,mts,cts,js,mjs,cjs}`，按此顺序取第一个存在的文件 |
 | 输出 | `resourceDir/electron.cjs` |
 | 格式 | `cjs`（固定） |
 | `build.target` | `node18`（Electron 28 内置的 Node 版本） |

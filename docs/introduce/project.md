@@ -15,8 +15,8 @@ title: 项目介绍
 
 项目只需要在根目录维护一个 `electronup.config.ts`，其余构建工具的常用配置已经预置，并且大多数预置项都可以覆盖。
 
-::: warning 只支持 TypeScript
-主进程与 preload 使用 Vite 构建，主进程入口固定为 `${mainDir}/index.ts`，因此当前版本不支持 JavaScript 主进程入口。配置文件本身也推荐使用 `electronup.config.ts`。
+::: tip 推荐 TypeScript
+主进程与 preload 使用 Vite 构建。主进程入口默认是 `${mainDir}/index.ts`，也支持 `index.mts` / `index.cts` / `index.js` / `index.mjs` / `index.cjs`（同时存在时按此顺序取第一个）。配置文件推荐使用 `electronup.config.ts`。
 :::
 
 ## 它负责什么
