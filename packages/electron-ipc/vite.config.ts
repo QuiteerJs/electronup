@@ -32,6 +32,8 @@ export default defineConfig({
       alias: {
         electron: fileURLToPath(new URL('test/stubs/electron.ts', import.meta.url)),
       },
+      // electron 是 peerDependency, 默认不打包; 测试需要把它换成替身打进去
+      deps: { alwaysBundle: ['electron'] },
       dts: false,
       format: 'esm',
       fixedExtension: false,

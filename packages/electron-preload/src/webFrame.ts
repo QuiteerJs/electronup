@@ -1,59 +1,26 @@
 import type { WebFrame } from 'electron';
 import { webFrame } from 'electron';
 
+/**
+ * 只保留不会越过 contextIsolation 的能力
+ *
+ * 隔离世界执行脚本、取关联 frame 等接口要么让页面绕开隔离, 要么返回跨不过 contextBridge 的对象, 均不暴露
+ */
 export interface PreloadWebFrame {
-  /**
-   * 描述  更改缩放倍数。
-   * @date 2022-11-11
-   * @param {any} factor:number 缩放比例 1为原始比例
-   * @returns {any}
-   */
+  /** 更改缩放倍数, 1 为原始比例 */
   setZoomFactor(factor: number): void;
-  /**
-   * 描述  当前的缩放比例。
-   * @date 2022-11-11
-   * @returns {any}
-   */
+  /** 当前缩放倍数 */
   getZoomFactor(): number;
-  /**
-   * 描述  更改缩放等级。
-   * @date 2022-11-11
-   * @param {any} level:number 缩放等级。
-   * @returns {any}
-   */
+  /** 更改缩放等级 */
   setZoomLevel(level: number): void;
-  /**
-   * 描述  当前的缩放比例。
-   * @date 2022-11-11
-   * @returns {any}
-   */
+  /** 当前缩放等级 */
   getZoomLevel(): number;
-  /**
-   * 描述  插入text 到焦点元素
-   * @date 2022-11-11
-   * @param {any} text:string
-   * @returns {any}
-   */
+  /** 向焦点元素插入文本 */
   insertText(text: string): void;
-  /**
-   * 在页面中执行 code
-   *
-   * 注意: callback 无法跨越 contextBridge 传递, 请统一使用返回的 Promise
-   */
-  executeJavaScript(code: string, userGesture?: boolean): Promise<any>;
-  executeJavaScriptInIsolatedWorld(
-    ...args: Parameters<WebFrame['executeJavaScriptInIsolatedWorld']>
-  ): Promise<any>;
-  setIsolatedWorldInfo(...args: Parameters<WebFrame['setIsolatedWorldInfo']>): void;
+  /** 资源占用 */
   getResourceUsage(): ReturnType<WebFrame['getResourceUsage']>;
+  /** 清空缓存 */
   clearCache(): void;
-  getFrameForSelector(selector: string): WebFrame | null;
-
-  firstChild(): WebFrame | null;
-  nextSibling(): WebFrame | null;
-  opener(): WebFrame | null;
-  parent(): WebFrame | null;
-  routingId(): number;
 }
 
 export const $webFrame: PreloadWebFrame = {
@@ -62,15 +29,6 @@ export const $webFrame: PreloadWebFrame = {
   setZoomLevel: (level) => webFrame.setZoomLevel(level),
   getZoomLevel: () => webFrame.getZoomLevel(),
   insertText: (text) => webFrame.insertText(text),
-  executeJavaScript: (code, userGesture) => webFrame.executeJavaScript(code, userGesture),
-  executeJavaScriptInIsolatedWorld: (...args) => webFrame.executeJavaScriptInIsolatedWorld(...args),
-  setIsolatedWorldInfo: (...args) => webFrame.setIsolatedWorldInfo(...args),
   getResourceUsage: () => webFrame.getResourceUsage(),
   clearCache: () => webFrame.clearCache(),
-  getFrameForSelector: (selector) => webFrame.getFrameForSelector(selector),
-  firstChild: () => webFrame.firstChild,
-  nextSibling: () => webFrame.nextSibling,
-  opener: () => webFrame.opener,
-  parent: () => webFrame.parent,
-  routingId: () => webFrame.routingId,
 };
