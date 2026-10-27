@@ -10,6 +10,8 @@ electronup 是把 **Vite**（渲染进程、主进程 / preload）+ **electron-b
 | --- | --- |
 | `packages/electronup` | 核心包：CLI、配置解析、dev/build 流程、updater 导出（发布名 `electronup`） |
 | `packages/create-electronup` | 脚手架，用 degit 拉取 `electronup-template` 模板 |
+| `packages/electron-*` | 7 个可选的 Electron 运行时模块包（发布名 `@quiteer/electron-*`），vp pack 构建，node:test + electron 替身测试，changesets 管理版本 |
+| `playground/modules-basic` / `modules-smoke` | 模块包的最小示例与真 Electron 冒烟（playwright） |
 | `playground/electronup-test` | 端到端示例项目，CI 冒烟构建也用它 |
 | `template` | 脚手架测试入口；仅 `template/package.json` 被跟踪，`template/*` 其余内容被忽略 |
 | `docs` | VitePress 中英双语文档站（`docs/` 中文，`docs/en/` 英文） |
@@ -35,9 +37,10 @@ $env:ELECTRON_CUSTOM_DIR = '{{ version }}'
 | --- | --- |
 | 单元测试（vitest 5） | `pnpm test`（`packages/*` 全部包；create-electronup 的远端模板校验需 `CREATE_ELECTRONUP_REMOTE=1`） |
 | 单文件/过滤测试 | `pnpm --filter electronup exec vp test run pack` |
-| 类型检查 | `pnpm typecheck`（electronup 与 create-electronup 两个 tsconfig） |
+| 类型检查 | `pnpm typecheck`（electronup、create-electronup 与各 electron-* 包的 src + test） |
 | Lint（oxlint，不支持 Markdown） | `pnpm lint` / `pnpm lint:fix` |
 | 构建核心包（vp pack） | `pnpm --filter electronup build` |
+| 构建模块包 | `pnpm modules:build`（lint 前需先构建：preload 的 `index.d.cts` 与 playground 引用 dist） |
 | 文档开发 / 构建 | `pnpm docs:dev` / `pnpm docs:build` |
 | 示例项目构建（走 workspace bin） | `pnpm --filter electronup-test build:web` / `build:dir` |
 | 端到端（与 CI 一致，直连 dist） | 先 `pnpm --filter electronup build`，再进入 `playground/electronup-test` 执行 `node ../../packages/electronup/dist/bin/electronup.mjs build --web`（或 `--dir`） |
@@ -73,7 +76,7 @@ src/cli.ts (cac 命令解析)
 6. **dotenv 必须可降级**：`.env` 与 `.env.{mode}` 都可能不存在，缺失时返回 `{}` 而不是抛错。
 7. **跨平台**：路径统一用 `node:path`；测试断言要容忍 Windows 分隔符；不要在代码里写死 `/` 或平台专属路径。
 8. **渲染进程 `modulePreload.polyfill = false`** 是 vite-plus-core 未导出 polyfill 子路径的规避，不要改回。
-9. **文档中英同步**：`docs/` 与 `docs/en/` 各 17 篇一一对应；新增页面要在 `docs/.vitepress/config.ts` 的两种语言 nav/sidebar 里都登记。站点 base 在 Vercel 为 `/`，GitHub Pages 为 `/electronup/`。
+9. **文档中英同步**：`docs/` 与 `docs/en/` 各 20 篇一一对应；新增页面要在 `docs/.vitepress/config.ts` 的两种语言 nav/sidebar 里都登记。站点 base 在 Vercel 为 `/`，GitHub Pages 为 `/electronup/`。
 10. **目录清理只走 `cleanDirs`**：`resourceDir` / `outDir` 的清空统一由 `runner/clean.ts` → `utils/clean.ts` 完成（拒绝项目根及上级、用户主目录、文件系统根、`node_modules` / `.git`、链接目标；整体 rename 后再删除），并且必须放在配置函数执行、平台 / 架构校验与 `-o` 向导之后；不要在 CLI 层或别处直接 `rmSync` 输出目录。
 11. **不要提交构建产物与临时文件**：`dist/`、`docs/.vitepress/{cache,dist}`、`*.tgz`、验收日志、误克隆的目录都不要进仓库；提交前用 `git status` 确认。
 12. **skills 与实现同步**：修改 CLI 参数、配置项默认值或 updater 行为时，同步更新 `skills/*/SKILL.md` 中对应描述。
@@ -95,10 +98,11 @@ src/cli.ts (cac 命令解析)
 - 重新 build、pack 并用 `.github/scripts/check-release-package.mjs` 校验实际 tarball；确认 tarball、源码版本、标签三者一致。推送 main 和本次标签，核对同一提交的 Smoke Build。
 - 保持工作区干净。本机缓存和个人记录放入 .git/info/exclude，不能为了发版顺手删除或提交。版本准备失败时先核对文件、提交、标签与注册表，禁止盲目重跑升版。
 - 两个包的 prepublishOnly 会校验 main/master、干净工作区、当前版本标签，并重新构建。用户只需 pnpm publish，npm 登录和 2FA 由用户完成。
+- 模块包 `@quiteer/electron-*` 不走 bumpp：改动附 `pnpm changeset`，发版用 `pnpm version:modules`，标签去掉 scope（如 `electron-ipc-v3.2.0`）且逐个推送。
 - 详细操作见 [.github/RELEASING.md](.github/RELEASING.md)。
 
 ## 相关文档
 
 - 中文文档：`docs/`；英文文档：`docs/en/`；线上站点：<https://quiteerjs.github.io/electronup/>
 - 自动更新说明：`docs/introduce/auto-update.md`
-- 各插件包（electron-modules 系列）文档在 `docs/plugins/`
+- 各运行时模块包（`packages/electron-*`）文档在 `docs/plugins/`，升级指南为 `docs/plugins/migration.md`

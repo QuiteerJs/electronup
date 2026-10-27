@@ -35,7 +35,7 @@ title: 项目介绍
 为了避免误解，以下几点需要明确：
 
 - **不安装或锁定 Electron**。`electron` 是可选的对等依赖（peer dependency），由应用项目自行安装并选择版本；electronup 构建时会读取项目内的 Electron 版本。
-- **不提供窗口、菜单、托盘、IPC 的运行时封装**。这些能力由 [electron-modules](https://github.com/QuiteerJs/electron-modules) 系列包提供，可按需安装，见[插件总览](/plugins/)。
+- **不提供窗口、菜单、托盘、IPC 的运行时封装**。这些能力由本仓库 `packages/electron-*` 下的运行时模块包提供，可按需安装，见[插件总览](/plugins/)。
 - **不替代 Vite、electron-builder 的完整文档**。electronup 只做预置与编排，未覆盖的配置项应查阅对应工具的官方文档。
 - **不内置代码签名证书**。macOS 公证、Windows 代码签名等仍由 electron-builder 的配置和你的证书环境决定，具体配置见[签名与公证](/introduce/config#签名与公证)。
 
@@ -92,7 +92,7 @@ pnpm add electronup -D
 | [`electronup`](https://www.npmjs.com/package/electronup) | 本项目的命令行与配置 API |
 | [`create-electronup`](https://www.npmjs.com/package/create-electronup) | 从远程模板仓库创建项目 |
 | [`@quiteer/parser-config`](https://www.npmjs.com/package/@quiteer/parser-config) | 解析 `electronup.config.ts` 等配置文件 |
-| [electron-modules](https://github.com/QuiteerJs/electron-modules) | 可选的窗口、菜单、托盘、IPC、preload 运行时包 |
+| [`@quiteer/electron-*`](/plugins/#运行时相关) | 可选的窗口、菜单、托盘、IPC、preload、应用生命周期、快捷键运行时包 |
 
 ## 平台限制
 

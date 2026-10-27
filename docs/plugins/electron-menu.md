@@ -4,7 +4,7 @@ title: electron-menu
 
 # @quiteer/electron-menu
 
-> 属于 [electron-modules](https://github.com/QuiteerJs/electron-modules) 系列，与 electronup 配套使用。源码见 [packages/menu](https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu)。
+> electronup 仓库维护的 electron 运行时模块包之一，与 electronup 配套使用。源码见 [packages/electron-menu](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-menu)。
 
 Electron 主进程菜单管理：统一注册、随处取用、按路径定位菜单项、改动自动同步。
 

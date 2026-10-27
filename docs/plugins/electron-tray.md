@@ -4,7 +4,7 @@ title: electron-tray
 
 # @quiteer/electron-tray
 
-> 属于 [electron-modules](https://github.com/QuiteerJs/electron-modules) 系列，与 electronup 配套使用。源码见 [packages/tray](https://github.com/QuiteerJs/electron-modules/tree/main/packages/tray)。
+> electronup 仓库维护的 electron 运行时模块包之一，与 electronup 配套使用。源码见 [packages/electron-tray](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-tray)。
 
 Electron 主进程系统托盘管理：统一注册、随处取用、图标状态切换、菜单与事件一把梭。
 
@@ -121,7 +121,7 @@ paused = true
 tray.refreshMenu() // 重新求值并 setContextMenu
 ```
 
-菜单也可以直接交给 [@quiteer/electron-menu](https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu) 管理，写 `menu` 即可换上：
+菜单也可以直接交给 [@quiteer/electron-menu](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-menu) 管理，写 `menu` 即可换上：
 
 ```ts
 import { menus } from '@quiteer/electron-menu'

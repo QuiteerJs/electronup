@@ -4,7 +4,7 @@ title: electron-menu
 
 # @quiteer/electron-menu
 
-> Part of the [electron-modules](https://github.com/QuiteerJs/electron-modules) family, designed to work with electronup. Source: [packages/menu](https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu).
+> One of the Electron runtime packages maintained in the electronup repository, designed to work with electronup. Source: [packages/electron-menu](https://github.com/QuiteerJs/electronup/tree/main/packages/electron-menu).
 
 Menu management for the Electron main process: central registration, path-based lookups and automatic syncing.
 

@@ -35,7 +35,7 @@ The main process and preload scripts are built with Vite. The main entry default
 To avoid confusion:
 
 - **It does not install or pin Electron.** `electron` is an optional peer dependency installed and versioned by your app. electronup reads the installed version when building.
-- **It does not provide runtime helpers for windows, menus, trays or IPC.** Those live in the [electron-modules](https://github.com/QuiteerJs/electron-modules) packages. See the [plugin overview](/en/plugins/).
+- **It does not provide runtime helpers for windows, menus, trays or IPC.** Those live in the runtime packages under `packages/electron-*` in this repository. See the [plugin overview](/en/plugins/).
 - **It does not replace the full documentation of Vite or electron-builder.** electronup presets and orchestrates them; refer to their docs for uncovered options.
 - **It does not manage code signing certificates.** macOS notarization and Windows code signing still depend on electron-builder configuration and your certificate setup; see [Code signing and notarization](/en/introduce/config#code-signing-and-notarization).
 
@@ -92,7 +92,7 @@ pnpm add electronup -D
 | [`electronup`](https://www.npmjs.com/package/electronup) | The CLI and config API documented here |
 | [`create-electronup`](https://www.npmjs.com/package/create-electronup) | Creates a project from a remote template |
 | [`@quiteer/parser-config`](https://www.npmjs.com/package/@quiteer/parser-config) | Parses `electronup.config.ts` and other config files |
-| [electron-modules](https://github.com/QuiteerJs/electron-modules) | Optional runtime packages for windows, menus, trays, IPC and preload |
+| [`@quiteer/electron-*`](/en/plugins/#runtime-related) | Optional runtime packages for windows, menus, trays, IPC, preload, app lifecycle and shortcuts |
 
 ## Platform limitations
 

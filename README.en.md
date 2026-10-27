@@ -137,7 +137,7 @@ Or copy the directories you need from `skills/` into your project's `.claude/ski
 
 - [create-electronup](https://github.com/QuiteerJs/electronup/tree/main/packages/create-electronup): creates project templates.
 - [@quiteer/parser-config](https://github.com/QuiteerJs/parser-config): resolves config files.
-- [electron-modules](https://github.com/QuiteerJs/electron-modules): optional runtime packages for windows, menus, trays, IPC and preload.
+- [`@quiteer/electron-*`](./packages): optional runtime packages under `packages/electron-*` in this repository for windows, menus, trays, IPC, preload, app lifecycle and shortcuts.
 
 ## License
 
