@@ -6,7 +6,6 @@ export default defineConfig({
     entry: { preload: 'src/index.ts' },
     dts: true,
     format: 'cjs',
-    splitting: false,
     clean: true,
     minify: true,
     deps: { neverBundle: ['electron'] },

@@ -5,7 +5,6 @@ export default defineConfig({
     {
       entry: ['index.ts'],
       dts: true,
-      splitting: false,
       clean: true,
       minify: true,
       format: 'esm',
@@ -16,7 +15,6 @@ export default defineConfig({
       entry: ['event-enum/index.ts'],
       dts: true,
       outDir: 'web',
-      splitting: false,
       clean: true,
       minify: true,
       format: 'esm',

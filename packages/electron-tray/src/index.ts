@@ -1,4 +1,4 @@
-import { createTrayManager } from './manager'
+import { createTrayManager } from './manager';
 
 export type {
   TrayBoundsClickHandler,
@@ -14,13 +14,13 @@ export type {
   TrayMenuTemplate,
   TrayOptions,
   TrayReactiveProps,
-  TraySimpleHandler
-} from './types'
-export type { TrayState } from './tray'
-export { isIconMap, isNativeImage, resolveIcon } from './icon'
-export { TrayStore } from './store'
-export { createTrayManager } from './manager'
-export { createTray, createTrayState, toController } from './tray'
+  TraySimpleHandler,
+} from './types';
+export type { TrayState } from './tray';
+export { isIconMap, isNativeImage, resolveIcon } from './icon';
+export { TrayStore } from './store';
+export { createTrayManager } from './manager';
+export { createTray, createTrayState, toController } from './tray';
 
 /**
  * 开箱即用的全局托盘管理器
@@ -43,4 +43,4 @@ export { createTray, createTrayState, toController } from './tray'
  * trays.setState('main', 'syncing')
  * ```
  */
-export const trays = createTrayManager()
+export const trays = createTrayManager();

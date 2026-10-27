@@ -1,35 +1,35 @@
 {
   "name": "@quiteer/electron-menu",
-  "type": "module",
   "version": "0.0.2",
   "description": "基于electron , 提供菜单创建与菜单项统一管理",
-  "author": "quiteer",
-  "license": "MIT",
+  "keywords": [
+    "electron",
+    "menu"
+  ],
   "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu",
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+  },
+  "license": "MIT",
+  "author": "quiteer",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/QuiteerJs/electron-modules.git",
     "directory": "packages/menu"
   },
-  "bugs": {
-    "url": "https://github.com/QuiteerJs/electron-modules/issues"
-  },
-  "keywords": [
-    "electron",
-    "menu"
+  "files": [
+    "CHANGELOG.md",
+    "dist"
   ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "CHANGELOG.md",
-    "dist"
-  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

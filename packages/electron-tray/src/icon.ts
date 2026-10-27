@@ -1,6 +1,7 @@
-import { nativeImage } from 'electron'
-import type { NativeImage } from 'electron'
-import type { TrayIconOptions, TrayIconSource } from './types'
+import { nativeImage } from 'electron';
+import type { NativeImage } from 'electron';
+
+import type { TrayIconOptions, TrayIconSource } from './types';
 
 /**
  * 判断图标来源是否为 NativeImage
@@ -9,14 +10,14 @@ import type { TrayIconOptions, TrayIconSource } from './types'
  * 而 `typeof source !== 'string'` 会把图标状态表一并误判
  */
 export function isNativeImage(source: TrayIconSource): source is NativeImage {
-  return typeof source !== 'string' && typeof (source as NativeImage).getSize === 'function'
+  return typeof source !== 'string' && typeof source.getSize === 'function';
 }
 
 /** 判断图标配置是否为状态表 (非字符串且非 NativeImage) */
 export function isIconMap<S extends string>(
-  icon: TrayIconSource | Record<S, TrayIconSource>
+  icon: TrayIconSource | Record<S, TrayIconSource>,
 ): icon is Record<S, TrayIconSource> {
-  return typeof icon !== 'string' && !isNativeImage(icon as TrayIconSource)
+  return typeof icon !== 'string' && !isNativeImage(icon as TrayIconSource);
 }
 
 /**
@@ -26,18 +27,20 @@ export function isIconMap<S extends string>(
  * - 传入 NativeImage 时按需 resize, 未指定尺寸则复用同一实例
  */
 export function resolveIcon(source: TrayIconSource, options: TrayIconOptions = {}): TrayIconSource {
-  const { size, template } = options
+  const { size, template } = options;
 
-  const base = typeof source === 'string'
-    ? source.startsWith('data:')
-      ? nativeImage.createFromDataURL(source)
-      : nativeImage.createFromPath(source)
-    : source
+  const base =
+    typeof source === 'string'
+      ? source.startsWith('data:')
+        ? nativeImage.createFromDataURL(source)
+        : nativeImage.createFromPath(source)
+      : source;
 
-  const image = size ? base.resize(size) : base
+  const image = size ? base.resize(size) : base;
 
-  if (template)
-    image.setTemplateImage(true)
+  if (template) {
+    image.setTemplateImage(true);
+  }
 
-  return image
+  return image;
 }

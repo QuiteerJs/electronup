@@ -1,1 +1,1 @@
-export { Ipc } from './instance'
+export { Ipc } from './instance';

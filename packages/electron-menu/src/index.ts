@@ -1,4 +1,4 @@
-import { createMenuManager } from './manager'
+import { createMenuManager } from './manager';
 
 export type {
   MenuConflictStrategy,
@@ -12,14 +12,14 @@ export type {
   MenuOptions,
   MenuTemplate,
   MenuTemplateInput,
-  MenuTemplateItem
-} from './types'
-export type { MenuState } from './menu'
-export type { MenuManager } from './manager'
-export { MenuStore } from './store'
-export { createMenuManager } from './manager'
-export { createMenu, createMenuState, getMenuState, toController } from './menu'
-export { findItem, normalizeTemplate } from './path'
+  MenuTemplateItem,
+} from './types';
+export type { MenuState } from './menu';
+export type { MenuManager } from './manager';
+export { MenuStore } from './store';
+export { createMenuManager } from './manager';
+export { createMenu, createMenuState, getMenuState, toController } from './menu';
+export { findItem, normalizeTemplate } from './path';
 
 /**
  * 开箱即用的全局菜单管理器
@@ -41,4 +41,4 @@ export { findItem, normalizeTemplate } from './path'
  * menus.update('app', 'file.save', { enabled: false, label: '保存中…' })
  * ```
  */
-export const menus = createMenuManager()
+export const menus = createMenuManager();

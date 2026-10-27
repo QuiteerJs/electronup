@@ -103,7 +103,7 @@ export enum IpcWindowOptions {
    * 可以切换的事件
    * 设置窗口是否应始终显示在其他窗口的前面。
    */
-  SWITCH_ALWAYS_ON_TOP = 'switch-always-on-top'
+  SWITCH_ALWAYS_ON_TOP = 'switch-always-on-top',
 }
 
 export enum IpcFileOptions {
@@ -112,27 +112,27 @@ export enum IpcFileOptions {
    */
   BASENAME = 'basename',
   /**
-  * path.dirname
-  */
+   * path.dirname
+   */
   DIRNAME = 'dirname',
   /**
    * path.extname
    */
   EXTNAME = 'extname',
   /**
-  * path.join
-  */
+   * path.join
+   */
   JOIN = 'join',
   /**
-  * path.parse
-  */
+   * path.parse
+   */
   PARSE = 'parse',
   /**
-  * path.relative
-  */
+   * path.relative
+   */
   RELATIVE = 'relative',
   /**
-  * path.resolve
-  */
-  RESOLVE = 'resolve'
+   * path.resolve
+   */
+  RESOLVE = 'resolve',
 }

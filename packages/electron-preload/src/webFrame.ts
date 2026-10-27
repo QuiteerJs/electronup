@@ -1,75 +1,76 @@
-import type { WebFrame } from 'electron'
-import { webFrame } from 'electron'
+import type { WebFrame } from 'electron';
+import { webFrame } from 'electron';
 
 export interface PreloadWebFrame {
-
   /**
    * 描述  更改缩放倍数。
    * @date 2022-11-11
    * @param {any} factor:number 缩放比例 1为原始比例
    * @returns {any}
    */
-  setZoomFactor(factor: number): void
+  setZoomFactor(factor: number): void;
   /**
    * 描述  当前的缩放比例。
    * @date 2022-11-11
    * @returns {any}
    */
-  getZoomFactor(): number
+  getZoomFactor(): number;
   /**
    * 描述  更改缩放等级。
    * @date 2022-11-11
    * @param {any} level:number 缩放等级。
    * @returns {any}
    */
-  setZoomLevel(level: number): void
+  setZoomLevel(level: number): void;
   /**
    * 描述  当前的缩放比例。
    * @date 2022-11-11
    * @returns {any}
    */
-  getZoomLevel(): number
+  getZoomLevel(): number;
   /**
    * 描述  插入text 到焦点元素
    * @date 2022-11-11
    * @param {any} text:string
    * @returns {any}
    */
-  insertText(text: string): void
+  insertText(text: string): void;
   /**
    * 在页面中执行 code
    *
    * 注意: callback 无法跨越 contextBridge 传递, 请统一使用返回的 Promise
    */
-  executeJavaScript(code: string, userGesture?: boolean): Promise<any>
-  executeJavaScriptInIsolatedWorld(...args: Parameters<WebFrame['executeJavaScriptInIsolatedWorld']>): Promise<any>
-  setIsolatedWorldInfo(...args: Parameters<WebFrame['setIsolatedWorldInfo']>): void
-  getResourceUsage(): ReturnType<WebFrame['getResourceUsage']>
-  clearCache(): void
-  getFrameForSelector(selector: string): WebFrame | null
+  executeJavaScript(code: string, userGesture?: boolean): Promise<any>;
+  executeJavaScriptInIsolatedWorld(
+    ...args: Parameters<WebFrame['executeJavaScriptInIsolatedWorld']>
+  ): Promise<any>;
+  setIsolatedWorldInfo(...args: Parameters<WebFrame['setIsolatedWorldInfo']>): void;
+  getResourceUsage(): ReturnType<WebFrame['getResourceUsage']>;
+  clearCache(): void;
+  getFrameForSelector(selector: string): WebFrame | null;
 
-  firstChild(): WebFrame | null
-  nextSibling(): WebFrame | null
-  opener(): WebFrame | null
-  parent(): WebFrame | null
-  routingId(): number
+  firstChild(): WebFrame | null;
+  nextSibling(): WebFrame | null;
+  opener(): WebFrame | null;
+  parent(): WebFrame | null;
+  routingId(): number;
 }
 
 export const $webFrame: PreloadWebFrame = {
-  setZoomFactor: factor => webFrame.setZoomFactor(factor),
+  setZoomFactor: (factor) => webFrame.setZoomFactor(factor),
   getZoomFactor: () => webFrame.getZoomFactor(),
-  setZoomLevel: level => webFrame.setZoomLevel(level),
+  setZoomLevel: (level) => webFrame.setZoomLevel(level),
   getZoomLevel: () => webFrame.getZoomLevel(),
-  insertText: text => webFrame.insertText(text),
+  insertText: (text) => webFrame.insertText(text),
   executeJavaScript: (code, userGesture) => webFrame.executeJavaScript(code, userGesture),
   executeJavaScriptInIsolatedWorld: (...args) => webFrame.executeJavaScriptInIsolatedWorld(...args),
   setIsolatedWorldInfo: (...args) => webFrame.setIsolatedWorldInfo(...args),
   getResourceUsage: () => webFrame.getResourceUsage(),
   clearCache: () => webFrame.clearCache(),
-  getFrameForSelector: selector => webFrame.getFrameForSelector(selector),
+  getFrameForSelector: (selector) => webFrame.getFrameForSelector(selector),
   firstChild: () => webFrame.firstChild,
   nextSibling: () => webFrame.nextSibling,
   opener: () => webFrame.opener,
   parent: () => webFrame.parent,
-  routingId: () => webFrame.routingId
-}
+  routingId: () => webFrame.routingId,
+};

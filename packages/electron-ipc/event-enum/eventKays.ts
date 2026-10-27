@@ -7,5 +7,5 @@ export enum EventKeys {
   /**
    * 文件操作
    */
-  FileOptionsKey = '__file_options__'
+  FileOptionsKey = '__file_options__',
 }
