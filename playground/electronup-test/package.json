@@ -31,12 +31,11 @@
     "build:option": "electronup build build/electronup.config.ts -o"
   },
   "dependencies": {
-    "@quiteer/electron-ipc": "^2.0.4",
-    "@quiteer/electron-preload": "^0.0.10",
     "electron-updater": "^6.8.9",
     "epic-spinners": "^2.0.0"
   },
   "devDependencies": {
+    "@quiteer/electron-ipc": "workspace:*",
     "@quiteer/ts-config": "^0.0.7",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitejs/plugin-vue-jsx": "^5.1.6",

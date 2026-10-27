@@ -26,3 +26,19 @@ The seven packages below are maintained under `packages/electron-*` in this repo
 Upgrading electron-preload / electron-ipc from an older version? See the [migration guide](./migration).
 
 These runtime packages do not depend on the electronup CLI and do not affect build output paths. Import them from your own main process entry as needed.
+
+### Installing in an electronup project
+
+electronup builds the main process as CJS (`electron.cjs`). Packages in `dependencies` are not bundled; they are `require`d at runtime. Except for electron-preload these packages are ESM only, so `require` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`. Therefore:
+
+| Package | Put it in | Why |
+| --- | --- | --- |
+| electron-ipc / browser / menu / tray / app / shortcut | `devDependencies` | electronup bundles devDependencies into `electron.cjs`, so the installer does not need another copy |
+| electron-preload | `dependencies` | `preloadPath` / `createPreload()` point to the prebuilt `index.cjs` inside the package, which must exist at runtime, so electron-builder ships it |
+
+```bash
+pnpm add -D @quiteer/electron-ipc @quiteer/electron-browser
+pnpm add @quiteer/electron-preload
+```
+
+If they are already in `dependencies`, you can also list them in `packConfig.noExternal` in `electronup.config.ts` so electronup bundles them into the main process. When using electron-preload you do not need to build it again through electronup's `preload` option.

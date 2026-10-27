@@ -1,7 +1,9 @@
+// 与 preload/index.ts 暴露的对象保持一致
 interface Window {
-  $ipc: import('@quiteer/electron-preload').PreloadIpc & import('@quiteer/electron-ipc/web').ExpandPreloadIpc
-  $clipboard: import('@quiteer/electron-preload').PreloadClipboard
-  $webFrame: import('@quiteer/electron-preload').PreloadWebFrame
+  electronupPreload: {
+    platform: NodeJS.Platform
+    versions: NodeJS.ProcessVersions
+  }
 }
 
 declare module '*.vue' {
