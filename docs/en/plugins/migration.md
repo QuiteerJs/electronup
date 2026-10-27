@@ -6,12 +6,14 @@ title: Migration guide
 
 This page covers the two upgrades that need manual work:
 
-- [`@quiteer/electron-preload` 2.x → 3.0](#electron-preload-2x--30): **breaking change**, business channels must be allowlisted explicitly.
-- [`@quiteer/electron-ipc` 3.1 → 3.2](#electron-ipc-31--32): the API is backward compatible, but the built-in channels now validate the caller; it also adds a type-safe IPC contract you can migrate to along the way.
+- [`@quiteer/electron-preload` 1.x → 3.0](#electron-preload-1x--30): **breaking change**, business channels must be allowlisted explicitly.
+- [`@quiteer/electron-ipc` 3.0 → 3.2](#electron-ipc-30--32): the API is backward compatible, but the built-in channels now validate the caller; it also adds a type-safe IPC contract you can migrate to along the way.
 
 The two packages are usually used together, so upgrade them at the same time and follow the [recommended order](#recommended-order). See each package's `CHANGELOG.md` for every change, and [`playground/modules-basic`](https://github.com/QuiteerJs/electronup/tree/main/playground/modules-basic) for a complete runnable example.
 
-## electron-preload 2.x → 3.0 {#electron-preload-2x--30}
+> Version note: preload 2.0.0 and ipc 3.1.0 were never published to npm on their own; their changes ship with preload 3.0.0 / ipc 3.2.0, so this guide starts from the previous npm releases (preload 1.x, ipc 3.0.x).
+
+## electron-preload 1.x → 3.0 {#electron-preload-1x--30}
 
 ### Requirements
 
@@ -31,7 +33,7 @@ Since 3.0, `$ipc` only lets allowlisted channels through. The default allowlist 
 The main process owns the allowlist: the new main process entry `@quiteer/electron-preload/main` provides `createPreload()`, which returns `{ preload, additionalArguments }` to spread into `webPreferences`.
 
 ```ts
-// 2.x
+// 1.x
 import preloadPath from '@quiteer/electron-preload'
 
 new BrowserWindow({
@@ -80,7 +82,7 @@ Notes:
 
 ### 2. `$clipboard` is now opt-in (required if you use it)
 
-In 2.x, `$clipboard` did not actually work with `sandbox: true` (the sandboxed preload has no `clipboard` module, so every call threw). 3.0 implements it through the main process and does not expose it by default:
+In 1.x, `$clipboard` did not actually work with `sandbox: true` (the sandboxed preload has no `clipboard` module, so every call threw). 3.0 implements it through the main process and does not expose it by default:
 
 ```ts
 createPreload({ clipboard: true }) // also registers the clipboard handler in the main process, repeated calls are harmless
@@ -90,7 +92,7 @@ Without `createPreload` you can call `registerClipboardHandler()` yourself, but 
 
 Types and data shapes changed accordingly:
 
-| 2.x                                       | 3.0                                                                                              |
+| 1.x                                       | 3.0                                                                                              |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `window.$clipboard` always exists         | Exists only when enabled; declare the global type as optional `$clipboard?`                       |
 | `read()` / `write()` use `ClipboardItem`  | Plain object `PreloadClipboardData`: `{ [mime]: string \| Uint8Array \| { title, url } }`        |
@@ -98,7 +100,7 @@ Types and data shapes changed accordingly:
 | `clear(type)` dropped `type`              | Fixed                                                                                            |
 
 ```ts
-// 2.x (does not actually work in a sandbox)
+// 1.x (does not actually work in a sandbox)
 await window.$clipboard.write([new ClipboardItem({ 'text/plain': blob })])
 
 // 3.0
@@ -124,12 +126,28 @@ The remaining members are unchanged: `setZoomFactor` / `getZoomFactor` / `setZoo
 
 Since 3.0 it only removes listeners registered through `$ipc` and no longer clears listeners that other preload code attached to `ipcRenderer`. Code that relied on "clear every listener" usually needs no change; if you happened to rely on it to clear listeners elsewhere, unregister them in that code instead.
 
-### 5. No more deep imports from `dist/*`
+### 5. `$ipc.on` / `$ipc.once` return an unsubscribe function, and the callback event is a placeholder (required, since 2.0)
+
+The old return value crossed `contextBridge` and handed the whole `ipcRenderer` to the page, so it now returns a function that removes the listener:
+
+```ts
+// 1.x
+window.$ipc.on('a', onA).on('b', onB)
+
+// 3.0
+const offA = window.$ipc.on('a', onA)
+const offB = window.$ipc.on('b', onB)
+offA()
+```
+
+The first callback argument is now an empty placeholder object instead of the native `IpcRendererEvent`. `(_event, ...args)` callbacks need no change; code that reads `event.sender` / `event.ports` does. Argument types are narrowed from `any` to `unknown`, and `invoke<R>` / `sendSync<R>` only keep the return type parameter.
+
+### 6. No more deep imports from `dist/*`
 
 `package.json` now has `exports`, which only exposes `.`, `./main` and `./package.json`:
 
 ```ts
-// 2.x: no longer works, throws ERR_PACKAGE_PATH_NOT_EXPORTED
+// 1.x: no longer works, throws ERR_PACKAGE_PATH_NOT_EXPORTED
 require.resolve('@quiteer/electron-preload/dist/preload.cjs')
 
 // 3.0: pick one
@@ -137,7 +155,7 @@ import preloadPath from '@quiteer/electron-preload'
 import { preloadPath } from '@quiteer/electron-preload/main'
 ```
 
-### 6. Global types
+### 7. Global types
 
 ```ts
 // global.d.ts
@@ -157,12 +175,13 @@ interface Window {
 - [ ] Custom `additionalArguments` are merged with the return value of `createPreload()`
 - [ ] Windows that use `$clipboard` pass `clipboard: true`, and `ClipboardItem` is replaced with plain objects
 - [ ] No removed `$webFrame` member is called anymore
+- [ ] Chained `$ipc.on(...)` calls are split, and nothing reads `sender` / `ports` from the callback event
 - [ ] Nothing deep-imports `@quiteer/electron-preload/dist/*`
 - [ ] Every window has been exercised and the console shows no "未在 xxx 白名单中" (not in allowlist) errors
 
-## electron-ipc 3.1 → 3.2 {#electron-ipc-31--32}
+## electron-ipc 3.0 → 3.2 {#electron-ipc-30--32}
 
-3.2 does not remove or change any API, so existing code can upgrade directly. Watch out for one **behavior change**, and consider migrating to one new feature.
+3.2 does not remove or change any API, so existing code can upgrade directly. Watch out for one **behavior change** and a few subtle differences from fixes, and consider migrating to one new feature.
 
 ### Requirements
 
@@ -290,7 +309,7 @@ channel<(id: string) => User>({ args: z.tuple([z.string().uuid()]) })
 
 When validation fails, `invoke` rejects with an error and `send` drops the call and logs with `console.error`.
 
-### 3. Use `WithIpcChannels` for type augmentation (available since 3.1)
+### 3. Use `WithIpcChannels` for type augmentation
 
 If you still use `PreloadIpc & ExpandPreloadIpc`, it never reports errors (the loose signature of `PreloadIpc` swallows every call). Switch to:
 
@@ -301,6 +320,13 @@ interface Window {
   >
 }
 ```
+
+### 4. Differences from other fixes
+
+- `Ipc.init()` is idempotent: calling it again no longer throws "Attempted to register a second handler".
+- `Ipc.destroy()` only removes listeners registered by this package and no longer clears your callbacks on the same channels.
+- Prototype keys such as `toString` / `__proto__` sent from the renderer no longer hit a handler; window operations on destroyed windows are ignored.
+- Adds `Ipc.initialized`, and the main entry also exports `EventKeys` / `IpcWindowOptions` / `IpcFileOptions`.
 
 ### Checklist
 

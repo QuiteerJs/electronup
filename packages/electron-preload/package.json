@@ -1,6 +1,6 @@
 {
   "name": "@quiteer/electron-preload",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "基于electron , 提供 sandbox 可用的预加载脚本, 暴露带通道白名单的 $ipc 与收敛的 $webFrame / $clipboard",
   "keywords": [
     "electron",

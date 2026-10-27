@@ -6,12 +6,14 @@ title: 升级指南
 
 本文覆盖两次需要动手的升级：
 
-- [`@quiteer/electron-preload` 2.x → 3.0](#electron-preload-2x--30)：**破坏性变更**，业务通道必须显式加白名单。
-- [`@quiteer/electron-ipc` 3.1 → 3.2](#electron-ipc-31--32)：API 向后兼容，但内置通道开始校验调用来源；另外新增了类型安全的 IPC 契约，可以顺手迁过去。
+- [`@quiteer/electron-preload` 1.x → 3.0](#electron-preload-1x--30)：**破坏性变更**，业务通道必须显式加白名单。
+- [`@quiteer/electron-ipc` 3.0 → 3.2](#electron-ipc-30--32)：API 向后兼容，但内置通道开始校验调用来源；另外新增了类型安全的 IPC 契约，可以顺手迁过去。
 
 两个包通常一起用，建议同时升级，按 [一起升级的推荐顺序](#一起升级的推荐顺序) 走一遍即可。完整的逐条变更见各包的 `CHANGELOG.md`，可运行的完整示例见 [`playground/modules-basic`](https://github.com/QuiteerJs/electronup/tree/main/playground/modules-basic)。
 
-## electron-preload 2.x → 3.0 {#electron-preload-2x--30}
+> 版本说明：preload 2.0.0 与 ipc 3.1.0 没有单独发布到 npm，其变更随 preload 3.0.0 / ipc 3.2.0 一起发布，所以本文从 npm 上的上一版（preload 1.x、ipc 3.0.x）写起。
+
+## electron-preload 1.x → 3.0 {#electron-preload-1x--30}
 
 ### 环境要求
 
@@ -31,7 +33,7 @@ title: 升级指南
 白名单由主进程决定：新的主进程入口 `@quiteer/electron-preload/main` 提供 `createPreload()`，返回 `{ preload, additionalArguments }`，直接展开进 `webPreferences`。
 
 ```ts
-// 2.x
+// 1.x
 import preloadPath from '@quiteer/electron-preload'
 
 new BrowserWindow({
@@ -80,7 +82,7 @@ new BrowserWindow({
 
 ### 2. `$clipboard` 改为按需开启（用到时必改）
 
-2.x 的 `$clipboard` 在 `sandbox: true` 下其实不可用（沙箱预加载里没有 `clipboard` 模块，调用即报错）。3.0 改为经主进程实现，并且默认不暴露：
+1.x 的 `$clipboard` 在 `sandbox: true` 下其实不可用（沙箱预加载里没有 `clipboard` 模块，调用即报错）。3.0 改为经主进程实现，并且默认不暴露：
 
 ```ts
 createPreload({ clipboard: true }) // 同时会在主进程注册剪贴板处理器, 重复调用无副作用
@@ -90,7 +92,7 @@ createPreload({ clipboard: true }) // 同时会在主进程注册剪贴板处理
 
 类型与数据结构也随之调整：
 
-| 2.x                                     | 3.0                                                                                       |
+| 1.x                                     | 3.0                                                                                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `window.$clipboard` 总是存在            | 只在开启时存在，全局类型建议声明为可选 `$clipboard?`                                      |
 | `read()` / `write()` 用 `ClipboardItem` | 改为普通对象 `PreloadClipboardData`：`{ [mime]: string \| Uint8Array \| { title, url } }` |
@@ -98,7 +100,7 @@ createPreload({ clipboard: true }) // 同时会在主进程注册剪贴板处理
 | `clear(type)` 丢掉了 `type`             | 已修复                                                                                    |
 
 ```ts
-// 2.x (实际在 sandbox 下跑不通)
+// 1.x (实际在 sandbox 下跑不通)
 await window.$clipboard.write([new ClipboardItem({ 'text/plain': blob })])
 
 // 3.0
@@ -124,12 +126,28 @@ const [item] = (await window.$clipboard?.read()) ?? []
 
 3.0 起它只移除经 `$ipc` 注册的监听，不再连带清掉其他预加载代码挂在 `ipcRenderer` 上的监听。依赖旧行为「一键清空所有监听」的代码一般不需要改；如果你恰好依赖它清掉别处的监听，请改为在那份代码里自行注销。
 
-### 5. 不能再深引用 `dist/*`
+### 5. `$ipc.on` / `$ipc.once` 返回取消函数，回调的 event 改为占位（必改，2.0 起）
+
+原返回值跨过 `contextBridge` 等于把整个 `ipcRenderer` 交给页面，现改为返回取消监听的函数：
+
+```ts
+// 1.x
+window.$ipc.on('a', onA).on('b', onB)
+
+// 3.0
+const offA = window.$ipc.on('a', onA)
+const offB = window.$ipc.on('b', onB)
+offA()
+```
+
+监听回调的第一个参数改为空对象占位，不再是原生 `IpcRendererEvent`。`(_event, ...args)` 写法不用改；读取 `event.sender` / `event.ports` 的代码需要调整。参数类型也从 `any` 收紧为 `unknown`，`invoke<R>` / `sendSync<R>` 只保留返回值泛型。
+
+### 6. 不能再深引用 `dist/*`
 
 `package.json` 新增了 `exports`，只开放 `.`、`./main` 与 `./package.json`：
 
 ```ts
-// 2.x: 不再可用, 会报 ERR_PACKAGE_PATH_NOT_EXPORTED
+// 1.x: 不再可用, 会报 ERR_PACKAGE_PATH_NOT_EXPORTED
 require.resolve('@quiteer/electron-preload/dist/preload.cjs')
 
 // 3.0: 二选一
@@ -137,7 +155,7 @@ import preloadPath from '@quiteer/electron-preload'
 import { preloadPath } from '@quiteer/electron-preload/main'
 ```
 
-### 6. 全局类型
+### 7. 全局类型
 
 ```ts
 // global.d.ts
@@ -157,12 +175,13 @@ interface Window {
 - [ ] 自定义的 `additionalArguments` 已与 `createPreload()` 的返回值合并
 - [ ] 用到 `$clipboard` 的窗口传了 `clipboard: true`，`ClipboardItem` 换成普通对象
 - [ ] 没有再调用已移除的 `$webFrame` 成员
+- [ ] `$ipc.on(...)` 的链式调用已拆开，没有读取回调 event 上的 `sender` / `ports`
 - [ ] 没有深引用 `@quiteer/electron-preload/dist/*`
 - [ ] 打开每个窗口跑一遍主要流程，控制台没有「未在 xxx 白名单中」的报错
 
-## electron-ipc 3.1 → 3.2 {#electron-ipc-31--32}
+## electron-ipc 3.0 → 3.2 {#electron-ipc-30--32}
 
-3.2 没有删改任何 API，现有代码可以直接升级。需要留意的是一处**行为变化**，以及一个推荐迁移的新能力。
+3.2 没有删改任何 API，现有代码可以直接升级。需要留意的是一处**行为变化**、几处修复带来的细微差别，以及一个推荐迁移的新能力。
 
 ### 环境要求
 
@@ -290,7 +309,7 @@ channel<(id: string) => User>({ args: z.tuple([z.string().uuid()]) })
 
 校验失败时 `invoke` 以错误拒绝，`send` 丢弃并 `console.error`。
 
-### 3. 类型增强改用 `WithIpcChannels`（3.1 已提供）
+### 3. 类型增强改用 `WithIpcChannels`
 
 如果你还在用 `PreloadIpc & ExpandPreloadIpc`，它其实不会报错（`PreloadIpc` 的宽松签名兜住了所有调用），请换成：
 
@@ -301,6 +320,13 @@ interface Window {
   >
 }
 ```
+
+### 4. 其他修复带来的差别
+
+- `Ipc.init()` 改为幂等：重复调用不再抛 “Attempted to register a second handler”。
+- `Ipc.destroy()` 只移除本包注册的监听，不再清掉业务代码挂在同名通道上的回调。
+- 渲染层传入 `toString` / `__proto__` 等原型链上的键不再命中处理函数；窗口已销毁时直接忽略窗口操作。
+- 新增 `Ipc.initialized`，主入口额外导出 `EventKeys` / `IpcWindowOptions` / `IpcFileOptions`。
 
 ### 自查清单
 
