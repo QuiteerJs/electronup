@@ -17,6 +17,7 @@
     "@quiteer/electron-preload": "workspace:*"
   },
   "devDependencies": {
+    "electron": "^44.0.0",
     "vite-plus": "catalog:"
   }
 }

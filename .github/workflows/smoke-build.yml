@@ -52,6 +52,40 @@ jobs:
         env:
           CREATE_ELECTRONUP_REMOTE: '1'
 
+  modules-e2e:
+    name: electron-* modules e2e (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Ubuntu 24.04 默认限制非特权 user namespace , Chromium 沙箱无法启动 ; 放开后不必给 electron 加 --no-sandbox
+      - name: Allow unprivileged user namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Build electron-* modules
+        run: pnpm modules:build
+
+      # 真 Electron 跑一遍示例 : 页面自检通过才以 0 退出
+      - name: playground/modules-basic smoke
+        run: xvfb-run -a pnpm --filter @quiteer/playground-basic smoke
+
+      - name: playground/modules-smoke e2e ( playwright )
+        run: xvfb-run -a pnpm test:e2e:modules
+
   smoke:
     name: build --dir on ${{ matrix.os }}
     env:
