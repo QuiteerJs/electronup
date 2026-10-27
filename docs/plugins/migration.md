@@ -5,7 +5,7 @@
 - [`@quiteer/electron-preload` 2.x → 3.0](#electron-preload-2x--30)：**破坏性变更**，业务通道必须显式加白名单。
 - [`@quiteer/electron-ipc` 3.1 → 3.2](#electron-ipc-31--32)：API 向后兼容，但内置通道开始校验调用来源；另外新增了类型安全的 IPC 契约，可以顺手迁过去。
 
-两个包通常一起用，建议同时升级，按 [一起升级的推荐顺序](#一起升级的推荐顺序) 走一遍即可。完整的逐条变更见各包的 `CHANGELOG.md`，可运行的完整示例见 [`playground/basic`](../playground/basic)。
+两个包通常一起用，建议同时升级，按 [一起升级的推荐顺序](#一起升级的推荐顺序) 走一遍即可。完整的逐条变更见各包的 `CHANGELOG.md`，可运行的完整示例见 [`playground/modules-basic`](https://github.com/QuiteerJs/electronup/tree/main/playground/modules-basic)。
 
 ## electron-preload 2.x → 3.0
 
