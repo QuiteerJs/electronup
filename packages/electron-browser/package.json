@@ -1,6 +1,6 @@
 {
   "name": "@quiteer/electron-browser",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "基于electron , 提供浏览器窗口创建与窗口仓库管理",
   "keywords": [
     "browser-window",

@@ -1,11 +1,18 @@
 import { createWindowManager } from './manager';
 
 export type {
+  NavigationGuardOptions,
+  PersistStateOptions,
   WindowConflictStrategy,
   WindowController,
+  WindowOpenPolicy,
   WindowOptions,
   WindowReactiveProps,
+  WindowState,
+  WindowStateStorage,
 } from './types';
+export { SECURE_WEB_PREFERENCES } from './security';
+export { createFileStateStorage } from './state';
 export { WinStore } from './store';
 export { createWindowManager } from './manager';
 export { createWindow, toController } from './window';
