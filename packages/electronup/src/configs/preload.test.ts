@@ -1,7 +1,11 @@
 import type { InlineConfig } from 'vite'
 import type { PreloadConfig } from '../typings/electronup'
 import { describe, expect, it, vi } from 'vitest'
-import { getPreloadConfigs } from './preload'
+import { store } from '../utils'
+import { getPreloadConfigs, preloadWatchPlugin } from './preload'
+
+const restartElectron = vi.hoisted(() => vi.fn())
+vi.mock('./pack', async importOriginal => ({ ...await importOriginal<typeof import('./pack')>(), restartElectron }))
 
 vi.spyOn(process, 'cwd').mockReturnValue('/fake/root')
 
@@ -89,5 +93,45 @@ describe('preload external 始终保留 electron', () => {
     expect(external(custom)('barx', undefined, false)).toBe(true)
     expect(external(custom)('baz', undefined, false)).toBe(false)
     expect(external(all)('electron', undefined, false)).toBe(true)
+  })
+})
+
+describe('dev 下 preload 监听变化', () => {
+  const baseAllConfig = { resourceDir: 'dist/resource' }
+
+  it('serve 时开启 watch , build 时关闭', () => {
+    store.command = 'serve'
+    expect(getPreloadConfigs({ entry: 'a.ts' }, baseAllConfig)[0].build?.watch).toEqual({})
+    store.command = 'build'
+    expect(getPreloadConfigs({ entry: 'a.ts' }, baseAllConfig)[0].build?.watch).toBeNull()
+  })
+
+  it('首次写盘只通知首次构建完成 , 之后每次写盘重启 Electron', () => {
+    restartElectron.mockClear()
+    const onFirstBuild = vi.fn()
+    const plugin = preloadWatchPlugin(onFirstBuild) as unknown as { writeBundle: () => void }
+
+    plugin.writeBundle()
+    expect(onFirstBuild).toHaveBeenCalledTimes(1)
+    expect(restartElectron).not.toHaveBeenCalled()
+
+    plugin.writeBundle()
+    plugin.writeBundle()
+    expect(onFirstBuild).toHaveBeenCalledTimes(1)
+    expect(restartElectron).toHaveBeenCalledTimes(2)
+  })
+
+  it('首次构建失败也通知完成 , 避免 dev 一直等待 ; 修复后的写盘重启 Electron', () => {
+    restartElectron.mockClear()
+    const onFirstBuild = vi.fn()
+    const plugin = preloadWatchPlugin(onFirstBuild) as unknown as { buildEnd: (error?: Error) => void, writeBundle: () => void }
+
+    plugin.buildEnd(new Error('syntax error'))
+    expect(onFirstBuild).toHaveBeenCalledTimes(1)
+
+    plugin.buildEnd()
+    plugin.writeBundle()
+    expect(onFirstBuild).toHaveBeenCalledTimes(1)
+    expect(restartElectron).toHaveBeenCalledTimes(1)
   })
 })

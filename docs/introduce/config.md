@@ -187,7 +187,7 @@ export default defineConfig({
 | `plugins` | Vite 插件，追加在 electronup 内置插件之后 |
 | `viteConfig` | 其余 Vite 配置，最后通过 `mergeConfig` 合并，可覆盖上面的预置项 |
 
-`dev` 与 `build` 都会在主进程构建之前完成 preload 构建。开发模式下 preload 只构建一次，不会监听文件变化，修改后请重新启动开发命令。
+`dev` 与 `build` 都会在主进程构建之前完成 preload 构建。开发模式下 preload 同样以 watch 模式构建，修改后会重新构建并重启 Electron；首次构建失败不会阻塞 dev，修复后自动重启。
 
 如果 Electron 版本支持 ESM preload，可以在单项配置中显式传入 `format: 'esm'` 覆盖默认值。
 
@@ -312,9 +312,9 @@ electronup 使用 dotenv 读取项目根目录下的两层文件：
 - `.env` 或 `.env.{mode}` 文件不存在时不会报错，只是不加载该层。
 - `NODE_ENV` 由 electronup 写入：`dev` 为 `development`，`build` 为 `production`。
 - `dev` 模式下额外注入 `RENDER_PORT`，值为 Vite 实际监听的端口。
-- 渲染进程只能读取 `VITE_` 前缀的变量（`import.meta.env`），主进程与 preload 可以读取全部变量（`process.env`）。
+- 渲染进程只能读取 `VITE_` 前缀的变量（`import.meta.env`），主进程与 preload 可以读取全部变量（`process.env`）。渲染进程同样从项目根读取 `.env` 文件，`import.meta.env.MODE` 跟随 `-m`。
 - 主进程与 preload 的变量在构建时以 `process.env.X` 的形式内联，全局 `process` 与 `import process from 'node:process'`（或 `'process'`）两种写法都支持；`import { env } from 'node:process'` 或其他本地名（如 `import proc from 'node:process'`）不会被内联。
-- 不支持 `.env.local` 等更细的层级。
+- 主进程与 preload 不读取 `.env.local` 等更细的层级；渲染进程的变量由 Vite 加载，遵循 Vite 的规则（包括 `.env.local`）。
 
 ## 实际生效配置
 

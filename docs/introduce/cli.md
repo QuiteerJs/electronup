@@ -111,7 +111,7 @@ electronup
 2. 校验并清空 `resourceDir` 后启动 Vite 开发服务器。
 3. 构建 preload（如果配置了 `preload`）。
 4. 以 watch 模式构建主进程，构建成功后在主进程脚本目录启动 Electron。
-5. 主进程代码变化会重新构建并重启 Electron；渲染进程由 Vite 热更新。
+5. 主进程或 preload 代码变化会重新构建并重启 Electron；渲染进程由 Vite 热更新。
 
 关闭 Electron 窗口后，开发命令会随之退出。
 

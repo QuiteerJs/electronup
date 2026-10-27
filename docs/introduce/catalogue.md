@@ -61,7 +61,7 @@ export default defineConfig({
 })
 ```
 
-默认输出 CommonJS 格式，与主进程产物同目录（`resourceDir`）。开发模式下 preload 只构建一次，修改后需要重新启动开发命令。
+默认输出 CommonJS 格式，与主进程产物同目录（`resourceDir`）。开发模式下修改 preload 会重新构建并重启 Electron。
 
 ### `render`
 

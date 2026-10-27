@@ -119,7 +119,7 @@ pnpm dev
 3. 构建 preload 与主进程。
 4. 启动项目内的 Electron，并打开窗口。
 
-渲染进程修改由 Vite 热更新；主进程修改会重新构建并重启 Electron。preload 在开发模式下只构建一次，修改后请重新执行 `pnpm dev`。
+渲染进程修改由 Vite 热更新；主进程修改会重新构建并重启 Electron。preload 修改后同样会重新构建并重启 Electron。
 
 ## 构建
 

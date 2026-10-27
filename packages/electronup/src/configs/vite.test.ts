@@ -56,4 +56,18 @@ describe('getViteConfig', () => {
     )
     expect(cfg.build?.sourcemap).toBe(true)
   })
+
+  it('mode 跟随 store.mode , envDir 为项目根 ( 读取根目录 .env )', () => {
+    store.mode = 'staging'
+    const cfg = getViteConfig({}, {})
+    expect(cfg.mode).toBe('staging')
+    expect(cfg.envDir).toBe(process.cwd())
+  })
+
+  it('用户显式配置的 mode / envDir 优先', () => {
+    store.mode = 'staging'
+    const cfg = getViteConfig({ mode: 'custom', envDir: 'env' }, {})
+    expect(cfg.mode).toBe('custom')
+    expect(cfg.envDir).toBe('env')
+  })
 })

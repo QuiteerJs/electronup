@@ -119,7 +119,7 @@ electronup will:
 3. Build preload scripts and the main process.
 4. Launch the project's Electron and open the window.
 
-Renderer changes use Vite HMR. Main process changes trigger a rebuild and restart Electron. Preload scripts are built once in dev; restart `pnpm dev` after editing them.
+Renderer changes use Vite HMR. Main process changes trigger a rebuild and restart Electron. Preload changes are rebuilt and restart Electron as well.
 
 ## Build
 
