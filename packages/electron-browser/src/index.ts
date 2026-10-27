@@ -1,4 +1,4 @@
-import { createWindowManager } from './manager';
+import { createWindowManager } from './manager'
 
 export type {
   NavigationGuardOptions,
@@ -10,12 +10,12 @@ export type {
   WindowReactiveProps,
   WindowState,
   WindowStateStorage,
-} from './types';
-export { SECURE_WEB_PREFERENCES } from './security';
-export { createFileStateStorage } from './state';
-export { WinStore } from './store';
-export { createWindowManager } from './manager';
-export { createWindow, toController } from './window';
+} from './types'
+export { SECURE_WEB_PREFERENCES } from './security'
+export { createFileStateStorage } from './state'
+export { WinStore } from './store'
+export { createWindowManager } from './manager'
+export { createWindow, toController } from './window'
 
 /**
  * 开箱即用的全局窗口管理器
@@ -30,4 +30,4 @@ export { createWindow, toController } from './window';
  * windows.get('main')?.webContents.send('ping')
  * ```
  */
-export const windows = createWindowManager();
+export const windows = createWindowManager()

@@ -3,12 +3,12 @@
  *
  * 只依赖 `@quiteer/electron-ipc/web`, 不引入 electron / node, 两端都能直接引用
  */
-import { channel, defineContract } from '@quiteer/electron-ipc/web';
+import { channel, defineContract } from '@quiteer/electron-ipc/web'
 
 export interface AppInfo {
-  name: string;
-  version: string;
-  platform: string;
+  name: string
+  version: string
+  platform: string
 }
 
 export const api = defineContract({
@@ -22,4 +22,4 @@ export const api = defineContract({
   on: {
     'clock:tick': channel<(iso: string) => void>(),
   },
-});
+})

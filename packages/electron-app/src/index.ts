@@ -9,6 +9,6 @@ export type {
   SecondInstanceContext,
   SingleInstanceOptions,
   WindowLookup,
-} from './types';
-export { setupApp } from './app';
-export { extractUrls, normalizeSchemes, registerProtocols } from './protocol';
+} from './types'
+export { setupApp } from './app'
+export { extractUrls, normalizeSchemes, registerProtocols } from './protocol'

@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from 'node:url'
 
-import { defineConfig } from 'vite-plus';
+import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
   test: {
@@ -20,4 +20,4 @@ export default defineConfig({
       deps: { neverBundle: ['electron'] },
     },
   ],
-});
+})

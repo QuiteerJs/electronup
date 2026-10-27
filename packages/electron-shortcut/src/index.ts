@@ -1,4 +1,4 @@
-import { createShortcutManager } from './manager';
+import { createShortcutManager } from './manager'
 
 export type {
   ShortcutConflictStrategy,
@@ -8,11 +8,11 @@ export type {
   ShortcutOptions,
   ShortcutScope,
   ShortcutWindow,
-} from './types';
-export type { ShortcutManager } from './manager';
-export type { ShortcutErrorReason } from './error';
-export { ShortcutError } from './error';
-export { createShortcutManager } from './manager';
+} from './types'
+export type { ShortcutManager } from './manager'
+export type { ShortcutErrorReason } from './error'
+export { ShortcutError } from './error'
+export { createShortcutManager } from './manager'
 
 /**
  * 开箱即用的全局快捷键管理器
@@ -31,4 +31,4 @@ export { createShortcutManager } from './manager';
  * shortcuts.disable('toggle')
  * ```
  */
-export const shortcuts = createShortcutManager();
+export const shortcuts = createShortcutManager()

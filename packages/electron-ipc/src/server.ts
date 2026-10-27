@@ -1,36 +1,36 @@
-import type { IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron';
-import { BrowserWindow, ipcMain, webContents } from 'electron';
+import type { IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron'
+import { BrowserWindow, ipcMain, webContents } from 'electron'
 
-import type { ChannelDef, Contract, ContractFns } from './contract';
-import { findChannel } from './contract';
-import type { IpcInitOptions } from './sender';
-import { createValidator } from './sender';
+import type { ChannelDef, Contract, ContractFns } from './contract'
+import { findChannel } from './contract'
+import type { IpcInitOptions } from './sender'
+import { createValidator } from './sender'
 
 /** handler 的第一个参数, 与 Electron 的 `(event, ...args)` 约定一致 */
 export interface IpcContext<E extends IpcMainEvent | IpcMainInvokeEvent = IpcMainInvokeEvent> {
   /** 原始事件 */
-  event: E;
+  event: E
   /** 发起调用的 webContents */
-  sender: WebContents;
+  sender: WebContents
   /** 发起调用的窗口, webContents 不属于任何窗口时为 null */
-  window: BrowserWindow | null;
+  window: BrowserWindow | null
 }
 
 type InvokeImpl<F extends (...args: any[]) => any> = (
   ctx: IpcContext,
   ...args: Parameters<F>
-) => Awaited<ReturnType<F>> | Promise<Awaited<ReturnType<F>>>;
+) => Awaited<ReturnType<F>> | Promise<Awaited<ReturnType<F>>>
 
 type SendImpl<F extends (...args: any[]) => any> = (
   ctx: IpcContext<IpcMainEvent>,
   ...args: Parameters<F>
-) => void | Promise<void>;
+) => void | Promise<void>
 
 /** 契约里没有该组通道时, 对应字段可省略 */
 type Group<K extends string, Fns, Impl> = [keyof Fns] extends [never]
   ? // oxlint-disable-next-line typescript/no-generated-empty-object-type -- 有意为之: 该组可省略
     { [P in K]?: Record<never, never> }
-  : { [P in K]: Impl };
+  : { [P in K]: Impl }
 
 /** 主进程需要实现的处理函数表, 漏写或多写通道都会类型报错 */
 export type ContractHandlers<C extends Contract> = Group<
@@ -42,26 +42,26 @@ export type ContractHandlers<C extends Contract> = Group<
     'send',
     ContractFns<C, 'send'>,
     { [N in keyof ContractFns<C, 'send'>]: SendImpl<ContractFns<C, 'send'>[N]> }
-  >;
+  >
 
 /** 与 `Ipc.init` 相同: 默认只接受主 frame, 可选 `allowedOrigins` / `validateSender` */
-export type HandleOptions = IpcInitOptions;
+export type HandleOptions = IpcInitOptions
 
 /** 参数校验, 没有 schema 时原样放行 */
 async function parseArgs(def: ChannelDef, name: string, args: unknown[]): Promise<unknown[]> {
   if (!def.args) {
-    return args;
+    return args
   }
-  const result = await def.args['~standard'].validate(args);
+  const result = await def.args['~standard'].validate(args)
   if (result.issues) {
-    const detail = result.issues.map((issue) => issue.message).join('; ');
-    throw new TypeError(`[electron-ipc] 通道 ${name} 参数校验失败: ${detail}`);
+    const detail = result.issues.map((issue) => issue.message).join('; ')
+    throw new TypeError(`[electron-ipc] 通道 ${name} 参数校验失败: ${detail}`)
   }
-  return [...result.value];
+  return [...result.value]
 }
 
 function contextOf<E extends IpcMainEvent | IpcMainInvokeEvent>(event: E): IpcContext<E> {
-  return { event, sender: event.sender, window: BrowserWindow.fromWebContents(event.sender) };
+  return { event, sender: event.sender, window: BrowserWindow.fromWebContents(event.sender) }
 }
 
 /**
@@ -80,14 +80,14 @@ export function handleContract<C extends Contract>(
   handlers: ContractHandlers<C>,
   options: HandleOptions = {},
 ): () => void {
-  const validateSender = createValidator(options);
+  const validateSender = createValidator(options)
   // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- 去掉断言后按字符串索引会报 TS7053
   const impls = handlers as {
-    invoke?: Record<string, (...args: any[]) => unknown>;
-    send?: Record<string, (...args: any[]) => unknown>;
-  };
-  const invokeNames = contract.channels.invoke;
-  const sendNames = contract.channels.send;
+    invoke?: Record<string, (...args: any[]) => unknown>
+    send?: Record<string, (...args: any[]) => unknown>
+  }
+  const invokeNames = contract.channels.invoke
+  const sendNames = contract.channels.send
 
   // 先整体检查再注册, 避免半途抛错留下注册了一半的通道
   for (const [kind, names] of [
@@ -96,64 +96,64 @@ export function handleContract<C extends Contract>(
   ] as const) {
     for (const name of names) {
       if (typeof impls[kind]?.[name] !== 'function') {
-        throw new TypeError(`[electron-ipc] 契约通道 ${kind}:${name} 未实现处理函数`);
+        throw new TypeError(`[electron-ipc] 契约通道 ${kind}:${name} 未实现处理函数`)
       }
     }
   }
 
-  const listeners = new Map<string, (event: IpcMainEvent, ...args: unknown[]) => void>();
-  const handled: string[] = [];
+  const listeners = new Map<string, (event: IpcMainEvent, ...args: unknown[]) => void>()
+  const handled: string[] = []
   const dispose = (): void => {
     for (const name of handled) {
-      ipcMain.removeHandler(name);
+      ipcMain.removeHandler(name)
     }
     for (const [name, listener] of listeners) {
-      ipcMain.removeListener(name, listener);
+      ipcMain.removeListener(name, listener)
     }
-    handled.length = 0;
-    listeners.clear();
-  };
+    handled.length = 0
+    listeners.clear()
+  }
 
   try {
     for (const name of invokeNames) {
-      const def = findChannel(contract, 'invoke', name)!;
-      const impl = impls.invoke![name];
+      const def = findChannel(contract, 'invoke', name)!
+      const impl = impls.invoke![name]
       ipcMain.handle(name, async (event, ...args) => {
         if (!validateSender(event)) {
-          throw new Error(`[electron-ipc] 拒绝来自不可信 frame 的调用: ${name}`);
+          throw new Error(`[electron-ipc] 拒绝来自不可信 frame 的调用: ${name}`)
         }
-        return impl(contextOf(event), ...(await parseArgs(def, name, args)));
-      });
-      handled.push(name);
+        return impl(contextOf(event), ...(await parseArgs(def, name, args)))
+      })
+      handled.push(name)
     }
 
     for (const name of sendNames) {
-      const def = findChannel(contract, 'send', name)!;
-      const impl = impls.send![name];
+      const def = findChannel(contract, 'send', name)!
+      const impl = impls.send![name]
       const listener = (event: IpcMainEvent, ...args: unknown[]): void => {
         if (!validateSender(event)) {
-          return;
+          return
         }
         // send 没有回执, 校验失败或处理函数出错只能在主进程记录
         parseArgs(def, name, args)
           .then((parsed) => impl(contextOf(event), ...parsed))
-          .catch((error: unknown) => console.error(error));
-      };
-      ipcMain.on(name, listener);
-      listeners.set(name, listener);
+          .catch((error: unknown) => console.error(error))
+      }
+      ipcMain.on(name, listener)
+      listeners.set(name, listener)
     }
   } catch (error) {
     // 例如通道已被别处 handle, 回滚已注册的部分
-    dispose();
-    throw error;
+    dispose()
+    throw error
   }
 
-  return dispose;
+  return dispose
 }
 
-type EmitTarget = WebContents | { readonly webContents: WebContents };
+type EmitTarget = WebContents | { readonly webContents: WebContents }
 
-type OnFns<C extends Contract> = ContractFns<C, 'on'>;
+type OnFns<C extends Contract> = ContractFns<C, 'on'>
 
 export interface ContractEmitter<C extends Contract> {
   /** 推送给单个窗口或 webContents, 已销毁时静默忽略 */
@@ -161,14 +161,14 @@ export interface ContractEmitter<C extends Contract> {
     target: EmitTarget,
     channel: N,
     ...args: Parameters<OnFns<C>[N]>
-  ): void;
+  ): void
   /** 推送给全部未销毁的 webContents */
-  broadcast<N extends keyof OnFns<C> & string>(channel: N, ...args: Parameters<OnFns<C>[N]>): void;
+  broadcast<N extends keyof OnFns<C> & string>(channel: N, ...args: Parameters<OnFns<C>[N]>): void
 }
 
 function sendTo(contents: WebContents, name: string, args: unknown[]): void {
   if (!contents.isDestroyed()) {
-    contents.send(name, ...args);
+    contents.send(name, ...args)
   }
 }
 
@@ -184,20 +184,20 @@ function sendTo(contents: WebContents, name: string, args: unknown[]): void {
 export function createEmitter<C extends Contract>(contract: C): ContractEmitter<C> {
   const assertChannel = (name: string): void => {
     if (!findChannel(contract, 'on', name)) {
-      throw new TypeError(`[electron-ipc] 契约中不存在推送通道: ${name}`);
+      throw new TypeError(`[electron-ipc] 契约中不存在推送通道: ${name}`)
     }
-  };
+  }
 
   return {
     emit(target, name, ...args) {
-      assertChannel(name);
-      sendTo('webContents' in target ? target.webContents : target, name, args);
+      assertChannel(name)
+      sendTo('webContents' in target ? target.webContents : target, name, args)
     },
     broadcast(name, ...args) {
-      assertChannel(name);
+      assertChannel(name)
       for (const contents of webContents.getAllWebContents()) {
-        sendTo(contents, name, args);
+        sendTo(contents, name, args)
       }
     },
-  };
+  }
 }

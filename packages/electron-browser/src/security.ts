@@ -1,7 +1,7 @@
-import { shell } from 'electron';
-import type { BrowserWindow, WebPreferences } from 'electron';
+import { shell } from 'electron'
+import type { BrowserWindow, WebPreferences } from 'electron'
 
-import type { NavigationGuardOptions } from './types';
+import type { NavigationGuardOptions } from './types'
 
 /** 安全相关的 webPreferences 默认值, 用户显式传入的字段优先 */
 export const SECURE_WEB_PREFERENCES: Readonly<WebPreferences> = Object.freeze({
@@ -9,10 +9,10 @@ export const SECURE_WEB_PREFERENCES: Readonly<WebPreferences> = Object.freeze({
   sandbox: true,
   nodeIntegration: false,
   webSecurity: true,
-});
+})
 
 export function withSecureDefaults(prefs: WebPreferences | undefined): WebPreferences {
-  return { ...SECURE_WEB_PREFERENCES, ...prefs };
+  return { ...SECURE_WEB_PREFERENCES, ...prefs }
 }
 
 /**
@@ -22,20 +22,20 @@ export function withSecureDefaults(prefs: WebPreferences | undefined): WebPrefer
  */
 export function originOf(url: string): string | undefined {
   try {
-    const { protocol, host } = new URL(url);
-    return `${protocol}//${host}`;
+    const { protocol, host } = new URL(url)
+    return `${protocol}//${host}`
   } catch {
-    return undefined;
+    return undefined
   }
 }
 
-const EXTERNAL_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
+const EXTERNAL_PROTOCOLS = new Set(['http:', 'https:', 'mailto:'])
 
 function isExternalUrl(url: string): boolean {
   try {
-    return EXTERNAL_PROTOCOLS.has(new URL(url).protocol);
+    return EXTERNAL_PROTOCOLS.has(new URL(url).protocol)
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -45,41 +45,41 @@ export function applyNavigationGuard(
   options: NavigationGuardOptions,
   initialUrl?: string,
 ): void {
-  const allowed = new Set<string>();
+  const allowed = new Set<string>()
   for (const origin of [...(options.allowedOrigins ?? []), initialUrl]) {
-    const normalized = origin === undefined ? undefined : originOf(origin);
+    const normalized = origin === undefined ? undefined : originOf(origin)
     if (normalized) {
-      allowed.add(normalized);
+      allowed.add(normalized)
     }
   }
 
   const isAllowed =
     options.allowNavigation ??
     ((url: string) => {
-      const origin = originOf(url);
+      const origin = originOf(url)
       return (
         origin !== undefined &&
         (allowed.has(origin) || origin === originOf(win.webContents.getURL()))
-      );
-    });
+      )
+    })
 
   win.webContents.on('will-navigate', (event) => {
     if (!isAllowed(event.url)) {
-      event.preventDefault();
+      event.preventDefault()
     }
-  });
+  })
 
-  const policy = options.windowOpen ?? 'deny';
+  const policy = options.windowOpen ?? 'deny'
   win.webContents.setWindowOpenHandler(
     typeof policy === 'function'
       ? policy
       : ({ url }) => {
           if (policy === 'external' && isExternalUrl(url)) {
             void shell.openExternal(url).catch((error: unknown) => {
-              console.error(`[electron-browser] 无法打开外部链接 ${url}`, error);
-            });
+              console.error(`[electron-browser] 无法打开外部链接 ${url}`, error)
+            })
           }
-          return { action: 'deny' };
+          return { action: 'deny' }
         },
-  );
+  )
 }

@@ -1,9 +1,9 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron'
 
-import { CLIPBOARD_CHANNEL } from './config';
+import { CLIPBOARD_CHANNEL } from './config'
 
 /** Linux 下可选 `'selection'` 操作选择缓冲区, 其他平台忽略 */
-export type PreloadClipboardType = 'clipboard' | 'selection';
+export type PreloadClipboardType = 'clipboard' | 'selection'
 
 /**
  * 可跨进程传递的剪贴板条目: MIME 类型 → 内容
@@ -14,17 +14,17 @@ export type PreloadClipboardType = 'clipboard' | 'selection';
 export type PreloadClipboardData = Record<
   string,
   string | Uint8Array | { title: string; url: string }
->;
+>
 
 export interface PreloadClipboard {
   /** 清空剪贴板 */
-  clear(type?: PreloadClipboardType): Promise<void>;
+  clear(type?: PreloadClipboardType): Promise<void>
   /** 是否存在指定 MIME 类型的内容 */
-  has(mimetype: string, type?: PreloadClipboardType): Promise<boolean>;
-  read(type?: PreloadClipboardType): Promise<PreloadClipboardData[]>;
-  readText(type?: PreloadClipboardType): Promise<string>;
-  write(data: PreloadClipboardData[], type?: PreloadClipboardType): Promise<void>;
-  writeText(text: string, type?: PreloadClipboardType): Promise<void>;
+  has(mimetype: string, type?: PreloadClipboardType): Promise<boolean>
+  read(type?: PreloadClipboardType): Promise<PreloadClipboardData[]>
+  readText(type?: PreloadClipboardType): Promise<string>
+  write(data: PreloadClipboardData[], type?: PreloadClipboardType): Promise<void>
+  writeText(text: string, type?: PreloadClipboardType): Promise<void>
 }
 
 /**
@@ -33,7 +33,7 @@ export interface PreloadClipboard {
  * 主进程侧处理器由 `createPreload({ clipboard: true })` 注册
  */
 const call = (method: string, type: PreloadClipboardType | undefined, ...args: unknown[]) =>
-  ipcRenderer.invoke(CLIPBOARD_CHANNEL, method, type, ...args);
+  ipcRenderer.invoke(CLIPBOARD_CHANNEL, method, type, ...args)
 
 export const $clipboard: PreloadClipboard = {
   clear: (type) => call('clear', type),
@@ -42,4 +42,4 @@ export const $clipboard: PreloadClipboard = {
   readText: (type) => call('readText', type),
   write: (data, type) => call('write', type, data),
   writeText: (text, type) => call('writeText', type, text),
-};
+}

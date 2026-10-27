@@ -4,25 +4,25 @@
  */
 
 class Emitter {
-  private _listeners: Record<string, ((...args: any[]) => void)[]> = {};
+  private _listeners: Record<string, ((...args: any[]) => void)[]> = {}
 
   on(event: string, listener: (...args: any[]) => void): this {
-    (this._listeners[event] ||= []).push(listener);
-    return this;
+    ;(this._listeners[event] ||= []).push(listener)
+    return this
   }
 
   removeListener(event: string, listener: (...args: any[]) => void): this {
-    this._listeners[event] = (this._listeners[event] ?? []).filter((item) => item !== listener);
-    return this;
+    this._listeners[event] = (this._listeners[event] ?? []).filter((item) => item !== listener)
+    return this
   }
 
   listenerCount(event: string): number {
-    return (this._listeners[event] ?? []).length;
+    return (this._listeners[event] ?? []).length
   }
 
   emit(event: string, ...args: unknown[]): void {
     for (const listener of (this._listeners[event] ?? []).slice()) {
-      listener(...args);
+      listener(...args)
     }
   }
 }
@@ -31,124 +31,124 @@ declare global {
   // electron 对 NodeJS.Process 的扩充; 测试的类型检查用替身代替 electron, 需要在这里补上
   namespace NodeJS {
     interface Process {
-      defaultApp?: boolean;
+      defaultApp?: boolean
     }
   }
 }
 
 /** 对应 Electron.Event */
-export type Event = ReturnType<typeof createEvent>;
+export type Event = ReturnType<typeof createEvent>
 
 /** 可被 preventDefault 的事件对象 */
 export function createEvent(): { defaultPrevented: boolean; preventDefault: () => void } {
   const event = {
     defaultPrevented: false,
     preventDefault: () => {
-      event.defaultPrevented = true;
+      event.defaultPrevented = true
     },
-  };
-  return event;
+  }
+  return event
 }
 
 class App extends Emitter {
-  lock = true;
-  lockData: unknown[] = [];
-  protocols: unknown[][] = [];
-  quitCalls = 0;
-  quitted = false;
+  lock = true
+  lockData: unknown[] = []
+  protocols: unknown[][] = []
+  quitCalls = 0
+  quitted = false
 
-  private _resolve: (() => void) | undefined;
-  private _ready: Promise<void> = Promise.resolve();
+  private _resolve: (() => void) | undefined
+  private _ready: Promise<void> = Promise.resolve()
 
   requestSingleInstanceLock(...args: unknown[]): boolean {
-    this.lockData.push(...args);
-    return this.lock;
+    this.lockData.push(...args)
+    return this.lock
   }
 
   setAsDefaultProtocolClient(...args: unknown[]): boolean {
-    this.protocols.push(args);
-    return true;
+    this.protocols.push(args)
+    return true
   }
 
   whenReady(): Promise<void> {
-    return this._ready;
+    return this._ready
   }
 
   /** 模拟 Electron: before-quit 未被阻止时进入 will-quit 并退出 */
   quit(): void {
-    this.quitCalls++;
-    const event = createEvent();
-    this.emit('before-quit', event);
+    this.quitCalls++
+    const event = createEvent()
+    this.emit('before-quit', event)
     if (!event.defaultPrevented) {
-      this.emit('will-quit', createEvent());
-      this.quitted = true;
+      this.emit('will-quit', createEvent())
+      this.quitted = true
     }
   }
 
   // 以下为测试辅助
   setNotReady(): void {
-    this._ready = new Promise((resolve) => (this._resolve = resolve));
+    this._ready = new Promise((resolve) => (this._resolve = resolve))
   }
 
   markReady(): void {
-    this._resolve?.();
+    this._resolve?.()
   }
 
   reset(): void {
-    this.lock = true;
-    this.lockData = [];
-    this.protocols = [];
-    this.quitCalls = 0;
-    this.quitted = false;
-    this._ready = Promise.resolve();
-    BrowserWindow.all = [];
+    this.lock = true
+    this.lockData = []
+    this.protocols = []
+    this.quitCalls = 0
+    this.quitted = false
+    this._ready = Promise.resolve()
+    BrowserWindow.all = []
   }
 }
 
-export const app = new App();
+export const app = new App()
 
 export class BrowserWindow extends Emitter {
-  static all: BrowserWindow[] = [];
+  static all: BrowserWindow[] = []
 
-  minimized = false;
-  visible = true;
-  focused = 0;
-  private _destroyed = false;
+  minimized = false
+  visible = true
+  focused = 0
+  private _destroyed = false
 
   constructor() {
-    super();
-    BrowserWindow.all.push(this);
+    super()
+    BrowserWindow.all.push(this)
   }
 
   static getAllWindows(): BrowserWindow[] {
-    return BrowserWindow.all.filter((win) => !win.isDestroyed());
+    return BrowserWindow.all.filter((win) => !win.isDestroyed())
   }
 
   isMinimized(): boolean {
-    return this.minimized;
+    return this.minimized
   }
 
   restore(): void {
-    this.minimized = false;
+    this.minimized = false
   }
 
   isVisible(): boolean {
-    return this.visible;
+    return this.visible
   }
 
   show(): void {
-    this.visible = true;
+    this.visible = true
   }
 
   focus(): void {
-    this.focused++;
+    this.focused++
   }
 
   isDestroyed(): boolean {
-    return this._destroyed;
+    return this._destroyed
   }
 
   destroy(): void {
-    this._destroyed = true;
+    this._destroyed = true
   }
 }
