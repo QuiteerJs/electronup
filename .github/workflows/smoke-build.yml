@@ -31,6 +31,13 @@ jobs:
       - name: Typecheck ( all packages )
         run: pnpm typecheck
 
+      # lint 会检查 playground , 其中 import 'electronup' 的类型来自构建产物 , 需先构建
+      - name: Build electronup CLI
+        run: pnpm --filter electronup build
+
+      - name: Lint
+        run: pnpm lint
+
       - name: Run unit tests ( all packages )
         run: pnpm test
 

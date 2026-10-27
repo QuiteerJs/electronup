@@ -3,7 +3,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import type { InlineConfig } from 'vite'
-import { assertMainEntry, createExternal, getElectronBinary, getPackConfig, globalProcessPlugin, injectEnv, removeJunk, withSourceMaps } from './pack'
+import { EventEmitter } from 'node:events'
+import { assertMainEntry, createExternal, getElectronBinary, getPackConfig, globalProcessPlugin, injectEnv, removeJunk, restartElectron, startElectronPlugin, withSourceMaps } from './pack'
 import { store, DefaultDirs } from '../utils'
 
 vi.spyOn(process, 'cwd').mockReturnValue('/fake/root')
@@ -14,6 +15,9 @@ vi.mock('node:module', async (importOriginal) => {
   const { isBuiltin } = await importOriginal<typeof import('node:module')>()
   return { isBuiltin, createRequire: () => requireMock }
 })
+
+const spawnMock = vi.hoisted(() => vi.fn())
+vi.mock('node:child_process', () => ({ spawn: spawnMock }))
 
 describe('removeJunk (Electron 输出过滤)', () => {
   let info: ReturnType<typeof vi.spyOn>
@@ -50,6 +54,59 @@ describe('removeJunk (Electron 输出过滤)', () => {
   it('过滤 ALSA lib 噪音日志 ( Buffer 输入 )', () => {
     removeJunk(Buffer.from('ALSA lib pcm.c:2664:(snd_pcm_open_noupdate) noise\n'))
     expect(info).not.toHaveBeenCalled()
+  })
+
+  it('逐行过滤 : 同一 chunk 中的正常日志不会因噪音行被吞掉', () => {
+    removeJunk(Buffer.from('ALSA lib pcm.c:2664:(snd_pcm_open_noupdate) noise\nreal log\n'))
+    expect(info).toHaveBeenCalledWith('  real log\n  ')
+  })
+
+  it('可指定输出函数 ( stderr 使用 console.error )', () => {
+    const log = vi.fn()
+    removeJunk('boom', log)
+    expect(log).toHaveBeenCalledWith('  boom')
+    expect(info).not.toHaveBeenCalled()
+  })
+})
+
+describe('dev 下启动 / 重启 Electron', () => {
+  type FakeChild = EventEmitter & { stdout: EventEmitter, stderr: EventEmitter, kill: ReturnType<typeof vi.fn> }
+  let children: FakeChild[]
+  let exit: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    children = []
+    requireMock.mockReturnValue('/fake/electron')
+    spawnMock.mockReset().mockImplementation(() => {
+      const child = Object.assign(new EventEmitter(), { stdout: new EventEmitter(), stderr: new EventEmitter(), kill: vi.fn() })
+      children.push(child)
+      return child
+    })
+    exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never)
+  })
+
+  afterEach(() => {
+    exit.mockRestore()
+  })
+
+  it('重启时先结束旧进程 , 等它退出后再启动 ; 等待期间的多次重启合并为一次 ; 用户关闭窗口时退出 dev', () => {
+    const start = startElectronPlugin('/fake/root/dist/resource/electron.cjs') as unknown as { writeBundle: () => void }
+
+    start.writeBundle()
+    expect(spawnMock).toHaveBeenCalledTimes(1)
+
+    start.writeBundle()
+    restartElectron()
+    expect(children[0].kill).toHaveBeenCalledTimes(1)
+    expect(spawnMock).toHaveBeenCalledTimes(1)
+
+    children[0].emit('exit')
+    expect(spawnMock).toHaveBeenCalledTimes(2)
+    expect(exit).not.toHaveBeenCalled()
+
+    children[1].emit('exit')
+    expect(spawnMock).toHaveBeenCalledTimes(2)
+    expect(exit).toHaveBeenCalledTimes(1)
   })
 })
 

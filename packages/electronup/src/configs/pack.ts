@@ -258,10 +258,11 @@ export function getElectronBinary(): string {
   }
 }
 
-let electronProcess: ChildProcessWithoutNullStreams | null
-let manualRestart = false
+let electronProcess: ChildProcessWithoutNullStreams | null = null
 /** 最近一次启动 Electron 使用的主进程入口 , preload 重新构建后据此重启 */
 let lastMainPath: string | null = null
+/** 已请求旧进程退出 , 退出后用 lastMainPath 启动新进程 */
+let restartQueued = false
 
 /** Electron 已启动时用上一次的主进程入口重启 ; 尚未启动 ( 主进程首次构建未完成 ) 时不做处理 */
 export function restartElectron() {
@@ -270,35 +271,40 @@ export function restartElectron() {
 }
 
 /**
- * Description  启动electron
- * @param {any} mainPath:string
- * @returns {any}
+ * 启动 Electron ; 已在运行时先结束旧进程 , 等它真正退出后再启动新进程 ,
+ * 避免单实例锁、端口等仍被旧进程占用 . 等待期间的多次重启合并为一次
  */
 function startElectron(mainPath: string) {
   lastMainPath = mainPath
-  if (electronProcess) {
-    manualRestart = true
-    if (electronProcess?.pid) {
-      process.kill(electronProcess.pid)
-    }
-    electronProcess = null
-
-    setTimeout(() => {
-      manualRestart = false
-    }, 5000)
+  if (!electronProcess) {
+    spawnElectron(mainPath)
+    return
   }
+  if (!restartQueued) {
+    restartQueued = true
+    electronProcess.kill()
+  }
+}
 
+function spawnElectron(mainPath: string) {
   const env = { ...process.env, ...injectEnv(), NODE_OPTIONS: withSourceMaps(process.env.NODE_OPTIONS) }
-  electronProcess = spawn(getElectronBinary(), [mainPath], { env })
+  const child = spawn(getElectronBinary(), [mainPath], { env })
+  electronProcess = child
 
-  electronProcess.stdout.on('data', removeJunk)
+  child.stdout.on('data', chunk => removeJunk(chunk))
+  // oxlint-disable-next-line no-console
+  child.stderr.on('data', chunk => removeJunk(chunk, console.error))
 
-  electronProcess.stderr.on('data', removeJunk)
-
-  electronProcess.on('close', () => {
-    if (!manualRestart) {
-      process.exit()
+  // 用 exit 而不是 close : Electron 的子进程可能继承 stdio , close 会等它们全部退出
+  child.on('exit', () => {
+    electronProcess = null
+    if (restartQueued) {
+      restartQueued = false
+      spawnElectron(lastMainPath ?? mainPath)
+      return
     }
+    // 用户关闭了窗口 ( 非 electronup 发起的重启 ) , dev 随之退出
+    process.exit()
   })
 }
 
@@ -309,24 +315,25 @@ export function withSourceMaps(nodeOptions = '') {
     : `${nodeOptions} --enable-source-maps`.trim()
 }
 
+const JUNK_LINES = [
+  /\d+-\d+-\d+ \d+:\d+:\d+\.\d+ Electron(?: Helper)?\[\d+:\d+\] /,
+  /\[\d+:\d+\/|\d+\.\d+:ERROR:CONSOLE\(\d+\)\]/,
+  /ALSA lib [a-z]+\.c:\d+:\([a-z_]+\)/,
+]
+
 /**
  * 过滤 Electron 进程输出的固定格式噪音日志
  *
  * child_process 的 stdout / stderr 'data' 事件传入的 chunk 默认是 Buffer ,
  * 旧实现 ( tsdown.ts ) 里先 chunk.toString() 再处理 ; 这里必须同样先转字符串 ,
- * 否则 Electron 一旦有输出就会抛 `chunk.split is not a function`
+ * 否则 Electron 一旦有输出就会抛 `chunk.split is not a function` ; stderr 传入 console.error
  */
-export function removeJunk(chunk: Buffer | string) {
-  const text = chunk.toString()
-  if (/\d+-\d+-\d+ \d+:\d+:\d+\.\d+ Electron(?: Helper)?\[\d+:\d+\] /.test(text)) { return }
-  if (/\[\d+:\d+\/|\d+\.\d+:ERROR:CONSOLE\(\d+\)\]/.test(text)) { return }
-  if (/ALSA lib [a-z]+\.c:\d+:\([a-z_]+\)/.test(text)) { return }
+// oxlint-disable-next-line no-console
+export function removeJunk(chunk: Buffer | string, log: (message: string) => void = console.info) {
+  // 逐行过滤 : 同一个 chunk 里可能混有噪音行与正常日志 , 只丢弃噪音行
+  const lines = chunk.toString().split(/\r?\n/).filter(line => !JUNK_LINES.some(pattern => pattern.test(line)))
+  if (!lines.some(line => line.trim()))
+    {return}
 
-  const data = text.split(/\r?\n/)
-  let log = ''
-  data.forEach((line) => {
-    log += `  ${line}\n`
-  })
-  // oxlint-disable-next-line no-console
-  console.info(log)
+  log(lines.map(line => `  ${line}`).join('\n'))
 }
