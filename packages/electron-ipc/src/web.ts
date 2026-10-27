@@ -184,3 +184,15 @@ type WithIpcChannels<Base extends { send: unknown; invoke: unknown }> = Omit<
 export type { ExpandPreloadIpc, IpcReservedChannel, WithIpcChannels };
 export * from './eventKeys';
 export * from './options';
+export type {
+  ChannelDef,
+  ChannelOptions,
+  Contract,
+  ContractChannels,
+  ContractFns,
+  ContractSpec,
+  StandardSchemaV1,
+} from './contract';
+export { builtinChannels, channel, channelsOf, defineContract } from './contract';
+export type { ContractClient, IpcBridge } from './client';
+export { createClient } from './client';

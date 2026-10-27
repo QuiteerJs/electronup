@@ -9,6 +9,11 @@
   或用 `validateSender` 完全自定义。
 - 导出 `IpcInitOptions` 类型。
 - 声明 `peerDependencies.electron: >=30`、`engines.node: >=20`、`sideEffects: false`。
+- 端到端类型安全的 IPC 契约：`defineContract` + `channel<F>()` 一处定义，
+  主进程 `handleContract` / `createEmitter`、渲染层 `createClient`、preload 白名单 `api.channels` 都从契约推导。
+- `channel` 支持任意 Standard Schema（zod / valibot 等）做参数校验，只在主进程边界执行。
+- `handleContract` 的来源校验与 `Ipc.init` 一致：默认只接受主 frame，可选 `allowedOrigins` / `validateSender`。
+- `channelsOf` 合并多个契约的白名单，`builtinChannels` 提供内置通道白名单。
 
 ## 3.1.0 (2026-10-27)
 

@@ -93,6 +93,113 @@ const dir = await window.$ipc.invoke(EventKeys.FileOptionsKey, 'dirname', '/a/b/
 const info = await window.$ipc.invoke(EventKeys.FileOptionsKey, 'parse', '/a/b/c.txt');
 ```
 
+## 类型安全的 IPC 契约
+
+业务通道不再是「字符串 + `unknown`」：在一个共享文件里定义契约，主进程 handler、渲染层 client、preload 通道白名单都从它推导，任何一端写错通道名、参数或返回值都会直接类型报错。
+
+### 1. 定义契约（主进程与渲染层共享）
+
+```ts
+// shared/ipc.ts —— 只依赖 /web 入口, 主进程、preload、渲染层都能引用
+import { channel, defineContract } from '@quiteer/electron-ipc/web';
+
+export const api = defineContract({
+  // 渲染层 → 主进程, 有返回值
+  invoke: {
+    'user:get': channel<(id: string) => User>(),
+  },
+  // 渲染层 → 主进程, 单向
+  send: {
+    'app:log': channel<(msg: string) => void>(),
+  },
+  // 主进程 → 渲染层推送
+  on: {
+    'download:progress': channel<(percent: number) => void>(),
+  },
+});
+```
+
+`channel<F>()` 用函数签名描述参数与返回值，运行时只是一个空占位。
+
+### 2. 主进程实现
+
+```ts
+import { createEmitter, handleContract } from '@quiteer/electron-ipc';
+import { api } from '../shared/ipc';
+
+const dispose = handleContract(api, {
+  invoke: {
+    'user:get': (ctx, id) => db.users.find(id), // 可返回 Promise
+  },
+  send: {
+    'app:log': (ctx, msg) => logger.info(ctx.window?.id, msg),
+  },
+});
+
+const emitter = createEmitter(api);
+emitter.emit(win, 'download:progress', 0.5); // 推给某个窗口 / webContents
+emitter.broadcast('download:progress', 1); // 推给全部窗口
+```
+
+- 契约里每个 `invoke` / `send` 通道都必须实现，漏写、多写或返回值不符都会类型报错；运行时漏实现也会在注册前抛错，不会留下注册了一半的通道。
+- handler 的第一个参数 `ctx` 与 Electron 的 `(event, ...args)` 约定一致：`{ event, sender, window }`，`window` 是发起调用的 `BrowserWindow`。
+- 返回的 `dispose()` 注销本次注册的全部通道，可用于热重载。
+
+### 3. 渲染层调用
+
+```ts
+import { createClient } from '@quiteer/electron-ipc/web';
+import { api } from '../shared/ipc';
+
+const client = createClient(api); // 默认使用 window.$ipc, 也可显式传入
+
+const user = await client.invoke('user:get', '1'); // Promise<User>
+client.send('app:log', 'hello');
+const off = client.on('download:progress', (percent) => {}); // 回调不带 event
+```
+
+契约之外的通道名在运行时同样会被拒绝，`as any` 也绕不过去。
+
+### 4. 生成 preload 通道白名单
+
+```ts
+// main
+import { createPreload } from '@quiteer/electron-preload/main';
+import { channelsOf } from '@quiteer/electron-ipc';
+import { api, settingsApi } from '../shared/ipc';
+
+api.channels; // { send: ['app:log'], invoke: ['user:get'], on: ['download:progress'] }
+
+new BrowserWindow({
+  webPreferences: {
+    // 多个契约合并去重; 本包内置通道由 createPreload 默认放行
+    ...createPreload({ channels: channelsOf(api, settingsApi) }),
+  },
+});
+```
+
+白名单形状 `{ send, invoke, on }` 与 `createPreload({ channels })` 一一对应，不需要再手写一遍。关闭了 `createPreload` 的 `builtinChannels` 又想单独放行时，可以合并本包导出的 `builtinChannels`。
+
+### 参数校验（可选）
+
+渲染层的参数在主进程边界不可信。`channel` 接受任意 [Standard Schema](https://standardschema.dev)（zod / valibot / arktype 等），schema 的输出类型必须与签名参数一致：
+
+```ts
+import { z } from 'zod';
+
+channel<(id: string) => User>({ args: z.tuple([z.string().uuid()]) });
+```
+
+校验在主进程执行：失败时 `invoke` 以错误拒绝，`send` 丢弃并 `console.error`；handler 拿到的是校验后的值。
+
+### 来源校验
+
+`handleContract` 的第三个参数与 `Ipc.init(options)` 完全一致：默认只接受**主 frame** 的调用，页面里嵌入的第三方 iframe 无法调用契约通道；可用 `allowedOrigins` 进一步限定页面来源，或用 `validateSender` 完全自定义。
+
+```ts
+handleContract(api, handlers, { allowedOrigins: ['file://', 'http://localhost:5173'] });
+```
+
 ## 渲染层类型增强
 
 包内提供 `WithIpcChannels`，把内置通道的精确签名叠加到预加载的 `$ipc` 类型上：
@@ -156,6 +263,18 @@ Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] });
 | `validateSender` | `(event) => boolean`，传入后替代默认校验（包括主 frame 检查）      |
 
 配合 [@quiteer/electron-preload](https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload) 使用时，内置通道默认已在其通道白名单内。
+
+契约相关：
+
+| 导出                                  | 入口     | 说明                                                   |
+| ------------------------------------- | -------- | ------------------------------------------------------ |
+| `defineContract(spec)`                | 两者皆有 | 定义契约，返回值带 `channels` 白名单                   |
+| `channel<F>(options?)`                | 两者皆有 | 声明单个通道，可选 `args` 参数校验                     |
+| `channelsOf(...sources)`              | 两者皆有 | 合并多个契约 / 白名单并去重                            |
+| `builtinChannels`                     | 两者皆有 | `Ipc.init()` 注册的内置通道白名单                      |
+| `handleContract(api, handlers, opts)` | 主入口   | 注册主进程 handler，返回 `dispose()`                   |
+| `createEmitter(api)`                  | 主入口   | 按契约推送：`emit(target, channel, ...)` / `broadcast` |
+| `createClient(api, bridge?)`          | `/web`   | 渲染层 client：`invoke` / `send` / `on` / `once`       |
 
 主入口同时导出 `EventKeys`、`IpcWindowOptions`、`IpcFileOptions`，主进程里需要引用通道名时不必再走 `/web`。
 
