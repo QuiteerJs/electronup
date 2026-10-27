@@ -1,6 +1,6 @@
 {
   "name": "@quiteer/electron-preload",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "基于electron , 提供预加载功能脚本, 暴露 $ipc / $clipboard / $webFrame 三组收敛 API",
   "keywords": [
     "electron",

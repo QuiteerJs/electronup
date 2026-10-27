@@ -1,5 +1,26 @@
 # @quiteer/electron-ipc
 
+## 3.1.0 (2026-10-27)
+
+### 新增
+
+- web 入口新增 `WithIpcChannels<PreloadIpc>`：把内置通道的精确签名叠加到 `$ipc` 上，写错操作名或漏传参数会类型报错。
+  此前文档推荐的 `PreloadIpc & ExpandPreloadIpc` 会被 `PreloadIpc` 的宽松签名兜住，实际不会报错。
+- 主入口额外导出 `EventKeys` / `IpcWindowOptions` / `IpcFileOptions`。
+- 新增 `Ipc.initialized`。
+
+### 修复
+
+- `Ipc.init()` 改为幂等。此前重复调用会让 `ipcMain.handle` 抛出 “Attempted to register a second handler”。
+- `Ipc.destroy()` 只移除本包注册的监听，不再 `removeAllListeners` 误伤业务方挂在同名通道上的回调。
+- 渲染层传入 `toString` / `__proto__` 等原型链上的键不再命中处理函数。
+- 窗口已销毁时直接忽略窗口操作。
+
+### 其他
+
+- 源码迁移到 `src/`，修正 `eventKays` 拼写，处理表改为 `Record` 以便枚举新增成员时类型检查兜底。
+- 新增运行时与类型测试。
+
 ## 3.0.1 (2026-08-29)
 
 ### 文档

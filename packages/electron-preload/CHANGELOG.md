@@ -1,5 +1,25 @@
 # @quiteer/electron-preload
 
+## 2.0.0 (2026-10-27)
+
+### 破坏性变更
+
+- **`$ipc.on` / `$ipc.once` 返回取消监听的函数**，不再返回 `ipcRenderer`。
+  原返回值跨越 `contextBridge` 后等于把整个 `ipcRenderer` 交给页面；链式调用 `$ipc.on(...).on(...)` 需要拆开。
+- **监听回调的第一个参数改为空对象占位**，不再是原生 `IpcRendererEvent`（其 `sender` 即 `ipcRenderer`）。
+  参数位置不变，`(_event, ...args)` 写法无需改动；读取 `event.sender` / `event.ports` 的代码需要调整。
+- `$ipc.removeAllListeners` 不再返回 `ipcRenderer`。
+- 参数类型由 `any` 收紧为 `unknown`；`invoke<R>` / `sendSync<R>` 只保留返回值泛型。
+
+### 新增
+
+- 导出 `PreloadIpcEvent` / `PreloadIpcListener` 类型。
+
+### 其他
+
+- 新增测试。
+- 文档：类型增强改为推荐 `@quiteer/electron-ipc/web` 的 `WithIpcChannels`。
+
 ## 1.0.0 (2026-08-29)
 
 首个正式版本。相比 0.0.x 有若干破坏性调整，主要是适配 Electron 44 与 `sandbox` 约束。
