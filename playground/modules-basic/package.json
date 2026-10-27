@@ -1,0 +1,23 @@
+{
+  "name": "@quiteer/playground-basic",
+  "version": "0.0.0",
+  "private": true,
+  "description": "用全部包拼出的最小 Electron 应用, 兼作示例与冒烟测试载体",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@quiteer/electron-browser": "workspace:*",
+    "@quiteer/electron-ipc": "workspace:*",
+    "@quiteer/electron-menu": "workspace:*",
+    "@quiteer/electron-preload": "workspace:*",
+    "@quiteer/electron-tray": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "electron": "^44.0.0"
+  }
+}

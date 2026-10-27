@@ -42,8 +42,7 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
-    "test": "vp pack && node --test test/.out/ipc.test.js",
-    "update-version": "bumpp package.json"
+    "test": "vp pack && node --test test/.out/ipc.test.js"
   },
   "devDependencies": {
     "vite-plus": "catalog:"

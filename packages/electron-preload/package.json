@@ -33,8 +33,7 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
-    "test": "vp pack && node --test test/.out/preload.test.js",
-    "update-version": "bumpp package.json"
+    "test": "vp pack && node --test test/.out/preload.test.js"
   },
   "devDependencies": {
     "vite-plus": "catalog:"
