@@ -63,7 +63,17 @@ export function createWindowManager<N extends string = string>(): WindowManager<
     return true;
   };
 
+  const getOrThrow = (name: N): BrowserWindow => {
+    const win = store.get(name);
+    if (!win) {
+      throw new Error(`[electron-browser] 窗口 "${name}" 不存在或已销毁`);
+    }
+    return win;
+  };
+
   const create = (options: WindowOptions<N>): WindowController<N> => {
+    // 先解析父窗口, 找不到时直接抛错, 不影响已有窗口
+    const parent = typeof options.parent === 'string' ? getOrThrow(options.parent) : options.parent;
     const strategy = options.conflict ?? 'focus';
     const existing = store.getController(options.name);
 
@@ -81,7 +91,7 @@ export function createWindowManager<N extends string = string>(): WindowManager<
       }
     }
 
-    return store.register(options.name, createWindow(options));
+    return store.register(options.name, createWindow({ ...options, parent }));
   };
 
   const close = (name: N): boolean => {
@@ -97,14 +107,6 @@ export function createWindowManager<N extends string = string>(): WindowManager<
     for (const [, controller] of store.entries()) {
       controller.target.webContents.send(channel, ...args);
     }
-  };
-
-  const getOrThrow = (name: N): BrowserWindow => {
-    const win = store.get(name);
-    if (!win) {
-      throw new Error(`[electron-browser] 窗口 "${name}" 不存在或已销毁`);
-    }
-    return win;
   };
 
   return {

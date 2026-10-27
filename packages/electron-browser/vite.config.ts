@@ -20,6 +20,8 @@ export default defineConfig({
       alias: {
         electron: fileURLToPath(new URL('test/stubs/electron.ts', import.meta.url)),
       },
+      // electron 是 peerDependency, 默认会被视为外部依赖, 测试需打包替身
+      deps: { alwaysBundle: ['electron'] },
       dts: false,
       format: 'esm',
       fixedExtension: false,

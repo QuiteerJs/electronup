@@ -1,6 +1,10 @@
+import { pathToFileURL } from 'node:url';
+
 import { BrowserWindow } from 'electron';
 
-import type { WindowController, WindowOptions } from './types';
+import { applyNavigationGuard, withSecureDefaults } from './security';
+import { fitToDisplays, getDefaultStateStorage, trackWindowState } from './state';
+import type { WindowController, WindowOptions, WindowStateStorage } from './types';
 
 /**
  * 把 BrowserWindow 包装成带响应式属性的控制句柄
@@ -87,21 +91,109 @@ export function toController<N extends string>(win: BrowserWindow, name: N): Win
   }) as unknown as WindowController<N>;
 }
 
-/** 创建一个窗口并返回控制句柄 (不注册到仓库) */
-export function createWindow<N extends string>(options: WindowOptions<N>): WindowController<N> {
-  const { name, url, openDevTools, showOnReady = true, ...winOptions } = options;
+function resolvePersist(
+  option: WindowOptions['persistState'],
+  name: string,
+): { key: string; storage: WindowStateStorage } | undefined {
+  if (!option) {
+    return undefined;
+  }
+  const { key = name, storage = getDefaultStateStorage() } = option === true ? {} : option;
+  return { key, storage };
+}
 
-  const win = new BrowserWindow(winOptions);
+/**
+ * 创建一个窗口并返回控制句柄 (不注册到仓库)
+ *
+ * - webPreferences 默认 contextIsolation / sandbox 开启、nodeIntegration 关闭
+ * - 默认挂载导航守卫: 仅允许同源跳转, 拒绝 window.open
+ * - `parent` 只接受 BrowserWindow, 按名指定请用 manager.create
+ */
+export function createWindow<N extends string>(options: WindowOptions<N>): WindowController<N> {
+  const {
+    name,
+    url,
+    file,
+    parent,
+    openDevTools,
+    showOnReady = true,
+    conflict: _conflict,
+    navigation = {},
+    persistState,
+    onLoadError,
+    webPreferences,
+    ...winOptions
+  } = options;
+
+  if (url && file) {
+    throw new Error(`[electron-browser] 窗口 "${name}" 的 url 与 file 只能二选一`);
+  }
+  if (typeof parent === 'string') {
+    throw new TypeError(
+      `[electron-browser] 窗口 "${name}" 按名指定 parent "${parent}" 需通过 manager.create 创建`,
+    );
+  }
+
+  const persist = resolvePersist(persistState, name);
+  const saved = persist && persist.storage.get(persist.key);
+  const restored = saved && fitToDisplays(saved);
+  // 要恢复最大化 / 全屏时先隐藏创建, 避免先以普通尺寸闪一下
+  const deferShow =
+    winOptions.show === undefined &&
+    showOnReady &&
+    (restored?.isMaximized || restored?.isFullScreen);
+
+  const win = new BrowserWindow({
+    ...winOptions,
+    ...(deferShow && { show: false }),
+    ...(restored && {
+      width: restored.width,
+      height: restored.height,
+      ...(restored.x !== undefined && { x: restored.x, y: restored.y }),
+    }),
+    ...(parent && { parent }),
+    webPreferences: withSecureDefaults(webPreferences),
+  });
   const controller = toController(win, name);
 
-  if (url) {
-    void win.loadURL(url);
+  if (navigation) {
+    applyNavigationGuard(win, navigation, url ?? (file && pathToFileURL(file).href));
   }
+  if (persist) {
+    trackWindowState(win, persist.key, persist.storage);
+  }
+
+  const load = url ? win.loadURL(url) : file ? win.loadFile(file) : undefined;
+  load?.catch((error: Error) => {
+    if (onLoadError) {
+      onLoadError(error, controller);
+    } else {
+      console.error(`[electron-browser] 窗口 "${name}" 加载失败`, error);
+    }
+  });
+
   if (openDevTools) {
     win.webContents.openDevTools();
   }
-  if (showOnReady && !winOptions.show) {
-    win.once('ready-to-show', () => !win.isDestroyed() && win.show());
+
+  const reveal = () => {
+    if (win.isDestroyed()) {
+      return;
+    }
+    if (restored?.isFullScreen) {
+      win.setFullScreen(true);
+    } else if (restored?.isMaximized) {
+      win.maximize();
+    }
+    if (!win.isVisible()) {
+      win.show();
+    }
+  };
+
+  if (winOptions.show) {
+    reveal();
+  } else if (showOnReady) {
+    win.once('ready-to-show', reveal);
   }
 
   return controller;

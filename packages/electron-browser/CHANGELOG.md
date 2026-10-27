@@ -1,5 +1,29 @@
 # @quiteer/electron-browser
 
+## 0.1.0 (2026-10-27)
+
+### 破坏性变更
+
+- `create()` / `createWindow()` 的 `webPreferences` 默认 `contextIsolation: true`、`sandbox: true`、
+  `nodeIntegration: false`、`webSecurity: true`，显式传入的字段优先。
+- 默认挂载导航守卫：`will-navigate` 只放行同源（当前页面、初始 `url` / `file`、`allowedOrigins`），
+  `window.open` / `target="_blank"` 默认拒绝。传 `navigation: false` 可恢复旧行为。
+
+### 新功能
+
+- `persistState`：记住窗口尺寸、位置、最大化与全屏状态，处理显示器拔出后的越界；
+  默认存到 `userData/window-state.json`，可通过 `storage` 接入自定义存储。导出 `createFileStateStorage`。
+- `navigation`：`allowedOrigins` / `allowNavigation` / `windowOpen`（`'deny'` / `'external'` / 自定义 handler）。
+- `file` 选项：走 `loadFile` 加载本地 html，与 `url` 二选一。
+- `parent` 支持在 `manager.create` 中按窗口名指定，父窗口不存在时抛错且不影响已有窗口。
+- `onLoadError`：`url` / `file` 加载失败时回调，默认 `console.error`，不再产生未处理的 Promise 拒绝。
+- 导出 `SECURE_WEB_PREFERENCES` 及 `NavigationGuardOptions` / `PersistStateOptions` / `WindowState` /
+  `WindowStateStorage` / `WindowOpenPolicy` 类型。
+
+### 其他
+
+- `package.json` 声明 `peerDependencies.electron: >=30.0.0`、`sideEffects: false`、`engines.node: >=20`。
+
 ## 0.0.1 (2026-08-29)
 
 首次发布。
