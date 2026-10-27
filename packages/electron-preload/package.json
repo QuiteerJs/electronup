@@ -6,16 +6,16 @@
     "electron",
     "preload"
   ],
-  "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload",
+  "homepage": "https://github.com/QuiteerJs/electronup/tree/main/packages/electron-preload#readme",
   "bugs": {
-    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+    "url": "https://github.com/QuiteerJs/electronup/issues"
   },
   "license": "MIT",
   "author": "quiteer",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QuiteerJs/electron-modules.git",
-    "directory": "packages/preload"
+    "url": "git+https://github.com/QuiteerJs/electronup.git",
+    "directory": "packages/electron-preload"
   },
   "files": [
     "CHANGELOG.md",
@@ -50,9 +50,11 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
-    "test": "vp pack && node --test test/.out/preload.test.js test/.out/main.test.js"
+    "test": "vp pack && node --test test/.out/preload.test.js test/.out/main.test.js",
+    "prepublishOnly": "node ../../.github/scripts/check-publish-ready.mjs && pnpm run build"
   },
   "devDependencies": {
+    "electron": "^44.0.0",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

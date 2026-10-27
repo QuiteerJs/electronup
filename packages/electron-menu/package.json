@@ -6,16 +6,16 @@
     "electron",
     "menu"
   ],
-  "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/menu",
+  "homepage": "https://github.com/QuiteerJs/electronup/tree/main/packages/electron-menu#readme",
   "bugs": {
-    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+    "url": "https://github.com/QuiteerJs/electronup/issues"
   },
   "license": "MIT",
   "author": "quiteer",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QuiteerJs/electron-modules.git",
-    "directory": "packages/menu"
+    "url": "git+https://github.com/QuiteerJs/electronup.git",
+    "directory": "packages/electron-menu"
   },
   "files": [
     "CHANGELOG.md",
@@ -38,9 +38,11 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
-    "test": "vp pack && node --test test/.out/menu.test.js"
+    "test": "vp pack && node --test test/.out/menu.test.js",
+    "prepublishOnly": "node ../../.github/scripts/check-publish-ready.mjs && pnpm run build"
   },
   "devDependencies": {
+    "electron": "^44.0.0",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

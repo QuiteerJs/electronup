@@ -20,3 +20,8 @@ template/*
 /docs/.vitepress/dist
 /.vitepress/cache
 .workbuddy/
+
+# electron-modules 包的测试产物与 playwright 报告
+.out
+test-results/
+playwright-report/
