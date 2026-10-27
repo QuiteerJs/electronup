@@ -1,0 +1,59 @@
+{
+  "name": "@quiteer/electron-ipc",
+  "version": "3.1.0",
+  "description": "基于electron , 提供了一些 独立无副作用的 ipc 事件相关操作",
+  "keywords": [
+    "electron",
+    "ipc"
+  ],
+  "homepage": "https://github.com/QuiteerJs/electronup/tree/main/packages/electron-ipc#readme",
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electronup/issues"
+  },
+  "license": "MIT",
+  "author": "quiteer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electronup.git",
+    "directory": "packages/electron-ipc"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "dist",
+    "web"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./web": {
+      "types": "./web/index.d.ts",
+      "import": "./web/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp pack && node --test test/.out/*.test.js",
+    "prepublishOnly": "node ../../.github/scripts/check-publish-ready.mjs && pnpm run build"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "electron": ">=30"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

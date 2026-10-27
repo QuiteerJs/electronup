@@ -1,0 +1,22 @@
+{
+  "name": "@quiteer/playground-basic",
+  "version": "0.0.0",
+  "private": true,
+  "description": "把 app / browser / ipc / preload 串起来的最小可运行示例",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "vp pack",
+    "start": "vp pack && electron .",
+    "smoke": "vp pack && electron . --smoke"
+  },
+  "dependencies": {
+    "@quiteer/electron-app": "workspace:*",
+    "@quiteer/electron-browser": "workspace:*",
+    "@quiteer/electron-ipc": "workspace:*",
+    "@quiteer/electron-preload": "workspace:*"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}

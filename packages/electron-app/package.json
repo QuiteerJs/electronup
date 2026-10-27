@@ -1,0 +1,50 @@
+{
+  "name": "@quiteer/electron-app",
+  "version": "0.1.0",
+  "description": "基于electron , 提供单实例、deep link、activate 重建与优雅退出等应用生命周期样板",
+  "keywords": [
+    "app",
+    "deep-link",
+    "electron",
+    "lifecycle",
+    "single-instance"
+  ],
+  "homepage": "https://github.com/QuiteerJs/electronup/tree/main/packages/electron-app#readme",
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electronup/issues"
+  },
+  "license": "MIT",
+  "author": "quiteer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electronup.git",
+    "directory": "packages/electron-app"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp pack && node --test test/.out/app.test.js",
+    "prepublishOnly": "node ../../.github/scripts/check-publish-ready.mjs && pnpm run build"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "vite-plus": "catalog:"
+  }
+}

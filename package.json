@@ -10,6 +10,7 @@
   "scripts": {
     "work:dev": "pnpm --filter './packages/*' dev",
     "work:build": "pnpm --filter './packages/*' build",
+    "modules:build": "pnpm --filter \"./packages/electron-*\" build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
@@ -18,15 +19,19 @@
     "lint:fix": "vp lint . --fix --ignore-pattern \"**/.vitepress/cache/**\"",
     "typecheck": "tsc -p packages/electronup/tsconfig.json --noEmit && tsc -p packages/create-electronup/tsconfig.json --noEmit",
     "test": "pnpm --filter \"./packages/*\" test",
+    "test:e2e:modules": "pnpm --filter ./playground/modules-smoke test:e2e",
     "prepare": "simple-git-hooks",
     "upgrade:latest": "pnpm update --latest",
     "upgrade:interactive": "pnpm update --interactive --latest",
     "commit": "qui gc",
     "version:core": "bumpp packages/electronup/package.json --no-commit --no-tag --no-push",
     "version:scaffold": "bumpp packages/create-electronup/package.json --no-commit --no-tag --no-push",
+    "changeset": "changeset",
+    "version:modules": "changeset version",
     "changelog": "qui cl"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@quiteer/scripts": "^0.1.6",
     "@quiteer/ts-config": "^0.0.7",
     "@types/fs-extra": "^11.0.4",
