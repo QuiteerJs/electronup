@@ -24,8 +24,9 @@ export interface PreloadConfig {
    * @default 'cjs'
    */
   format?: 'cjs' | 'esm'
-  /** 默认跟随命令行 `--no-minify` */
+  /** build 默认跟随命令行 `--no-minify` , dev 默认不压缩 */
   minify?: boolean
+  /** dev 默认开启 , build 默认关闭 */
   sourcemap?: boolean | 'inline' | 'hidden'
   /** 不参与构建的模块 , 始终包含 electron */
   external?: (string | RegExp)[]
@@ -95,6 +96,8 @@ export interface ElectronupConfig {
 
 export interface ConfigEnv {
   command: 'build' | 'serve'
+  /** 由 `-m` 指定 , dev 默认 `development` , build 默认 `production` */
+  mode: string
   root: string
 }
 

@@ -54,7 +54,8 @@ export function getPreloadConfigs(configs: ElectronupConfig['preload'], allConfi
       noExternal: config.noExternal,
       env: { ...injectEnv(), ...config.env },
       plugins: [config.plugins ?? []].flat(),
-      sourcemap: config.sourcemap,
+      // dev 默认生成 sourcemap , 便于在 DevTools 中调试 preload
+      sourcemap: config.sourcemap ?? store.command === 'serve',
       // dev 下监听 preload 变化 , 重新构建后由 preloadWatchPlugin 重启 Electron
       watch: store.command === 'serve',
     })

@@ -35,9 +35,9 @@ export default defineConfig({
 ```ts
 import { defineConfig } from 'electronup'
 
-export default defineConfig(({ command, root }) => {
+export default defineConfig(({ command, mode, root }) => {
   return {
-    // command 为 'serve'（dev）或 'build'
+    // command 为 'serve'（dev）或 'build'；mode 为 -m 指定的模式
   }
 })
 ```
@@ -137,7 +137,8 @@ export default defineConfig({
 | `build.target` | `node18`（Electron 28 内置的 Node 版本） |
 | `build.emptyOutDir` | `false`（`resourceDir` 由 electronup 统一清理） |
 | `build.watch` | `dev` 下开启，`build` 下关闭 |
-| `minify` | 跟随命令行，默认开启 |
+| `minify` | build 跟随命令行（默认开启），dev 不压缩 |
+| `sourcemap` | dev 开启，build 关闭 |
 | 环境变量 | 自动注入 `.env` / `.env.{mode}`、`NODE_ENV`、`RENDER_PORT`，以 `define` 替换 `process.env.X` 与 `import.meta.env.X` |
 | 依赖 | `package.json` 中 `dependencies` / `peerDependencies` / `optionalDependencies` 声明的包不打包（electron-builder 会把它们装进安装包），`devDependencies` 与其他模块打进产物 |
 
@@ -183,7 +184,7 @@ export default defineConfig({
 | 输出目录 | 与主进程一致（`resourceDir`），也可在单项配置中指定 `outDir`；`outDir` 位于 `resourceDir` 之外时会自动加入默认的 builder `files`（自定义 `files` 时需自行包含），且必须位于项目根目录之内 |
 | 环境变量 | 与主进程一致；单项配置中的 `env` 优先 |
 | `external` / `noExternal` | 与主进程相同的依赖规则，`electron` 始终不打包；`noExternal: true` 表示其余模块全部打进产物 |
-| `minify` / `sourcemap` | `minify` 跟随命令行，`sourcemap` 默认关闭 |
+| `minify` / `sourcemap` | 默认 dev 不压缩并生成 sourcemap；build 跟随命令行压缩，不生成 sourcemap |
 | `plugins` | Vite 插件，追加在 electronup 内置插件之后 |
 | `viteConfig` | 其余 Vite 配置，最后通过 `mergeConfig` 合并，可覆盖上面的预置项 |
 

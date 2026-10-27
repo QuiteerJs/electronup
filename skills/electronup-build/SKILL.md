@@ -13,7 +13,7 @@ description: 运行 electronup dev / electronup build，为 Windows、macOS、Li
 electronup                    # 等同 electronup dev
 electronup dev -p 3000        # 渲染进程起始端口，默认 8090；占用会自动后移
 electronup dev -m staging     # 加载 .env + .env.staging
-electronup dev --no-minify    # 不压缩，便于调试
+electronup build --no-minify  # 产物不压缩，便于排查（dev 本身不压缩且带 sourcemap）
 electronup dev build/electronup.config.ts   # 指定配置文件
 ```
 

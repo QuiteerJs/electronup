@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { resolveElectronupConfig } from './getExportConfig'
 
 vi.mock('../configs/electronup', () => ({ getElectronupConfig: vi.fn() }))
-vi.mock('../utils', () => ({ store: { command: 'build', root: '/proj' } }))
+vi.mock('../utils', () => ({ store: { command: 'build', mode: 'staging', root: '/proj' } }))
 
 describe('resolveElectronupConfig', () => {
   it('对象导出原样返回', async () => {
@@ -13,7 +13,7 @@ describe('resolveElectronupConfig', () => {
   it('函数导出会被执行并收到 ConfigEnv , 清理前即可读到真实 resourceDir', async () => {
     const fn = vi.fn(() => ({ resourceDir: 'custom-out' }))
     expect(await resolveElectronupConfig(fn)).toEqual({ resourceDir: 'custom-out' })
-    expect(fn).toHaveBeenCalledWith({ command: 'build', root: '/proj' })
+    expect(fn).toHaveBeenCalledWith({ command: 'build', mode: 'staging', root: '/proj' })
   })
 
   it('异步函数与 Promise 导出', async () => {

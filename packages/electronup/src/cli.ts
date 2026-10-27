@@ -40,7 +40,7 @@ cli
   .alias('dev')
   .option('-p , --port <port>', '[number] 渲染进程的端口号 ，如果占用会切换非占用的端口 ')
   .action(async (configFile: undefined | string, options: DevOptions) => {
-    const { mode, port, minify } = options
+    const { mode, port } = options
 
     // store.command 需在执行函数式配置前设置 ( 作为 ConfigEnv 传给用户 )
     store.command = 'serve'
@@ -52,7 +52,8 @@ cli
       console.error('err: ', error.message)
       process.exit(1)
     }
-    store.minify = minify
+    // dev 不压缩 ( 主进程 / preload 同时生成 sourcemap ) , 便于调试 ; --no-minify 只影响 build
+    store.minify = false
 
     // 先执行函数式 / 异步配置得到最终对象 , 清理由 watch 在拿到真实 resourceDir 后进行
     const option = await loadConfigOrExit(configFile)

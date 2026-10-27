@@ -106,6 +106,14 @@ describe('dev 下 preload 监听变化', () => {
     expect(getPreloadConfigs({ entry: 'a.ts' }, baseAllConfig)[0].build?.watch).toBeNull()
   })
 
+  it('sourcemap 默认 serve 开启、build 关闭 , 单项配置优先', () => {
+    store.command = 'serve'
+    expect(getPreloadConfigs({ entry: 'a.ts' }, baseAllConfig)[0].build?.sourcemap).toBe(true)
+    expect(getPreloadConfigs({ entry: 'a.ts', sourcemap: false }, baseAllConfig)[0].build?.sourcemap).toBe(false)
+    store.command = 'build'
+    expect(getPreloadConfigs({ entry: 'a.ts' }, baseAllConfig)[0].build?.sourcemap).toBe(false)
+  })
+
   it('首次写盘只通知首次构建完成 , 之后每次写盘重启 Electron', () => {
     restartElectron.mockClear()
     const onFirstBuild = vi.fn()

@@ -83,19 +83,18 @@ electronup dev -m production
 ```
 
 ::: tip
-`mode` only selects the `.env.{mode}` file. A missing file is not an error; only `.env` is used. The build mode of Vite is still determined by `dev` / `build`.
+`mode` only selects the `.env.{mode}` file. A missing file is not an error; only `.env` is used. The renderer's `import.meta.env.MODE` and the `mode` passed to a config function follow it as well; `NODE_ENV` is still determined by `dev` / `build`.
 :::
 
 ## Minification `--no-minify`
 
-By default both the main process and the renderer are minified. `--no-minify` disables minification for easier debugging:
+`build` minifies the main process, preload scripts and renderer by default. `--no-minify` turns minification off so the output is easier to inspect:
 
 ```bash
-electronup dev --no-minify
 electronup build --no-minify
 ```
 
-Template `dev` scripts pass `--no-minify` by default; remove it if you prefer.
+`dev` never minifies and generates sourcemaps for the main process and preload scripts. Electron is launched with `--enable-source-maps`, so main process stack traces point at the source files. Passing `--no-minify` to `dev` is accepted but has no extra effect.
 
 ## `electronup dev`
 
