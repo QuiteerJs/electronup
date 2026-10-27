@@ -150,6 +150,37 @@ interface ExpandPreloadIpc {
   invoke(channel: '__file_options__', type: 'resolve', ...paths: string[]): Promise<string>;
 }
 
-export type { ExpandPreloadIpc };
+/** 本包占用的通道名 */
+type IpcReservedChannel = '__window_options__' | '__file_options__';
+
+/** 通道名命中保留通道时收窄为 never, 迫使调用方走 ExpandPreloadIpc 的精确重载 */
+type NonReserved<C extends string> = C & (C extends IpcReservedChannel ? never : unknown);
+
+/**
+ * 把内置通道的精确签名叠加到预加载暴露的 `$ipc` 类型上
+ *
+ * 直接写 `PreloadIpc & ExpandPreloadIpc` 时, `PreloadIpc` 的宽松签名 `(channel: string, ...args)`
+ * 会兜住所有调用, 写错操作名也不会报错。这里把内置通道从宽松签名里剔除, 其余业务通道不受影响。
+ *
+ * @example
+ * ```ts
+ * interface Window {
+ *   $ipc: import('@quiteer/electron-ipc/web').WithIpcChannels<import('@quiteer/electron-preload').PreloadIpc>
+ * }
+ * ```
+ */
+type WithIpcChannels<Base extends { send: unknown; invoke: unknown }> = Omit<
+  Base,
+  'send' | 'invoke'
+> &
+  ExpandPreloadIpc & {
+    send<C extends string>(channel: NonReserved<C>, ...args: unknown[]): void;
+    invoke<R = any, C extends string = string>(
+      channel: NonReserved<C>,
+      ...args: unknown[]
+    ): Promise<R>;
+  };
+
+export type { ExpandPreloadIpc, IpcReservedChannel, WithIpcChannels };
 export * from './eventKeys';
 export * from './options';

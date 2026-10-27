@@ -10,6 +10,10 @@ declare const preloadPath: string;
 declare namespace preloadPath {
   /** 渲染层 `$ipc` 的类型 */
   type PreloadIpc = import('./dist/preload.cjs').PreloadIpc;
+  /** `$ipc.on` / `$ipc.once` 回调的事件参数 */
+  type PreloadIpcEvent = import('./dist/preload.cjs').PreloadIpcEvent;
+  /** `$ipc.on` / `$ipc.once` 的回调类型 */
+  type PreloadIpcListener = import('./dist/preload.cjs').PreloadIpcListener;
   /** 渲染层 `$clipboard` 的类型 */
   type PreloadClipboard = import('./dist/preload.cjs').PreloadClipboard;
   /** 渲染层 `$webFrame` 的类型 */

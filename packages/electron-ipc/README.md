@@ -95,23 +95,28 @@ const info = await window.$ipc.invoke(EventKeys.FileOptionsKey, 'parse', '/a/b/c
 
 ## 渲染层类型增强
 
-包内提供 `ExpandPreloadIpc`，叠加在预加载的 `$ipc` 类型上即可获得通道与参数的补全和校验：
+包内提供 `WithIpcChannels`，把内置通道的精确签名叠加到预加载的 `$ipc` 类型上：
 
 ```ts
 // global.d.ts
 interface Window {
-  $ipc: import('@quiteer/electron-preload').PreloadIpc &
-    import('@quiteer/electron-ipc/web').ExpandPreloadIpc;
+  $ipc: import('@quiteer/electron-ipc/web').WithIpcChannels<
+    import('@quiteer/electron-preload').PreloadIpc
+  >;
 }
 ```
 
-之后写错通道或漏传参数都会直接报错：
+之后写错操作名或漏传参数都会直接报错，业务自定义通道照常使用：
 
 ```ts
 window.$ipc.send('__window_options__', 'destroy'); // ✅
-window.$ipc.invoke('__file_options__', 'join', '/', '/experiment'); // ✅
+window.$ipc.invoke('__file_options__', 'join', '/', '/experiment'); // ✅ Promise<string>
+window.$ipc.send('my-channel', { id: 1 }); // ✅ 业务通道不受影响
 window.$ipc.send('__window_options__', 'not-exist'); // ❌ 类型报错
+window.$ipc.send('__window_options__', 'setTitle'); // ❌ 漏传 title
 ```
+
+> 旧写法 `PreloadIpc & ExpandPreloadIpc` 不会报错：`PreloadIpc` 的宽松签名 `(channel: string, ...args)` 会兜住所有调用。`ExpandPreloadIpc` 仍然导出，但请改用 `WithIpcChannels`。
 
 ## 与 `@quiteer/electron-browser` 配合
 

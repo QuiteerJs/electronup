@@ -53,9 +53,19 @@ window.$webFrame.setZoomFactor(1.2);
 | `send(channel, ...args)`       | 单向发送                                    |
 | `sendSync(channel, ...args)`   | 同步发送，阻塞渲染进程，非必要请用 `invoke` |
 | `invoke(channel, ...args)`     | 双向调用，返回 `Promise`                    |
-| `on(channel, listener)`        | 监听主进程推送                              |
-| `once(channel, listener)`      | 监听一次                                    |
+| `on(channel, listener)`        | 监听主进程推送，**返回取消监听的函数**      |
+| `once(channel, listener)`      | 监听一次，同样返回取消函数                  |
 | `removeAllListeners(channel?)` | 移除监听，不传通道则清空全部                |
+
+```ts
+const off = window.$ipc.on('progress', (_event, value) => render(value));
+// 组件卸载时
+off();
+```
+
+回调的第一个参数是空对象占位，不是原生 `IpcRendererEvent`：原生事件的 `sender` 就是 `ipcRenderer` 本身，透出去等于把整个 `ipcRenderer` 交给页面（Electron 安全指南明确禁止）。参数位置保持不变，`(_event, ...args)` 的写法无需改动。
+
+> 不提供 `removeListener(channel, listener)`：页面函数每次跨越 `contextBridge` 都会变成新的代理，按引用移除永远对不上，请使用 `on` / `once` 返回的取消函数。
 
 ### `$clipboard`
 
@@ -105,8 +115,9 @@ interface Window {
 
 ```ts
 interface Window {
-  $ipc: import('@quiteer/electron-preload').PreloadIpc &
-    import('@quiteer/electron-ipc/web').ExpandPreloadIpc;
+  $ipc: import('@quiteer/electron-ipc/web').WithIpcChannels<
+    import('@quiteer/electron-preload').PreloadIpc
+  >;
 }
 ```
 
