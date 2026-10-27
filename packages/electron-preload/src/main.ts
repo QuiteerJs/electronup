@@ -71,7 +71,7 @@ const target = (type: unknown) => (type === 'selection' && clipboard.selection) 
 function toItem(data: PreloadClipboardData): ClipboardItem {
   const entries = Object.entries(data).map(([mime, value]) => [
     mime,
-    value instanceof Uint8Array ? new Blob([value], { type: mime }) : value,
+    value instanceof Uint8Array ? new Blob([value as Uint8Array<ArrayBuffer>], { type: mime }) : value,
   ]);
   return new ClipboardItem(Object.fromEntries(entries));
 }
@@ -94,6 +94,7 @@ async function fromItem(item: ClipboardItem): Promise<PreloadClipboardData> {
 
 const clipboardHandlers: Record<string, (type: unknown, ...args: any[]) => unknown> = {
   clear: (type) => target(type).clear(),
+  // oxlint-disable-next-line typescript/no-unnecessary-type-conversion -- 参数来自渲染层, 运行时不一定是字符串
   has: (type, mimetype: string) => target(type).has(String(mimetype)),
   read: async (type) => Promise.all((await target(type).read()).map(fromItem)),
   readText: (type) => target(type).readText(),

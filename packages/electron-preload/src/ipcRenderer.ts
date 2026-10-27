@@ -10,6 +10,7 @@ import { createMatcher } from './config';
  * 原生 `IpcRendererEvent.sender` 就是 ipcRenderer 本身, 原样透出等于把整个 ipcRenderer 交给页面,
  * 因此这里只传一个空对象占住第一个参数, 保持 `(event, ...args)` 的回调签名不变
  */
+// oxlint-disable-next-line typescript/no-generated-empty-object-type -- 有意为之: 空通道组 / 空事件占位
 export type PreloadIpcEvent = Record<never, never>;
 
 export type PreloadIpcListener = (event: PreloadIpcEvent, ...args: any[]) => void;
@@ -18,6 +19,7 @@ export interface PreloadIpc {
   /** 单向发送 */
   send(channel: string, ...args: unknown[]): void;
   /** 同步发送, 会阻塞渲染进程, 非必要请用 invoke */
+  // oxlint-disable-next-line typescript/no-unnecessary-type-parameters -- R 供调用方标注返回类型
   sendSync<R = any>(channel: string, ...args: unknown[]): R;
   /** 双向调用 */
   invoke<R = any>(channel: string, ...args: unknown[]): Promise<R>;

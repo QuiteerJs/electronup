@@ -28,7 +28,8 @@ type SendImpl<F extends (...args: any[]) => any> = (
 
 /** 契约里没有该组通道时, 对应字段可省略 */
 type Group<K extends string, Fns, Impl> = [keyof Fns] extends [never]
-  ? { [P in K]?: Record<never, never> }
+  ? // oxlint-disable-next-line typescript/no-generated-empty-object-type -- 有意为之: 该组可省略
+    { [P in K]?: Record<never, never> }
   : { [P in K]: Impl };
 
 /** 主进程需要实现的处理函数表, 漏写或多写通道都会类型报错 */
@@ -80,6 +81,7 @@ export function handleContract<C extends Contract>(
   options: HandleOptions = {},
 ): () => void {
   const validateSender = createValidator(options);
+  // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- 去掉断言后按字符串索引会报 TS7053
   const impls = handlers as {
     invoke?: Record<string, (...args: any[]) => unknown>;
     send?: Record<string, (...args: any[]) => unknown>;

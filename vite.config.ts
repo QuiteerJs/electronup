@@ -21,6 +21,16 @@ export default defineConfig({
       'typescript/no-unsafe-type-assertion': 'off',
       curly: 'error',
     },
+    overrides: [
+      {
+        // electron-* 包用 node:test , test() / describe() 返回的 Promise 由运行器接管 ; stubs 模拟 electron 内部字段需要下划线前缀
+        files: ['packages/electron-*/test/**'],
+        rules: {
+          'typescript/no-floating-promises': 'off',
+          'eslint/no-underscore-dangle': 'off',
+        },
+      },
+    ],
     ignorePatterns: [
       '**/dist/**',
       '**/node_modules/**',

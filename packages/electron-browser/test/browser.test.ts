@@ -135,13 +135,13 @@ test('WinStore 可独立使用, closeAll 关闭并清空', async () => {
 
 test('webPreferences 默认安全配置, 显式传入优先', () => {
   const manager = createWindowManager();
-  const win = manager.create({ name: 'secure' }).target as unknown as BrowserWindow;
+  const win = manager.create({ name: 'secure' }).target;
   assert.deepEqual(win.options.webPreferences, SECURE_WEB_PREFERENCES);
 
   const loose = manager.create({
     name: 'loose',
     webPreferences: { sandbox: false, preload: '/p.js' },
-  }).target as unknown as BrowserWindow;
+  }).target;
   assert.deepEqual(loose.options.webPreferences, {
     ...SECURE_WEB_PREFERENCES,
     sandbox: false,
@@ -155,7 +155,7 @@ test('导航守卫: 默认只允许同源跳转', () => {
     name: 'nav',
     url: 'https://app.example.com/index.html',
     navigation: { allowedOrigins: ['https://auth.example.com'] },
-  }).target as unknown as BrowserWindow;
+  }).target;
 
   assert.equal(webContents.navigate('https://app.example.com/other'), false);
   assert.equal(webContents.navigate('https://auth.example.com/login'), false);
@@ -166,7 +166,7 @@ test('导航守卫: 默认只允许同源跳转', () => {
 test('导航守卫: file 页面允许本地跳转, 自定义判断与关闭', () => {
   const manager = createWindowManager();
   const local = manager.create({ name: 'local', file: 'index.html' })
-    .target as unknown as BrowserWindow;
+    .target;
   assert.equal(local.file, 'index.html');
   assert.equal(local.webContents.navigate('file:///app/about.html'), false);
   assert.equal(local.webContents.navigate('https://example.com'), true);
@@ -174,25 +174,25 @@ test('导航守卫: file 页面允许本地跳转, 自定义判断与关闭', ()
   const custom = manager.create({
     name: 'custom',
     navigation: { allowNavigation: (url) => url.endsWith('.ok') },
-  }).target as unknown as BrowserWindow;
+  }).target;
   assert.equal(custom.webContents.navigate('https://a.ok'), false);
   assert.equal(custom.webContents.navigate('https://a.no'), true);
 
-  const off = manager.create({ name: 'off', navigation: false }).target as unknown as BrowserWindow;
+  const off = manager.create({ name: 'off', navigation: false }).target;
   assert.equal(off.webContents.navigate('https://anything.com'), false);
   assert.equal(off.webContents.windowOpenHandler, undefined);
 });
 
 test('window.open 默认拒绝, external 交给系统浏览器', () => {
   const manager = createWindowManager();
-  const deny = manager.create({ name: 'deny' }).target as unknown as BrowserWindow;
+  const deny = manager.create({ name: 'deny' }).target;
   assert.deepEqual(deny.webContents.windowOpenHandler!({ url: 'https://x.com' }), {
     action: 'deny',
   });
 
   shell.opened = [];
   const ext = manager.create({ name: 'ext', navigation: { windowOpen: 'external' } })
-    .target as unknown as BrowserWindow;
+    .target;
   assert.deepEqual(ext.webContents.windowOpenHandler!({ url: 'https://x.com' }), {
     action: 'deny',
   });
@@ -211,7 +211,7 @@ test('parent 可按名指定, 缺失时抛错且不影响已有窗口', () => {
   const manager = createWindowManager<'main' | 'dialog'>();
   const main = manager.create({ name: 'main' });
   const dialog = manager.create({ name: 'dialog', parent: 'main', modal: true })
-    .target as unknown as BrowserWindow;
+    .target;
   assert.equal(dialog.options.parent, main.target);
   assert.equal(dialog.options.modal, true);
 
@@ -267,7 +267,7 @@ test('persistState: 关闭时保存, 下次创建恢复尺寸位置与最大化'
     height: 600,
     persistState: { storage },
   });
-  const win = second.target as unknown as BrowserWindow;
+  const win = second.target;
   assert.deepEqual(
     [win.options.x, win.options.y, win.options.width, win.options.height],
     [120, 80, 1000, 600],
@@ -290,14 +290,14 @@ test('persistState: 越界位置被修正', () => {
   });
 
   const gone = manager.create({ name: 'gone', persistState: { storage } })
-    .target as unknown as BrowserWindow;
+    .target;
   assert.deepEqual(
     [gone.options.x, gone.options.y, gone.options.width, gone.options.height],
     [undefined, undefined, 1920, 900],
   );
 
   const edge = manager.create({ name: 'edge', persistState: { storage } })
-    .target as unknown as BrowserWindow;
+    .target;
   assert.deepEqual([edge.options.x, edge.options.y], [1520, 780]);
 
   // 第二块屏幕上的位置原样保留
@@ -311,7 +311,7 @@ test('persistState: 越界位置被修正', () => {
     isFullScreen: false,
   };
   const back = manager.create({ name: 'far', persistState: { storage } })
-    .target as unknown as BrowserWindow;
+    .target;
   assert.deepEqual([back.options.x, back.options.width], [2200, 2000]);
   screen.displays.pop();
 });

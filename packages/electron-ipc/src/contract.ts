@@ -87,6 +87,7 @@ export interface ContractChannels {
   readonly on: readonly string[];
 }
 
+// oxlint-disable-next-line typescript/no-generated-empty-object-type -- 有意为之: 空通道组 / 空事件占位
 type Normalize<G> = G extends ChannelGroup ? G : Record<never, ChannelDef>;
 
 export interface Contract<S extends ContractSpec = ContractSpec> {

@@ -35,6 +35,10 @@ jobs:
       - name: Build electronup CLI
         run: pnpm --filter electronup build
 
+      # electron-preload 的 index.d.cts 与 modules-smoke 的类型引用 dist , 同样需先构建
+      - name: Build electron-* modules
+        run: pnpm modules:build
+
       - name: Lint
         run: pnpm lint
 

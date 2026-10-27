@@ -1,7 +1,6 @@
 import { Menu, app } from 'electron';
 import type {
   BaseWindow,
-  MenuItemConstructorOptions,
   MenuItem as MenuItemType,
   Menu as MenuType,
 } from 'electron';
@@ -66,7 +65,7 @@ function buildMenu(template: MenuTemplate | undefined): MenuType {
   if (template === undefined) {
     return Menu.buildFromTemplate([]);
   }
-  return Menu.buildFromTemplate(normalizeTemplate(template) as MenuItemConstructorOptions[]);
+  return Menu.buildFromTemplate(normalizeTemplate(template));
 }
 
 /**

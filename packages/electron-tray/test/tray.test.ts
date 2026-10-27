@@ -48,7 +48,7 @@ test('图标状态切换同步到托盘', () => {
   assert.equal(iconOf(tray.target), 'icons/syncing.png');
 
   assert.throws(() => {
-    tray.state = 'nope' as 'idle';
+    tray.state = 'nope';
   }, /未定义状态 "nope" 的图标/);
 });
 
