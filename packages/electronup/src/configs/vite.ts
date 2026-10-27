@@ -4,10 +4,14 @@ import { resolve } from 'node:path'
 import { DefaultDirs, store } from '../utils'
 
 export function getViteConfig(config: ViteConfig, allConfig: ElectronupConfig) {
-  const { root, minify } = store
+  const { root, minify, mode } = store
 
   const defaultConfig: UserConfig = {
     base: './',
+    // 跟随 -m 指定的模式 , 与主进程 / preload 读取同一组 .env.{mode}
+    mode,
+    // root 为 renderDir , Vite 默认只在 renderDir 下找 .env ; 改为项目根 , 与主进程 / preload 一致
+    envDir: root,
     ...config,
     build: {
       ...config?.build,

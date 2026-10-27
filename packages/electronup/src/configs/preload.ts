@@ -1,10 +1,10 @@
-import type { InlineConfig } from 'vite'
+import type { InlineConfig, Plugin } from 'vite'
 import type { ElectronupConfig } from '../typings/electronup'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { mergeConfig } from 'vite'
 import { DefaultDirs, store } from '../utils'
-import { createNodeBuildConfig, injectEnv } from './pack'
+import { createNodeBuildConfig, injectEnv, restartElectron } from './pack'
 
 /**
  * 预检 preload 配置 : 每项都需要 entry , 入口文件必须存在 ; 不合法时抛错
@@ -55,7 +55,41 @@ export function getPreloadConfigs(configs: ElectronupConfig['preload'], allConfi
       env: { ...injectEnv(), ...config.env },
       plugins: [config.plugins ?? []].flat(),
       sourcemap: config.sourcemap,
+      // dev 下监听 preload 变化 , 重新构建后由 preloadWatchPlugin 重启 Electron
+      watch: store.command === 'serve',
     })
     return config.viteConfig ? mergeConfig(base, config.viteConfig) : base
   })
+}
+
+/**
+ * dev 下 preload 的 watch 插件 : 首次构建结束 ( 写盘或失败 ) 时调用 onFirstBuild ,
+ * 之后每次重新构建写盘都重启 Electron , 让新的 preload 生效
+ *
+ * 首次构建失败也要通知 , 否则 dev 会一直等待 ; 修复后的重新构建同样会触发重启
+ */
+export function preloadWatchPlugin(onFirstBuild: () => void): Plugin {
+  let first = true
+  const done = () => {
+    if (!first)
+      {return false}
+    first = false
+    onFirstBuild()
+    return true
+  }
+
+  return {
+    name: 'electronup:preload-watch',
+    buildEnd(error) {
+      if (error)
+        {done()}
+    },
+    renderError() {
+      done()
+    },
+    writeBundle() {
+      if (!done())
+        {restartElectron()}
+    },
+  }
 }

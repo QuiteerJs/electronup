@@ -187,7 +187,7 @@ Per-item defaults are listed below; fields in the item config override them:
 | `plugins` | Vite plugins, appended after electronup's built-in plugins |
 | `viteConfig` | Any other Vite options, merged last with `mergeConfig` and able to override the presets above |
 
-Both `dev` and `build` build preload scripts before the main process. In dev they are built once and not watched; restart the dev command after editing them.
+Both `dev` and `build` build preload scripts before the main process. In dev they are also built in watch mode: a change rebuilds the preload and restarts Electron. A failed first build does not block dev; fixing it triggers a restart.
 
 If your Electron version supports ESM preload, pass `format: 'esm'` in the item to override the default.
 
@@ -312,9 +312,9 @@ Rules:
 - A missing `.env` or `.env.{mode}` is not an error; that layer is simply skipped.
 - `NODE_ENV` is written by electronup: `development` in dev, `production` in build.
 - In dev, `RENDER_PORT` holds the actual Vite port.
-- The renderer only sees `VITE_`-prefixed variables (`import.meta.env`); the main process and preload scripts see all variables (`process.env`).
+- The renderer only sees `VITE_`-prefixed variables (`import.meta.env`); the main process and preload scripts see all variables (`process.env`). The renderer also reads `.env` files from the project root, and `import.meta.env.MODE` follows `-m`.
 - For the main process and preload, variables are inlined at build time as `process.env.X`. Both the global `process` and `import process from 'node:process'` (or `'process'`) work; `import { env } from 'node:process'` or other local names (such as `import proc from 'node:process'`) are not inlined.
-- Finer-grained files such as `.env.local` are not supported.
+- The main process and preload do not read finer-grained files such as `.env.local`; renderer variables are loaded by Vite and follow its rules (including `.env.local`).
 
 ## Effective config
 

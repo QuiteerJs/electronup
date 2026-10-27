@@ -111,7 +111,7 @@ What happens:
 2. `resourceDir` is checked and cleared, then the Vite dev server starts.
 3. Preload scripts are built (if `preload` is configured).
 4. The main process is built in watch mode; a successful build launches Electron with the built main file.
-5. Main process changes rebuild and restart Electron; the renderer uses Vite HMR.
+5. Main process or preload changes rebuild and restart Electron; the renderer uses Vite HMR.
 
 Closing the Electron window exits the dev command.
 

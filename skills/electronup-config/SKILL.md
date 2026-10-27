@@ -84,7 +84,7 @@ export default defineConfig({
 ```
 
 - 主进程里用 `resolve(__dirname, 'preload.cjs')` 引用产物。
-- dev 模式 preload 只构建一次，修改后需重启 `electronup dev`。
+- dev 模式 preload 以 watch 构建，修改后自动重新构建并重启 Electron。
 - 单项可写 `outDir`（必须在项目根内；在 `resourceDir` 之外时会自动加入默认 builder `files`，自定义了 `files` 就要自己包含）。
 - Electron 版本支持 ESM preload 时才考虑 `format: 'esm'`。
 - 其余可用字段以所装版本的类型定义（`ElectronupConfig['preload']`）为准。
@@ -121,7 +121,7 @@ electronup 不预置签名。证书用环境变量，不要提交进仓库：
 
 ## 环境变量
 
-- 加载根目录 `.env` + `.env.{mode}`（后者覆盖前者，文件不存在不报错）；dev 默认 mode `development`，build 默认 `production`，用 `-m <mode>` 切换。不支持 `.env.local`。
+- 加载根目录 `.env` + `.env.{mode}`（后者覆盖前者，文件不存在不报错）；dev 默认 mode `development`，build 默认 `production`，用 `-m <mode>` 切换（渲染进程的 `import.meta.env.MODE` 同样跟随）。主进程 / preload 不读 `.env.local`；渲染进程由 Vite 从项目根加载，遵循 Vite 规则。
 - `NODE_ENV`：dev 为 `development`，build 为 `production`；dev 额外注入 `RENDER_PORT`。
 - 渲染进程只能用 `VITE_` 前缀变量（`import.meta.env`）；主进程与 preload 可用全部变量（`process.env.X`，构建时内联）。
 - 内联只认全局 `process.env.X` 或 `import process from 'node:process'` 后的 `process.env.X`；`import { env } from 'node:process'` 或改名导入不会被内联。
@@ -134,6 +134,6 @@ electronup 不预置签名。证书用环境变量，不要提交进仓库：
 | 改主进程入口/格式无效 | 入口固定 `${mainDir}/index.ts`，格式固定 CJS |
 | 打包后 `Cannot find module 'x'` | `x` 被 external 但不在 `dependencies`；或应打进产物却没加 `noExternal` |
 | 打包后白屏 | `base` 被改成 `/`，或 `loadURL` 没用 `file://` + `index.html` |
-| preload 改了没反应 | dev 下 preload 只构建一次，重启 dev |
+| preload 改了没反应 | dev 下应自动重启 Electron；检查终端是否有 preload 构建报错，以及主进程引用的产物路径 |
 
 详细文档：<https://quiteerjs.github.io/electronup/introduce/config>。

@@ -17,7 +17,7 @@ electronup dev --no-minify    # 不压缩，便于调试
 electronup dev build/electronup.config.ts   # 指定配置文件
 ```
 
-- 启动时清空 `resourceDir`，起 Vite dev server，构建 preload（一次），watch 主进程并在每次构建成功后（重）启动 Electron；关闭窗口后命令退出。
+- 启动时清空 `resourceDir`，起 Vite dev server，watch 构建 preload（修改后重启 Electron），watch 主进程并在每次构建成功后（重）启动 Electron；关闭窗口后命令退出。
 - 实际端口通过 `RENDER_PORT` 注入主进程。端口必须是 1–65535 的整数，否则报错退出。
 - 本机没有 Electron 二进制（`node_modules/electron/dist`）时拉不起窗口，此时用 `build --dir` 验证。
 

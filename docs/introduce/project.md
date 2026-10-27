@@ -101,7 +101,6 @@ pnpm add electronup -D
 - macOS 安装包只能在 macOS 上构建。
 - Windows 系统不能构建 Linux 包。
 - 交互式向导在 Linux 下不提供 Windows 平台选项；非交互式 CLI 不会主动拦截 `--win`，但实际能否成功取决于宿主工具链（例如 Wine）。
-- preload 在 `dev` 模式下只构建一次，修改 preload 后需要重新启动开发命令。
 - 同一时间只构建一个平台；需要多平台产物时请分多次执行。
 
 更完整的命令说明见[命令行界面](/introduce/cli)，配置细节见[配置](/introduce/config)。

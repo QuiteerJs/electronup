@@ -61,7 +61,7 @@ export default defineConfig({
 })
 ```
 
-Output is CommonJS by default and lands next to the main process output (`resourceDir`). Preload scripts are built once in dev; restart the dev command after editing them.
+Output is CommonJS by default and lands next to the main process output (`resourceDir`). In dev, editing a preload script rebuilds it and restarts Electron.
 
 ### `render`
 

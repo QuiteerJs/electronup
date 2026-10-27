@@ -101,7 +101,6 @@ These limitations come from electron-builder or the current implementation:
 - macOS installers can only be built on macOS.
 - Linux packages cannot be built on Windows.
 - The interactive wizard does not offer Windows when running on Linux. The non-interactive CLI does not block `--win` on Linux, but success depends on the host toolchain (for example Wine).
-- Preload scripts are built once in `dev`. Restart the dev command after editing them.
 - Only one platform is built per run. Run the build multiple times for multiple platforms.
 
 See the [CLI reference](/en/introduce/cli) for all flags and [Configuration](/en/introduce/config) for details.

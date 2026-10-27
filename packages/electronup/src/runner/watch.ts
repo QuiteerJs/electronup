@@ -2,9 +2,9 @@ import type { InlineConfig } from 'vite'
 import type { ElectronupConfig } from '../typings/electronup'
 import process from 'node:process'
 import { getPortPromise } from 'portfinder'
-import { build, createServer } from 'vite'
+import { build, createServer, mergeConfig } from 'vite'
 import { assertMainEntry, getElectronBinary } from '../configs/pack'
-import { assertPreloadEntries } from '../configs/preload'
+import { assertPreloadEntries, preloadWatchPlugin } from '../configs/preload'
 import { electronupConfig } from '../transform'
 import { DefaultDirs, store } from '../utils'
 import { cleanOutputDirsOrExit } from './clean'
@@ -60,9 +60,16 @@ export async function watch(options: ElectronupConfig) {
 
   void viteDevServer.listen(p).then(() => viteDevServer.printUrls())
 
-  // preload 先于主进程构建完成 , 保证 electron 启动时 preload 已写入磁盘
+  // preload 以 watch 模式构建 , 首次构建结束后再构建主进程 , 保证 electron 启动时 preload 已写入磁盘
   for (const preloadConfig of initConfig.preload)
-    {await build(preloadConfig)}
+    {await watchPreload(preloadConfig)}
   // 主进程以 watch 模式构建 , 每次写盘后由 startElectronPlugin 启动 / 重启 Electron
   await build(initConfig.pack)
+}
+
+/** 以 watch 模式构建 preload , 等首次构建结束后返回 ; 之后的重新构建由 preloadWatchPlugin 重启 Electron */
+export function watchPreload(config: InlineConfig) {
+  return new Promise<void>((resolve, reject) => {
+    build(mergeConfig(config, { plugins: [preloadWatchPlugin(resolve)] })).catch(reject)
+  })
 }

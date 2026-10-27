@@ -258,6 +258,14 @@ export function getElectronBinary(): string {
 
 let electronProcess: ChildProcessWithoutNullStreams | null
 let manualRestart = false
+/** 最近一次启动 Electron 使用的主进程入口 , preload 重新构建后据此重启 */
+let lastMainPath: string | null = null
+
+/** Electron 已启动时用上一次的主进程入口重启 ; 尚未启动 ( 主进程首次构建未完成 ) 时不做处理 */
+export function restartElectron() {
+  if (electronProcess && lastMainPath)
+    {startElectron(lastMainPath)}
+}
 
 /**
  * Description  启动electron
@@ -265,6 +273,7 @@ let manualRestart = false
  * @returns {any}
  */
 function startElectron(mainPath: string) {
+  lastMainPath = mainPath
   if (electronProcess) {
     manualRestart = true
     if (electronProcess?.pid) {
