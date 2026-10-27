@@ -10,12 +10,15 @@ const [packageArg] = process.argv.slice(2)
 assert.ok(packageArg, '需要解压后的 package 目录')
 const packageDir = resolve(packageArg)
 const pkg = JSON.parse(readFileSync(resolve(packageDir, 'package.json'), 'utf8'))
-assert.ok(['electronup', 'create-electronup'].includes(pkg.name), '未知发布包')
+// @quiteer/electron-* 模块包的源码目录为 packages/electron-*
+const isModule = /^@quiteer\/electron-[a-z]+$/.test(pkg.name)
+assert.ok(isModule || ['electronup', 'create-electronup'].includes(pkg.name), '未知发布包')
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const sourcePath = resolve(repoRoot, 'packages', pkg.name, 'package.json')
+const sourcePath = resolve(repoRoot, 'packages', pkg.name.replace(/^@quiteer\//, ''), 'package.json')
 const source = JSON.parse(readFileSync(sourcePath, 'utf8'))
+assert.equal(pkg.name, source.name, '发布包名称与源码不一致')
 assert.equal(pkg.version, source.version, '发布包版本与源码不一致')
-assert.equal(pkg.engines.node, source.engines.node, '发布包 Node 要求与源码不一致')
+assert.equal(pkg.engines?.node, source.engines?.node, '发布包 Node 要求与源码不一致')
 
 function assertFile(entry) {
   const target = resolve(packageDir, entry)
@@ -34,10 +37,12 @@ function checkExports(value) {
 for (const entry of ['LICENSE', 'README.md', pkg.main, pkg.module, pkg.types].filter(Boolean))
   {assertFile(entry)}
 checkExports(pkg.exports)
-assert.ok(pkg.bin?.[pkg.name], '缺少 CLI bin 入口')
-for (const entry of Object.values(pkg.bin)) {
-  assertFile(entry)
-  assert.ok(readFileSync(resolve(packageDir, entry), 'utf8').startsWith('#!/usr/bin/env node'), 'CLI 必须带 Node shebang')
+if (!isModule) {
+  assert.ok(pkg.bin?.[pkg.name], '缺少 CLI bin 入口')
+  for (const entry of Object.values(pkg.bin)) {
+    assertFile(entry)
+    assert.ok(readFileSync(resolve(packageDir, entry), 'utf8').startsWith('#!/usr/bin/env node'), 'CLI 必须带 Node shebang')
+  }
 }
 
 for (const group of ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies']) {
@@ -48,6 +53,8 @@ for (const group of ['dependencies', 'devDependencies', 'optionalDependencies', 
 for (const entry of readdirSync(packageDir)) {
   const allowed = ['dist', 'LICENSE', 'README.md', 'package.json']
   if (pkg.name === 'create-electronup') { allowed.push('index.js') }
+  // 模块包附带 CHANGELOG , 部分包另有 files 声明的入口 ( 如 preload 的 index.cjs 、ipc 的 web/ )
+  if (isModule) { allowed.push(...source.files) }
   assert.ok(allowed.includes(entry), `发布包包含非预期文件 : ${entry}`)
 }
 
@@ -69,6 +76,12 @@ if (pkg.name === 'electronup') {
     assert.equal(typeof api.checkForUpdates, 'function')
     assert.equal(typeof api.autoUpdater, 'object')
   }
+}
+else if (isModule) {
+  // 模块包运行期依赖 electron , 这里不导入入口 , 只核对 electron 留在 peer 依赖里
+  assert.equal(pkg.dependencies?.electron, undefined, 'electron 不应进入运行依赖')
+  assert.ok(pkg.peerDependencies?.electron, '模块包需要声明 electron peer 依赖')
+  assertFile('CHANGELOG.md')
 }
 else {
   assertFile('dist/index.mjs')
