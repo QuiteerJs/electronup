@@ -14,8 +14,14 @@ declare namespace preloadPath {
   type PreloadIpcEvent = import('./dist/preload.cjs').PreloadIpcEvent;
   /** `$ipc.on` / `$ipc.once` 的回调类型 */
   type PreloadIpcListener = import('./dist/preload.cjs').PreloadIpcListener;
-  /** 渲染层 `$clipboard` 的类型 */
+  /** 渲染层 `$clipboard` 的类型, 需 `createPreload({ clipboard: true })` 才会暴露 */
   type PreloadClipboard = import('./dist/preload.cjs').PreloadClipboard;
+  /** `$clipboard.read` / `$clipboard.write` 的条目类型 */
+  type PreloadClipboardData = import('./dist/preload.cjs').PreloadClipboardData;
+  /** `$clipboard` 方法末位的剪贴板类型参数 */
+  type PreloadClipboardType = import('./dist/preload.cjs').PreloadClipboardType;
+  /** `createPreload({ channels })` 的通道白名单 */
+  type PreloadChannels = import('./dist/preload.cjs').PreloadChannels;
   /** 渲染层 `$webFrame` 的类型 */
   type PreloadWebFrame = import('./dist/preload.cjs').PreloadWebFrame;
 }

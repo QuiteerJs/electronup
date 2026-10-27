@@ -4,6 +4,7 @@
  */
 
 export interface WebFrameMain {
+  url: string;
   parent: WebFrameMain | null;
 }
 
@@ -20,7 +21,8 @@ type Handler = (event: IpcMainInvokeEvent, ...args: any[]) => unknown;
 export class WebContents {
   static all: WebContents[] = [];
 
-  mainFrame: WebFrameMain = { parent: null };
+  /** 发起调用的 frame, 测试里可改成子 frame / 其他来源 / null */
+  frame: WebFrameMain | null = { url: 'file:///index.html', parent: null };
   destroyed = false;
   /** 收到的推送 */
   sent: Array<[string, ...unknown[]]> = [];
@@ -68,7 +70,7 @@ export const ipcMain = {
 
   /** 模拟渲染层 send */
   emit(channel: string, sender: WebContents, ...args: unknown[]) {
-    this.emitFrom(sender.mainFrame, channel, sender, ...args);
+    this.emitFrom(sender.frame, channel, sender, ...args);
   },
   /** 模拟指定 frame 发起的 send */
   emitFrom(frame: WebFrameMain | null, channel: string, sender: WebContents, ...args: unknown[]) {
@@ -78,7 +80,7 @@ export const ipcMain = {
   },
   /** 模拟渲染层 invoke */
   async invoke(channel: string, sender: WebContents, ...args: unknown[]) {
-    return this.invokeFrom(sender.mainFrame, channel, sender, ...args);
+    return this.invokeFrom(sender.frame, channel, sender, ...args);
   },
   /** 模拟指定 frame 发起的 invoke */
   async invokeFrom(

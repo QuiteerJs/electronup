@@ -3,6 +3,8 @@ import { BrowserWindow, ipcMain, webContents } from 'electron';
 
 import type { ChannelDef, Contract, ContractFns } from './contract';
 import { findChannel } from './contract';
+import type { IpcInitOptions } from './sender';
+import { createValidator } from './sender';
 
 /** handler 的第一个参数, 与 Electron 的 `(event, ...args)` 约定一致 */
 export interface IpcContext<E extends IpcMainEvent | IpcMainInvokeEvent = IpcMainInvokeEvent> {
@@ -41,20 +43,8 @@ export type ContractHandlers<C extends Contract> = Group<
     { [N in keyof ContractFns<C, 'send'>]: SendImpl<ContractFns<C, 'send'>[N]> }
   >;
 
-export interface HandleOptions {
-  /**
-   * 校验调用来源, 返回 false 时 invoke 以错误拒绝、send 直接丢弃
-   *
-   * 默认 {@link isMainFrame}: 只接受顶层 frame, 页面内嵌的第三方 iframe 无法调用
-   */
-  validateSender?: (event: IpcMainEvent | IpcMainInvokeEvent) => boolean;
-}
-
-/** 默认的来源校验: 只接受顶层 frame */
-export function isMainFrame(event: IpcMainEvent | IpcMainInvokeEvent): boolean {
-  const frame = event.senderFrame;
-  return frame != null && frame.parent === null;
-}
+/** 与 `Ipc.init` 相同: 默认只接受主 frame, 可选 `allowedOrigins` / `validateSender` */
+export type HandleOptions = IpcInitOptions;
 
 /** 参数校验, 没有 schema 时原样放行 */
 async function parseArgs(def: ChannelDef, name: string, args: unknown[]): Promise<unknown[]> {
@@ -89,7 +79,7 @@ export function handleContract<C extends Contract>(
   handlers: ContractHandlers<C>,
   options: HandleOptions = {},
 ): () => void {
-  const validateSender = options.validateSender ?? isMainFrame;
+  const validateSender = createValidator(options);
   const impls = handlers as {
     invoke?: Record<string, (...args: any[]) => unknown>;
     send?: Record<string, (...args: any[]) => unknown>;

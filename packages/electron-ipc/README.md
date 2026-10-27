@@ -163,16 +163,22 @@ const off = client.on('download:progress', (percent) => {}); // 回调不带 eve
 ### 4. 生成 preload 通道白名单
 
 ```ts
-import { builtinChannels, channelsOf } from '@quiteer/electron-ipc/web';
-import { api } from '../shared/ipc';
+// main
+import { createPreload } from '@quiteer/electron-preload/main';
+import { channelsOf } from '@quiteer/electron-ipc';
+import { api, settingsApi } from '../shared/ipc';
 
 api.channels; // { send: ['app:log'], invoke: ['user:get'], on: ['download:progress'] }
 
-// 多个契约 + 本包内置通道合并去重, 交给 preload 的通道白名单
-const channels = channelsOf(api, builtinChannels);
+new BrowserWindow({
+  webPreferences: {
+    // 多个契约合并去重; 本包内置通道由 createPreload 默认放行
+    ...createPreload({ channels: channelsOf(api, settingsApi) }),
+  },
+});
 ```
 
-白名单形状为 `{ send, invoke, on }`，与 `@quiteer/electron-preload` 的通道白名单配置一一对应，不需要再手写一遍。
+白名单形状 `{ send, invoke, on }` 与 `createPreload({ channels })` 一一对应，不需要再手写一遍。关闭了 `createPreload` 的 `builtinChannels` 又想单独放行时，可以合并本包导出的 `builtinChannels`。
 
 ### 参数校验（可选）
 
@@ -188,12 +194,10 @@ channel<(id: string) => User>({ args: z.tuple([z.string().uuid()]) });
 
 ### 来源校验
 
-`handleContract` 默认只接受**顶层 frame** 的调用（`isMainFrame`），页面里嵌入的第三方 iframe 无法调用契约通道。需要放开时自行传入：
+`handleContract` 的第三个参数与 `Ipc.init(options)` 完全一致：默认只接受**主 frame** 的调用，页面里嵌入的第三方 iframe 无法调用契约通道；可用 `allowedOrigins` 进一步限定页面来源，或用 `validateSender` 完全自定义。
 
 ```ts
-handleContract(api, handlers, {
-  validateSender: (event) => new URL(event.senderFrame!.url).origin === 'https://app.example.com',
-});
+handleContract(api, handlers, { allowedOrigins: ['file://', 'http://localhost:5173'] });
 ```
 
 ## 渲染层类型增强
@@ -239,11 +243,26 @@ ipcMain.on('custom', (event) => {
 
 `Ipc` 是模块级单例，直接取用即可。
 
-| 成员              | 说明                                             |
-| ----------------- | ------------------------------------------------ |
-| `Ipc.init()`      | 注册两个内置通道的监听与处理器，重复调用无副作用 |
-| `Ipc.destroy()`   | 注销本包注册的监听与处理器，之后可再次 `init()`  |
-| `Ipc.initialized` | 当前是否已注册                                   |
+| 成员                 | 说明                                                               |
+| -------------------- | ------------------------------------------------------------------ |
+| `Ipc.init(options?)` | 注册两个内置通道的监听与处理器，重复调用无副作用（以首次选项为准） |
+| `Ipc.destroy()`      | 注销本包注册的监听与处理器，之后可再次 `init()`                    |
+| `Ipc.initialized`    | 当前是否已注册                                                     |
+
+### 来源校验
+
+内置通道默认只接受**主 frame** 的调用，子 frame（含第三方 iframe）发来的窗口操作会被忽略、路径调用会被拒绝。还可以进一步限定页面来源：
+
+```ts
+Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] });
+```
+
+| 选项             | 说明                                                               |
+| ---------------- | ------------------------------------------------------------------ |
+| `allowedOrigins` | 允许的页面来源，`file://` 按协议匹配，其余按 `URL.origin` 精确匹配 |
+| `validateSender` | `(event) => boolean`，传入后替代默认校验（包括主 frame 检查）      |
+
+配合 [@quiteer/electron-preload](https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload) 使用时，内置通道默认已在其通道白名单内。
 
 契约相关：
 
@@ -255,7 +274,6 @@ ipcMain.on('custom', (event) => {
 | `builtinChannels`                     | 两者皆有 | `Ipc.init()` 注册的内置通道白名单                      |
 | `handleContract(api, handlers, opts)` | 主入口   | 注册主进程 handler，返回 `dispose()`                   |
 | `createEmitter(api)`                  | 主入口   | 按契约推送：`emit(target, channel, ...)` / `broadcast` |
-| `isMainFrame(event)`                  | 主入口   | 默认的来源校验                                         |
 | `createClient(api, bridge?)`          | `/web`   | 渲染层 client：`invoke` / `send` / `on` / `once`       |
 
 主入口同时导出 `EventKeys`、`IpcWindowOptions`、`IpcFileOptions`，主进程里需要引用通道名时不必再走 `/web`。

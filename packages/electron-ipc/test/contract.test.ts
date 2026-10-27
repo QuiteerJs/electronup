@@ -95,9 +95,9 @@ test('参数校验: 通过时 handler 拿到校验后的值, 失败时 invoke �
   await assert.rejects(ipcMain.invoke('user:rename', sender, 1), /参数校验失败: 需要一个字符串/);
 });
 
-test('默认只接受顶层 frame, 可通过 validateSender 放开', async () => {
+test('默认只接受主 frame, 可用 allowedOrigins 限定或 validateSender 放开', async () => {
   const sender = new BrowserWindow().webContents;
-  const iframe = { parent: sender.mainFrame };
+  const iframe = { url: 'https://ads.example.com/', parent: sender.frame };
 
   const dispose = handleContract(api, handlers);
   await assert.rejects(ipcMain.invokeFrom(iframe, 'user:get', sender, '1'), /不可信 frame/);
@@ -106,6 +106,13 @@ test('默认只接受顶层 frame, 可通过 validateSender 放开', async () =>
   await new Promise((resolve) => setImmediate(resolve));
   assert.deepEqual(logs, []);
   dispose();
+
+  // allowedOrigins 与 Ipc.init 同一套规则
+  handleContract(api, handlers, { allowedOrigins: ['https://app.example.com'] });
+  await assert.rejects(ipcMain.invoke('user:get', sender, '1'), /不可信 frame/);
+  sender.frame = { url: 'https://app.example.com/home', parent: null };
+  assert.equal((await ipcMain.invoke('user:get', sender, '1')) !== undefined, true);
+  ipcMain.reset();
 
   handleContract(api, handlers, { validateSender: () => true });
   assert.deepEqual(await ipcMain.invokeFrom(iframe, 'user:get', sender, '1'), {
