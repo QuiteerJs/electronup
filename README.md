@@ -119,7 +119,7 @@ export default defineConfig({
 
 ## AI Agent Skills
 
-仓库的 [`skills/`](./skills) 目录提供了供 AI 编程助手使用的 Agent Skills（`SKILL.md` 格式），覆盖创建项目、编写配置、开发与打包、接入自动更新。在 Claude Code 中安装：
+仓库的 [`skills/`](./skills) 目录提供了供 AI 编程助手使用的 Agent Skills（`SKILL.md` 格式），覆盖创建项目、编写配置、开发与打包、接入自动更新，以及接入 `@quiteer/electron-*` 运行时模块包。在 Claude Code 中安装：
 
 ```bash
 /plugin marketplace add QuiteerJs/electronup

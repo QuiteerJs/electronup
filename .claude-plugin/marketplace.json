@@ -10,7 +10,7 @@
     {
       "name": "electronup",
       "source": "./",
-      "description": "electronup 的 Agent Skills：创建项目、编写 electronup.config、开发/打包与接入自动更新"
+      "description": "electronup 的 Agent Skills：创建项目、编写 electronup.config、开发/打包、接入自动更新与 electron-* 模块包"
     }
   ]
 }

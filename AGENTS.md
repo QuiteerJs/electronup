@@ -79,7 +79,7 @@ src/cli.ts (cac 命令解析)
 9. **文档中英同步**：`docs/` 与 `docs/en/` 各 20 篇一一对应；新增页面要在 `docs/.vitepress/config.ts` 的两种语言 nav/sidebar 里都登记。站点 base 在 Vercel 为 `/`，GitHub Pages 为 `/electronup/`。
 10. **目录清理只走 `cleanDirs`**：`resourceDir` / `outDir` 的清空统一由 `runner/clean.ts` → `utils/clean.ts` 完成（拒绝项目根及上级、用户主目录、文件系统根、`node_modules` / `.git`、链接目标；整体 rename 后再删除），并且必须放在配置函数执行、平台 / 架构校验与 `-o` 向导之后；不要在 CLI 层或别处直接 `rmSync` 输出目录。
 11. **不要提交构建产物与临时文件**：`dist/`、`docs/.vitepress/{cache,dist}`、`*.tgz`、验收日志、误克隆的目录都不要进仓库；提交前用 `git status` 确认。
-12. **skills 与实现同步**：修改 CLI 参数、配置项默认值或 updater 行为时，同步更新 `skills/*/SKILL.md` 中对应描述。
+12. **skills 与实现同步**：修改 CLI 参数、配置项默认值或 updater 行为时，同步更新 `skills/*/SKILL.md` 中对应描述；改动模块包公开 API 时同步 `skills/electronup-modules/SKILL.md`。
 
 ## 代码风格
 

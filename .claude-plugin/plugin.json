@@ -1,7 +1,7 @@
 {
   "name": "electronup",
-  "version": "0.1.0",
-  "description": "electronup 的 Agent Skills：创建项目、编写 electronup.config、开发/打包与接入自动更新",
+  "version": "0.2.0",
+  "description": "electronup 的 Agent Skills：创建项目、编写 electronup.config、开发/打包、接入自动更新与 electron-* 模块包",
   "author": {
     "name": "quiteer"
   },
