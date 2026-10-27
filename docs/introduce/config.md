@@ -192,6 +192,10 @@ export default defineConfig({
 
 如果 Electron 版本支持 ESM preload，可以在单项配置中显式传入 `format: 'esm'` 覆盖默认值。
 
+::: warning 从 0.3.x 升级
+0.4.0 起 preload 改用 Vite 构建，`preload` 只接受上表中的 `PreloadConfig` 字段，不再接受 vite-plus pack（tsdown）的配置项。`entry`、`outDir`、`format`、`minify`、`sourcemap`、`external`、`noExternal`、`env`、`plugins` 名称不变（`format` 只能是单个值）；其余 pack 选项请删除，或改写为对应的 Vite 配置放进 `viteConfig`。
+:::
+
 ## electron-builder
 
 > 桌面端打包，对应配置项为 `builderConfig`。仅在 `build` 命令中生效。

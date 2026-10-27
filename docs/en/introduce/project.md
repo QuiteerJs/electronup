@@ -69,7 +69,7 @@ pnpm add electronup -D
 {
   "devDependencies": {
     "electron": "^40.6.1",
-    "electronup": "^0.3.0",
+    "electronup": "^0.4.0",
     "typescript": "^5.9.3"
   }
 }

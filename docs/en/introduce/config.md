@@ -192,6 +192,10 @@ Both `dev` and `build` build preload scripts before the main process. In dev the
 
 If your Electron version supports ESM preload, pass `format: 'esm'` in the item to override the default.
 
+::: warning Upgrading from 0.3.x
+Since 0.4.0 preload scripts are built with Vite. `preload` only accepts the `PreloadConfig` fields above and no longer takes vite-plus pack (tsdown) options. `entry`, `outDir`, `format`, `minify`, `sourcemap`, `external`, `noExternal`, `env` and `plugins` keep their names (`format` must be a single value); remove other pack options or rewrite them as the matching Vite options under `viteConfig`.
+:::
+
 ## electron-builder
 
 > Installer packaging, configured with `builderConfig`. Only used by `build`.
