@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { ElectronApplication, Page } from '@playwright/test';
@@ -19,7 +19,8 @@ declare global {
   }
 }
 
-const appDir = fileURLToPath(new URL('..', import.meta.url));
+// resolve 去掉末尾的路径分隔符: Windows 命令行里 `...\basic\"` 的 `\"` 会被当成转义引号, 导致应用目录解析失败
+const appDir = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 let electronApp: ElectronApplication;
 let page: Page;
