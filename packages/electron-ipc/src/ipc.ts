@@ -3,17 +3,26 @@ import { BrowserWindow, ipcMain } from 'electron';
 
 import { EventKeys } from './eventKeys';
 import { fileHandlers, pick, windowHandlers } from './handlers';
+import type { IpcInitOptions } from './sender';
+import { createValidator } from './sender';
+
+export type { IpcInitOptions } from './sender';
 
 export interface IpcModule {
   /** 是否已注册通道 */
   readonly initialized: boolean;
-  /** 注册内置通道, 重复调用无副作用 */
-  init: () => void;
+  /** 注册内置通道, 重复调用无副作用(以首次传入的选项为准) */
+  init: (options?: IpcInitOptions) => void;
   /** 注销内置通道, 之后可再次 init */
   destroy: () => void;
 }
 
+let validate: (event: IpcMainEvent | IpcMainInvokeEvent) => boolean = () => false;
+
 const onWindow = (event: IpcMainEvent, type: unknown, ...args: unknown[]): void => {
+  if (!validate(event)) {
+    return;
+  }
   const handler = pick(windowHandlers, type);
   const win = BrowserWindow.fromWebContents(event.sender);
   if (handler && win && !win.isDestroyed()) {
@@ -21,7 +30,10 @@ const onWindow = (event: IpcMainEvent, type: unknown, ...args: unknown[]): void 
   }
 };
 
-const onFile = (_event: IpcMainInvokeEvent, type: unknown, ...args: unknown[]): unknown => {
+const onFile = (event: IpcMainInvokeEvent, type: unknown, ...args: unknown[]): unknown => {
+  if (!validate(event)) {
+    throw new Error('[electron-ipc] 调用来源未通过校验');
+  }
   const handler = pick(fileHandlers, type);
   if (!handler) {
     throw new Error(`[electron-ipc] 未知的路径操作: ${String(type)}`);
@@ -39,6 +51,8 @@ let initialized = false;
  * import { Ipc } from '@quiteer/electron-ipc'
  *
  * app.whenReady().then(() => Ipc.init())
+ * // 限定来源
+ * Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] })
  * ```
  */
 export const Ipc: IpcModule = {
@@ -46,11 +60,12 @@ export const Ipc: IpcModule = {
     return initialized;
   },
 
-  init() {
+  init(options = {}) {
     // ipcMain.handle 重复注册会直接抛错, 这里保证幂等
     if (initialized) {
       return;
     }
+    validate = createValidator(options);
     ipcMain.on(EventKeys.WindowOptionsKey, onWindow);
     ipcMain.handle(EventKeys.FileOptionsKey, onFile);
     initialized = true;

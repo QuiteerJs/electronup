@@ -23,6 +23,7 @@
     "web"
   ],
   "type": "module",
+  "sideEffects": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -42,10 +43,16 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
-    "test": "vp pack && node --test test/.out/ipc.test.js",
+    "test": "vp pack && node --test test/.out/*.test.js",
     "update-version": "bumpp package.json"
   },
   "devDependencies": {
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "electron": ">=30"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -46,7 +46,7 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "electron": ">=30.0.0"
+    "electron": ">=30"
   },
   "engines": {
     "node": ">=20"

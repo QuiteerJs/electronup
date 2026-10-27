@@ -22,7 +22,7 @@
 
 ### 其他
 
-- `package.json` 声明 `peerDependencies.electron: >=30.0.0`、`sideEffects: false`、`engines.node: >=20`。
+- `package.json` 声明 `peerDependencies.electron: >=30`、`sideEffects: false`、`engines.node: >=20`。
 
 ## 0.0.1 (2026-08-29)
 

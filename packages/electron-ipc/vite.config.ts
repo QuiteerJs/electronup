@@ -27,11 +27,16 @@ export default defineConfig({
     },
     {
       name: 'electron-ipc-test',
-      entry: [fileURLToPath(new URL('test/ipc.test.ts', import.meta.url))],
+      entry: [
+        fileURLToPath(new URL('test/ipc.test.ts', import.meta.url)),
+        fileURLToPath(new URL('test/contract.test.ts', import.meta.url)),
+      ],
       outDir: fileURLToPath(new URL('test/.out', import.meta.url)),
       alias: {
         electron: fileURLToPath(new URL('test/stubs/electron.ts', import.meta.url)),
       },
+      // electron 是 peerDependency, 默认不打包; 测试需要把它换成替身打进去
+      deps: { alwaysBundle: ['electron'] },
       dts: false,
       format: 'esm',
       fixedExtension: false,
