@@ -18,6 +18,7 @@ pnpm changeset
 
 ## 之后发生什么
 
-1. PR 合并到 main 后, Release 工作流会自动开一个 "Version Packages" PR,
-   汇总所有 changeset: 升版本号、写 CHANGELOG。
-2. 合并这个 PR 即发布到 npm (Trusted Publishing, 自带 provenance), 并打 tag、建 GitHub Release。
+发布在本地手动进行, CI 不会自动发布:
+
+1. 准备发版时运行 `pnpm version-packages`, 汇总所有 changeset: 升版本号、写 CHANGELOG, 并删除已消费的 changeset。
+2. 提交上一步的改动后运行 `pnpm release`, 构建并发布 npm 上还没有的版本, 同时打 git tag。
