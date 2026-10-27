@@ -3,8 +3,13 @@
  * 仅在 test 打包时通过 alias 替换 electron, 不参与产物构建
  */
 
+export interface WebFrameMain {
+  parent: WebFrameMain | null;
+}
+
 export interface IpcMainEvent {
   sender: WebContents;
+  senderFrame: WebFrameMain | null;
 }
 
 export type IpcMainInvokeEvent = IpcMainEvent;
@@ -13,8 +18,28 @@ type Listener = (event: IpcMainEvent, ...args: any[]) => void;
 type Handler = (event: IpcMainInvokeEvent, ...args: any[]) => unknown;
 
 export class WebContents {
-  constructor(public id: number) {}
+  static all: WebContents[] = [];
+
+  mainFrame: WebFrameMain = { parent: null };
+  destroyed = false;
+  /** 收到的推送 */
+  sent: Array<[string, ...unknown[]]> = [];
+
+  constructor(public id: number) {
+    WebContents.all.push(this);
+  }
+
+  isDestroyed() {
+    return this.destroyed;
+  }
+  send(channel: string, ...args: unknown[]) {
+    this.sent.push([channel, ...args]);
+  }
 }
+
+export const webContents = {
+  getAllWebContents: () => [...WebContents.all],
+};
 
 export const ipcMain = {
   listeners: new Map<string, Listener[]>(),
@@ -43,17 +68,30 @@ export const ipcMain = {
 
   /** 模拟渲染层 send */
   emit(channel: string, sender: WebContents, ...args: unknown[]) {
+    this.emitFrom(sender.mainFrame, channel, sender, ...args);
+  },
+  /** 模拟指定 frame 发起的 send */
+  emitFrom(frame: WebFrameMain | null, channel: string, sender: WebContents, ...args: unknown[]) {
     for (const listener of this.listeners.get(channel) ?? []) {
-      listener({ sender }, ...args);
+      listener({ sender, senderFrame: frame }, ...args);
     }
   },
   /** 模拟渲染层 invoke */
   async invoke(channel: string, sender: WebContents, ...args: unknown[]) {
+    return this.invokeFrom(sender.mainFrame, channel, sender, ...args);
+  },
+  /** 模拟指定 frame 发起的 invoke */
+  async invokeFrom(
+    frame: WebFrameMain | null,
+    channel: string,
+    sender: WebContents,
+    ...args: unknown[]
+  ) {
     const handler = this.handlers.get(channel);
     if (!handler) {
       throw new Error(`No handler registered for '${channel}'`);
     }
-    return handler({ sender }, ...args);
+    return handler({ sender, senderFrame: frame }, ...args);
   },
   reset() {
     this.listeners.clear();

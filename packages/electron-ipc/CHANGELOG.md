@@ -1,5 +1,15 @@
 # @quiteer/electron-ipc
 
+## 未发布
+
+### 新增
+
+- 端到端类型安全的 IPC 契约：`defineContract` + `channel<F>()` 一处定义，
+  主进程 `handleContract` / `createEmitter`、渲染层 `createClient`、preload 白名单 `api.channels` 都从契约推导。
+- `channel` 支持任意 Standard Schema（zod / valibot 等）做参数校验，只在主进程边界执行。
+- `handleContract` 默认只接受顶层 frame 的调用，可通过 `validateSender` 自定义。
+- `channelsOf` 合并多个契约的白名单，`builtinChannels` 提供内置通道白名单。
+
 ## 3.1.0 (2026-10-27)
 
 ### 新增
