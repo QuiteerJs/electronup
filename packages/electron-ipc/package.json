@@ -23,6 +23,7 @@
     "web"
   ],
   "type": "module",
+  "sideEffects": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -46,5 +47,11 @@
   },
   "devDependencies": {
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "electron": ">=30"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

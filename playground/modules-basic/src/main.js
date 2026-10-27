@@ -1,7 +1,7 @@
 import { windows } from '@quiteer/electron-browser';
 import { Ipc } from '@quiteer/electron-ipc';
 import { menus } from '@quiteer/electron-menu';
-import preloadPath from '@quiteer/electron-preload';
+import { createPreload } from '@quiteer/electron-preload/main';
 import { trays } from '@quiteer/electron-tray';
 import { app } from 'electron';
 
@@ -32,10 +32,14 @@ void app.whenReady().then(() => {
     url: pageUrl,
     // 冒烟测试要覆盖的正是这组推荐配置: sandbox 下预加载脚本只能拿到部分 electron 模块
     webPreferences: {
-      preload: preloadPath,
       sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
+      ...createPreload({
+        clipboard: true,
+        // smoke:* 供冒烟测试从主进程推送消息
+        channels: { on: ['smoke:*'] },
+      }),
     },
   });
 

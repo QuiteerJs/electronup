@@ -136,11 +136,26 @@ ipcMain.on('custom', (event) => {
 
 `Ipc` 是模块级单例，直接取用即可。
 
-| 成员              | 说明                                             |
-| ----------------- | ------------------------------------------------ |
-| `Ipc.init()`      | 注册两个内置通道的监听与处理器，重复调用无副作用 |
-| `Ipc.destroy()`   | 注销本包注册的监听与处理器，之后可再次 `init()`  |
-| `Ipc.initialized` | 当前是否已注册                                   |
+| 成员                 | 说明                                                               |
+| -------------------- | ------------------------------------------------------------------ |
+| `Ipc.init(options?)` | 注册两个内置通道的监听与处理器，重复调用无副作用（以首次选项为准） |
+| `Ipc.destroy()`      | 注销本包注册的监听与处理器，之后可再次 `init()`                    |
+| `Ipc.initialized`    | 当前是否已注册                                                     |
+
+### 来源校验
+
+内置通道默认只接受**主 frame** 的调用，子 frame（含第三方 iframe）发来的窗口操作会被忽略、路径调用会被拒绝。还可以进一步限定页面来源：
+
+```ts
+Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] });
+```
+
+| 选项             | 说明                                                               |
+| ---------------- | ------------------------------------------------------------------ |
+| `allowedOrigins` | 允许的页面来源，`file://` 按协议匹配，其余按 `URL.origin` 精确匹配 |
+| `validateSender` | `(event) => boolean`，传入后替代默认校验（包括主 frame 检查）      |
+
+配合 [@quiteer/electron-preload](https://github.com/QuiteerJs/electron-modules/tree/main/packages/preload) 使用时，内置通道默认已在其通道白名单内。
 
 主入口同时导出 `EventKeys`、`IpcWindowOptions`、`IpcFileOptions`，主进程里需要引用通道名时不必再走 `/web`。
 

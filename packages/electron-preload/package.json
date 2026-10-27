@@ -1,7 +1,7 @@
 {
   "name": "@quiteer/electron-preload",
   "version": "2.0.0",
-  "description": "基于electron , 提供预加载功能脚本, 暴露 $ipc / $clipboard / $webFrame 三组收敛 API",
+  "description": "基于electron , 提供 sandbox 可用的预加载脚本, 暴露带通道白名单的 $ipc 与收敛的 $webFrame / $clipboard",
   "keywords": [
     "electron",
     "preload"
@@ -26,6 +26,23 @@
   "type": "module",
   "main": "index.cjs",
   "types": "./index.d.cts",
+  "exports": {
+    ".": {
+      "types": "./index.d.cts",
+      "default": "./index.cjs"
+    },
+    "./main": {
+      "import": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.js"
+      },
+      "require": {
+        "types": "./dist/main.d.cts",
+        "default": "./dist/main.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -33,9 +50,15 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
-    "test": "vp pack && node --test test/.out/preload.test.js"
+    "test": "vp pack && node --test test/.out/preload.test.js test/.out/main.test.js"
   },
   "devDependencies": {
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "electron": ">=44"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

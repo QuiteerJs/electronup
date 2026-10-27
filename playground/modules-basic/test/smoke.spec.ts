@@ -14,7 +14,7 @@ import { _electron as electron, expect, test } from '@playwright/test';
 declare global {
   interface Window {
     $ipc: import('@quiteer/electron-preload').PreloadIpc;
-    $clipboard: import('@quiteer/electron-preload').PreloadClipboard;
+    $clipboard?: import('@quiteer/electron-preload').PreloadClipboard;
     $webFrame: import('@quiteer/electron-preload').PreloadWebFrame;
   }
 }
@@ -112,6 +112,16 @@ test('$ipc.send 走通内置窗口通道', async () => {
     .toBe('from-renderer');
 });
 
+test('$ipc 拒绝白名单之外的通道', async () => {
+  const error = await page.evaluate(() =>
+    window.$ipc.invoke('not-declared:get').then(
+      () => '',
+      (e: Error) => e.message,
+    ),
+  );
+  expect(error).not.toBe('');
+});
+
 test('$ipc.on 能收到主进程推送, 且返回的函数可以取消监听', async () => {
   await page.evaluate(() => {
     const w = window as any;
@@ -143,14 +153,11 @@ test('$ipc.on 能收到主进程推送, 且返回的函数可以取消监听', a
 });
 
 test('$clipboard 在 sandbox 下可读写', async () => {
-  // 已知缺陷: sandbox 下预加载脚本的 require('electron') 没有 clipboard, 当前实现直接报错。
-  // 修复合并后此用例会"意外通过"而报红, 届时删掉这一行
-  test.fail();
   const text = `smoke-${Date.now()}`;
   const result = await page.evaluate(async (value) => {
     try {
-      await window.$clipboard.writeText(value);
-      return { ok: true, text: await window.$clipboard.readText() };
+      await window.$clipboard!.writeText(value);
+      return { ok: true, text: await window.$clipboard!.readText() };
     } catch (error) {
       return { ok: false, text: String(error) };
     }
