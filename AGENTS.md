@@ -15,6 +15,7 @@ electronup 是把 **Vite**（渲染进程、主进程 / preload）+ **electron-b
 | `docs` | VitePress 中英双语文档站（`docs/` 中文，`docs/en/` 英文） |
 | `skills` | 面向 electronup 使用者的 Agent Skills（`SKILL.md`），通过根目录 `.claude-plugin/` 作为 Claude Code 插件分发；维护者 skill 在 `.claude/skills/` |
 | `.github/workflows/smoke-build.yml` | 全包 typecheck / lint / test + 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 |
+| `.github/workflows/release.yml` | 推送 `electronup-v*` / `create-electronup-v*` 标签后经 npm Trusted Publishing 自动发布 |
 
 ## 环境与安装
 
