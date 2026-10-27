@@ -2,22 +2,21 @@
   "name": "@quiteer/playground-basic",
   "version": "0.0.0",
   "private": true,
-  "description": "用全部包拼出的最小 Electron 应用, 兼作示例与冒烟测试载体",
+  "description": "把 app / browser / ipc / preload 串起来的最小可运行示例",
   "type": "module",
-  "main": "src/main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "electron .",
-    "test:e2e": "install-electron && playwright test"
+    "build": "vp pack",
+    "start": "vp pack && electron .",
+    "smoke": "vp pack && electron . --smoke"
   },
   "dependencies": {
+    "@quiteer/electron-app": "workspace:*",
     "@quiteer/electron-browser": "workspace:*",
     "@quiteer/electron-ipc": "workspace:*",
-    "@quiteer/electron-menu": "workspace:*",
-    "@quiteer/electron-preload": "workspace:*",
-    "@quiteer/electron-tray": "workspace:*"
+    "@quiteer/electron-preload": "workspace:*"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.1",
-    "electron": "^44.0.0"
+    "vite-plus": "catalog:"
   }
 }

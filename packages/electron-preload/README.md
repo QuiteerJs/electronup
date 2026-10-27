@@ -4,6 +4,8 @@ Electron 预加载脚本：导入即拿到脚本路径，一行接入 `webPrefer
 
 比手写 `contextBridge` 省事，也比直接开 `nodeIntegration` 安全——暴露面固定、不含任何 `require`、`$ipc` 只放行白名单内的通道，并且在 `sandbox: true` 下全部可用。
 
+> 从 2.x 升级请看 [升级指南](https://github.com/QuiteerJs/electron-modules/blob/main/docs/migration.md#electron-preload-2x--30)：3.0 起业务通道必须加进白名单，`$clipboard` 需显式开启。
+
 ## 安装
 
 ```bash

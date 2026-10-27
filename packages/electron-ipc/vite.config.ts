@@ -27,7 +27,10 @@ export default defineConfig({
     },
     {
       name: 'electron-ipc-test',
-      entry: [fileURLToPath(new URL('test/ipc.test.ts', import.meta.url))],
+      entry: [
+        fileURLToPath(new URL('test/ipc.test.ts', import.meta.url)),
+        fileURLToPath(new URL('test/contract.test.ts', import.meta.url)),
+      ],
       outDir: fileURLToPath(new URL('test/.out', import.meta.url)),
       alias: {
         electron: fileURLToPath(new URL('test/stubs/electron.ts', import.meta.url)),
