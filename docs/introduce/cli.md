@@ -83,19 +83,18 @@ electronup dev -m production
 ```
 
 ::: tip
-`mode` 用于选择 `.env.{mode}` 文件；文件不存在时不会报错，只使用 `.env`。Vite 的构建模式仍由 `dev` / `build` 命令决定。
+`mode` 用于选择 `.env.{mode}` 文件；文件不存在时不会报错，只使用 `.env`。渲染进程的 `import.meta.env.MODE` 与函数式配置收到的 `mode` 也跟随该值；`NODE_ENV` 仍由 `dev` / `build` 命令决定。
 :::
 
 ## 压缩 `--no-minify`
 
-默认情况下主进程和渲染进程都会压缩。传入 `--no-minify` 后两者都不压缩，便于调试：
+`build` 默认压缩主进程、preload 和渲染进程，传入 `--no-minify` 后都不压缩，便于排查产物：
 
 ```bash
-electronup dev --no-minify
 electronup build --no-minify
 ```
 
-模板中的 `dev` 脚本默认带有 `--no-minify`，可以按需去掉。
+`dev` 始终不压缩，并为主进程与 preload 生成 sourcemap，Electron 以 `--enable-source-maps` 启动，主进程报错堆栈直接指向源码。`dev` 传入 `--no-minify` 不会报错，但也不再有额外作用。
 
 ## `electronup dev`
 

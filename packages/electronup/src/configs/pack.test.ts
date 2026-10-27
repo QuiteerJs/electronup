@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import type { InlineConfig } from 'vite'
-import { assertMainEntry, createExternal, getElectronBinary, getPackConfig, globalProcessPlugin, injectEnv, removeJunk } from './pack'
+import { assertMainEntry, createExternal, getElectronBinary, getPackConfig, globalProcessPlugin, injectEnv, removeJunk, withSourceMaps } from './pack'
 import { store, DefaultDirs } from '../utils'
 
 vi.spyOn(process, 'cwd').mockReturnValue('/fake/root')
@@ -118,6 +118,19 @@ describe('getPackConfig', () => {
 
     store.minify = false
     expect(getPackConfig({}, {}).build?.minify).toBe(false)
+  })
+
+  it('sourcemap 仅在 serve 时开启', () => {
+    store.command = 'serve'
+    expect(getPackConfig({}, {}).build?.sourcemap).toBe(true)
+    store.command = 'build'
+    expect(getPackConfig({}, {}).build?.sourcemap).toBe(false)
+  })
+
+  it('withSourceMaps 追加 --enable-source-maps 且不重复', () => {
+    expect(withSourceMaps(undefined)).toBe('--enable-source-maps')
+    expect(withSourceMaps('--max-old-space-size=4096')).toBe('--max-old-space-size=4096 --enable-source-maps')
+    expect(withSourceMaps('--enable-source-maps')).toBe('--enable-source-maps')
   })
 
   it('minify 显式 false 时关闭', () => {

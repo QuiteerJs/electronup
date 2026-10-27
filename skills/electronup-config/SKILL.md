@@ -10,7 +10,7 @@ description: 编写或修改 electronup.config.ts（defineConfig、目录、vite
 ```ts
 import { defineConfig } from 'electronup'
 
-// 对象、Promise、函数、异步函数都可以；函数参数为 { command: 'serve' | 'build', root }
+// 对象、Promise、函数、异步函数都可以；函数参数为 { command: 'serve' | 'build', mode, root }
 export default defineConfig(({ command }) => ({
   // ...
 }))

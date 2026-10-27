@@ -69,7 +69,7 @@ export default defineConfig(async () => {
 ```
 
 ::: tip
-`ConfigEnv` 只包含 `command` 与 `root` 两个字段，没有 `mode`；需要读取环境变量时请在配置文件中自行加载。
+`ConfigEnv` 包含 `command`、`mode`（由 `-m` 指定，dev 默认 `development`，build 默认 `production`）与 `root`。
 :::
 
 ### 配置枚举（`ConfigEnv`）
@@ -77,6 +77,7 @@ export default defineConfig(async () => {
 ```ts
 interface ConfigEnv {
   command: 'build' | 'serve'
+  mode: string
   root: string
 }
 ```

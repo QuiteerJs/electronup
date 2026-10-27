@@ -10,7 +10,7 @@ import { store } from '../utils'
  */
 export async function resolveElectronupConfig(config: ElectronupConfigExport): Promise<ElectronupConfig> {
   const option = typeof config === 'function'
-    ? await config({ command: store.command, root: store.root })
+    ? await config({ command: store.command, mode: store.mode, root: store.root })
     : await config
 
   if (option === null || typeof option !== 'object' || Array.isArray(option)) {

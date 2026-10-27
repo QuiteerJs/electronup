@@ -35,9 +35,9 @@ export default defineConfig({
 ```ts
 import { defineConfig } from 'electronup'
 
-export default defineConfig(({ command, root }) => {
+export default defineConfig(({ command, mode, root }) => {
   return {
-    // command is 'serve' (dev) or 'build'
+    // command is 'serve' (dev) or 'build'; mode is the -m value
   }
 })
 ```
@@ -137,7 +137,8 @@ Presets:
 | `build.target` | `node18` (the Node version bundled with Electron 28) |
 | `build.emptyOutDir` | `false` (`resourceDir` is cleaned by electronup) |
 | `build.watch` | Enabled in dev, disabled in build |
-| `minify` | Follows the CLI; enabled by default |
+| `minify` | Follows the CLI in build (on by default); off in dev |
+| `sourcemap` | On in dev, off in build |
 | Env | Injects `.env` / `.env.{mode}`, `NODE_ENV` and `RENDER_PORT`, replacing `process.env.X` and `import.meta.env.X` via `define` |
 | Dependencies | Packages declared in `dependencies` / `peerDependencies` / `optionalDependencies` of `package.json` stay external (electron-builder installs them into the app); `devDependencies` and other modules are bundled |
 
@@ -183,7 +184,7 @@ Per-item defaults are listed below; fields in the item config override them:
 | Output dir | `resourceDir`; can be set per item with `outDir`. An `outDir` outside `resourceDir` is added to the default builder `files` automatically (include it yourself if you override `files`) and must stay inside the project root |
 | Env | Same as the main process; per-item `env` wins |
 | `external` / `noExternal` | Same dependency rules as the main process; `electron` is never bundled; `noExternal: true` bundles everything else |
-| `minify` / `sourcemap` | `minify` follows the CLI; `sourcemap` is off by default |
+| `minify` / `sourcemap` | By default dev does not minify and generates sourcemaps; build minifies per the CLI without sourcemaps |
 | `plugins` | Vite plugins, appended after electronup's built-in plugins |
 | `viteConfig` | Any other Vite options, merged last with `mergeConfig` and able to override the presets above |
 

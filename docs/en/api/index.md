@@ -69,7 +69,7 @@ export default defineConfig(async () => {
 ```
 
 ::: tip
-`ConfigEnv` only contains `command` and `root`; there is no `mode`. Load environment variables yourself if needed.
+`ConfigEnv` contains `command`, `mode` (set by `-m`; `development` in dev and `production` in build by default) and `root`.
 :::
 
 ### `ConfigEnv`
@@ -77,6 +77,7 @@ export default defineConfig(async () => {
 ```ts
 interface ConfigEnv {
   command: 'build' | 'serve'
+  mode: string
   root: string
 }
 ```

@@ -101,7 +101,7 @@ A template `package.json` usually contains:
 }
 ```
 
-- `dev`: starts the dev environment. `--no-minify` only keeps the output readable; you can drop it.
+- `dev`: starts the dev environment. dev never minifies, so `--no-minify` can be dropped.
 - `build`: builds an installer for the current platform.
 - `dir`: produces an unpacked directory for quick verification.
 - `postinstall`: rebuilds native dependencies. Remove it if the project has none.

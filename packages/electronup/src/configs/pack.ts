@@ -219,8 +219,10 @@ export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig): 
     outDir: resourceDir,
     // 主进程强制 CJS , 与 preload 保持一致 , Electron 主进程对 CJS 兼容性最好
     format: 'cjs',
-    // 默认压缩 ( dev / build 一致 ) , 显式传 --no-minify 时关闭
-    minify: minify !== false && (minify === true || !isServe),
+    // build 默认压缩 , 显式传 --no-minify 时关闭 ; dev 下 store.minify 恒为 false
+    minify: minify !== false,
+    // dev 生成 sourcemap , 配合 --enable-source-maps 让报错堆栈指向源码
+    sourcemap: isServe,
     external: config.external,
     noExternal: config.noExternal,
     env: injectEnv(),
@@ -286,7 +288,7 @@ function startElectron(mainPath: string) {
     }, 5000)
   }
 
-  const env = { ...process.env, ...injectEnv() }
+  const env = { ...process.env, ...injectEnv(), NODE_OPTIONS: withSourceMaps(process.env.NODE_OPTIONS) }
   electronProcess = spawn(getElectronBinary(), [mainPath], { env })
 
   electronProcess.stdout.on('data', removeJunk)
@@ -298,6 +300,13 @@ function startElectron(mainPath: string) {
       process.exit()
     }
   })
+}
+
+/** 在已有 NODE_OPTIONS 后追加 --enable-source-maps , 让 dev 下主进程报错堆栈映射回源码 */
+export function withSourceMaps(nodeOptions = '') {
+  return nodeOptions.includes('--enable-source-maps')
+    ? nodeOptions
+    : `${nodeOptions} --enable-source-maps`.trim()
 }
 
 /**
