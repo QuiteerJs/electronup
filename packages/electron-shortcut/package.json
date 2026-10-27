@@ -1,0 +1,47 @@
+{
+  "name": "@quiteer/electron-shortcut",
+  "version": "0.1.0",
+  "description": "基于electron , 提供全局快捷键按名注册、冲突检测与窗口焦点联动",
+  "keywords": [
+    "electron",
+    "globalShortcut",
+    "shortcut"
+  ],
+  "homepage": "https://github.com/QuiteerJs/electron-modules/tree/main/packages/shortcut",
+  "bugs": {
+    "url": "https://github.com/QuiteerJs/electron-modules/issues"
+  },
+  "license": "MIT",
+  "author": "quiteer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuiteerJs/electron-modules.git",
+    "directory": "packages/shortcut"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp pack && node --test test/.out/shortcut.test.js",
+    "update-version": "bumpp package.json"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}
