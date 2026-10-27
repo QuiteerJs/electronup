@@ -189,7 +189,17 @@ The wizard needs a terminal (TTY). In non-interactive environments such as CI or
 electronup build --dir
 ```
 
-Skips installer creation and outputs an unpacked directory (for example `win-unpacked` on Windows).
+Skips installer creation and outputs a runnable unpacked directory under the packaging output directory (`dist/out` by default):
+
+| Platform / arch | Directory | Executable |
+| --- | --- | --- |
+| Windows x64 | `dist/out/win-unpacked` | `<productName>.exe` |
+| Windows ia32 / arm64 | `dist/out/win-ia32-unpacked` / `dist/out/win-arm64-unpacked` | `<productName>.exe` |
+| macOS x64 / arm64 / universal | `dist/out/mac` / `dist/out/mac-arm64` / `dist/out/mac-universal` | `<productName>.app` |
+| Linux x64 | `dist/out/linux-unpacked` | `<executable name>` |
+| Linux arm64 / armv7l | `dist/out/linux-arm64-unpacked` / `dist/out/linux-armv7l-unpacked` | `<executable name>` |
+
+Without an architecture, `--win` builds both ia32 and x64, producing `win-ia32-unpacked` and `win-unpacked`. When `outDir` or `builderConfig.directories.output` is set, use that directory instead; adjust the default paths in automation scripts, screenshot or smoke-test tools accordingly.
 
 ### Web only `--web`
 

@@ -37,7 +37,6 @@
     "epic-spinners": "^2.0.0"
   },
   "devDependencies": {
-    "@quiteer/eslint-config": "^0.0.5",
     "@quiteer/ts-config": "^0.0.7",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitejs/plugin-vue-jsx": "^5.1.6",

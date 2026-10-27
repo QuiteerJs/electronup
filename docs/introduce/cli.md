@@ -189,7 +189,17 @@ macOS 的 `universal` 架构、Linux 的 `armv7l` 架构需要目标机器支持
 electronup build --dir
 ```
 
-不生成安装包，只输出可直接运行的未打包目录（例如 Windows 下的 `win-unpacked`）。
+不生成安装包，只输出可直接运行的未打包目录，位于打包输出目录（默认 `dist/out`）下：
+
+| 平台 / 架构 | 目录 | 可执行文件 |
+| --- | --- | --- |
+| Windows x64 | `dist/out/win-unpacked` | `<productName>.exe` |
+| Windows ia32 / arm64 | `dist/out/win-ia32-unpacked` / `dist/out/win-arm64-unpacked` | `<productName>.exe` |
+| macOS x64 / arm64 / universal | `dist/out/mac` / `dist/out/mac-arm64` / `dist/out/mac-universal` | `<productName>.app` |
+| Linux x64 | `dist/out/linux-unpacked` | `<可执行文件名>` |
+| Linux arm64 / armv7l | `dist/out/linux-arm64-unpacked` / `dist/out/linux-armv7l-unpacked` | `<可执行文件名>` |
+
+`--win` 不指定架构时同时构建 ia32 与 x64，会得到 `win-ia32-unpacked` 和 `win-unpacked` 两个目录。配置了 `outDir` 或 `builderConfig.directories.output` 时以实际输出目录为准；自动化脚本、截图或冒烟测试工具中的默认路径如果不同，需要相应调整。
 
 ### 只构建 web `--web`
 

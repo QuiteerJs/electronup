@@ -215,7 +215,7 @@ export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig): 
   const resourceDir = allConfig.resourceDir || DefaultDirs.resourceDir
 
   return createNodeBuildConfig({
-    entry: { electron: resolve(root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts') },
+    entry: { electron: resolveMainEntry(allConfig) },
     outDir: resourceDir,
     // 主进程强制 CJS , 与 preload 保持一致 , Electron 主进程对 CJS 兼容性最好
     format: 'cjs',
@@ -231,11 +231,23 @@ export function getPackConfig(config: PackConfig, allConfig: ElectronupConfig): 
   })
 }
 
-/** 预检主进程入口 ( mainDir/index.ts ) 是否存在 , 不存在时抛错 */
+/** 主进程入口文件名 , 按顺序取第一个存在的 */
+export const MAIN_ENTRY_FILES = ['index.ts', 'index.mts', 'index.cts', 'index.js', 'index.mjs', 'index.cjs']
+
+/** 主进程入口 : mainDir 下第一个存在的 index.{ts,mts,cts,js,mjs,cjs} , 都不存在时返回 index.ts ( 由 assertMainEntry 报错 ) */
+export function resolveMainEntry(allConfig: ElectronupConfig) {
+  const dir = resolve(store.root, allConfig.mainDir || DefaultDirs.mainDir)
+  const file = MAIN_ENTRY_FILES.find(name => existsSync(resolve(dir, name))) ?? MAIN_ENTRY_FILES[0]
+  return resolve(dir, file)
+}
+
+/** 预检主进程入口是否存在 , 不存在时抛错 */
 export function assertMainEntry(allConfig: ElectronupConfig) {
-  const entry = resolve(store.root, allConfig.mainDir || DefaultDirs.mainDir, 'index.ts')
-  if (!existsSync(entry))
-    {throw new Error(`找不到主进程入口 : ${entry} ( 可通过 mainDir 配置主进程目录 )`)}
+  const entry = resolveMainEntry(allConfig)
+  if (!existsSync(entry)) {
+    const dir = resolve(store.root, allConfig.mainDir || DefaultDirs.mainDir)
+    throw new Error(`找不到主进程入口 : ${dir} 下没有 ${MAIN_ENTRY_FILES.join(' / ')} ( 可通过 mainDir 配置主进程目录 )`)
+  }
 }
 
 /**

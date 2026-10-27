@@ -12,7 +12,7 @@ electronup 约定的目录结构如下：
 
 ```text
 my-app/
-├── main/                     # 主进程源码，入口固定为 main/index.ts
+├── main/                     # 主进程源码，入口为 main/index.ts
 │   └── index.ts
 ├── preload/                  # 预加载脚本源码（可选）
 │   └── index.ts
@@ -38,7 +38,7 @@ my-app/
 
 ### `main`
 
-主进程源码目录，默认入口为 `main/index.ts`。
+主进程源码目录，默认入口为 `main/index.ts`，也支持 `.mts` / `.cts` / `.js` / `.mjs` / `.cjs` 扩展名。
 
 - 由 Vite 构建，固定输出 CommonJS 格式。
 - 构建产物默认输出到 `dist/resource/electron.cjs`。

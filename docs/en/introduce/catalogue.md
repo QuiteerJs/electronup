@@ -12,7 +12,7 @@ The directory structure electronup expects:
 
 ```text
 my-app/
-├── main/                     # Main process source; entry is always main/index.ts
+├── main/                     # Main process source; entry is main/index.ts
 │   └── index.ts
 ├── preload/                  # Preload script source (optional)
 │   └── index.ts
@@ -38,7 +38,7 @@ my-app/
 
 ### `main`
 
-Main process source. The default entry is `main/index.ts`.
+Main process source. The default entry is `main/index.ts`; `.mts` / `.cts` / `.js` / `.mjs` / `.cjs` extensions also work.
 
 - Built by Vite, always as CommonJS.
 - Output goes to `dist/resource/electron.cjs` by default.

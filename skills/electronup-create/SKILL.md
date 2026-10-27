@@ -41,7 +41,7 @@ electronup 自带 Vite、electron-builder 等构建依赖，应用只需再装 `
 
 ```text
 my-app/
-├── main/index.ts          # 主进程入口，文件名固定为 index.ts，必须是 TypeScript
+├── main/index.ts          # 主进程入口，文件名固定为 index（推荐 .ts，也支持 .js/.mjs 等）
 ├── preload/index.ts       # 可选，需在配置 preload.entry 中登记
 ├── render/index.html      # 渲染进程根目录（Vite root）
 ├── public/                # 原样拷贝的静态资源

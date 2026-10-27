@@ -4,7 +4,7 @@ import path from 'node:path'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import type { InlineConfig } from 'vite'
 import { EventEmitter } from 'node:events'
-import { assertMainEntry, createExternal, getElectronBinary, getPackConfig, globalProcessPlugin, injectEnv, removeJunk, restartElectron, startElectronPlugin, withSourceMaps } from './pack'
+import { assertMainEntry, createExternal, getElectronBinary, getPackConfig, globalProcessPlugin, injectEnv, removeJunk, resolveMainEntry, restartElectron, startElectronPlugin, withSourceMaps } from './pack'
 import { store, DefaultDirs } from '../utils'
 
 vi.spyOn(process, 'cwd').mockReturnValue('/fake/root')
@@ -328,9 +328,20 @@ describe('dev 预检', () => {
   })
 
   it('主进程入口不存在时报错 , 存在时通过', () => {
-    expect(() => assertMainEntry({ mainDir: 'src/main' })).toThrow(path.join(dir, 'src', 'main', 'index.ts'))
+    expect(() => assertMainEntry({ mainDir: 'src/main' })).toThrow(path.join(dir, 'src', 'main'))
+    expect(() => assertMainEntry({ mainDir: 'src/main' })).toThrow('index.ts / index.mts')
     fs.mkdirSync(path.join(dir, 'main'))
     fs.writeFileSync(path.join(dir, 'main', 'index.ts'), '')
     expect(() => assertMainEntry({})).not.toThrow()
+  })
+
+  it('主进程入口支持 js 等扩展名 , 同时存在时优先 index.ts', () => {
+    fs.mkdirSync(path.join(dir, 'main'))
+    fs.writeFileSync(path.join(dir, 'main', 'index.mjs'), '')
+    expect(resolveMainEntry({})).toBe(path.join(dir, 'main', 'index.mjs'))
+    expect(() => assertMainEntry({})).not.toThrow()
+
+    fs.writeFileSync(path.join(dir, 'main', 'index.ts'), '')
+    expect(resolveMainEntry({})).toBe(path.join(dir, 'main', 'index.ts'))
   })
 })

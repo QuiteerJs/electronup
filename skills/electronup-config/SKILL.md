@@ -28,7 +28,7 @@ export default defineConfig(({ command }) => ({
 | 字段 | 默认值 | 说明 |
 | --- | --- | --- |
 | `renderDir` | `render` | Vite `root`，放 `index.html` |
-| `mainDir` | `main` | 主进程入口固定为 `${mainDir}/index.ts` |
+| `mainDir` | `main` | 主进程入口为 `${mainDir}/index.{ts,mts,cts,js,mjs,cjs}`（按顺序取第一个存在的） |
 | `publicDir` | `public` | Vite 静态目录 |
 | `libDir` | `lib` | electron-builder `extraFiles` |
 | `resourceDir` | `dist/resource` | 渲染/主进程/preload 产物，**dev 和 build 前会被清空** |
@@ -131,7 +131,7 @@ electronup 不预置签名。证书用环境变量，不要提交进仓库：
 | 现象 | 原因 |
 | --- | --- |
 | 改 `viteConfig.root` / `build.outDir` 无效 | 由 electronup 接管，改顶层目录字段 |
-| 改主进程入口/格式无效 | 入口固定 `${mainDir}/index.ts`，格式固定 CJS |
+| 改主进程入口/格式无效 | 入口文件名固定为 `index`（扩展名 ts/mts/cts/js/mjs/cjs），格式固定 CJS |
 | 打包后 `Cannot find module 'x'` | `x` 被 external 但不在 `dependencies`；或应打进产物却没加 `noExternal` |
 | 打包后白屏 | `base` 被改成 `/`，或 `loadURL` 没用 `file://` + `index.html` |
 | preload 改了没反应 | dev 下应自动重启 Electron；检查终端是否有 preload 构建报错，以及主进程引用的产物路径 |
