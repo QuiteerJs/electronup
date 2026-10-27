@@ -109,3 +109,44 @@ test('未知路径操作抛错', async () => {
   await assert.rejects(ipcMain.invoke(F, sender, 'nope'), /未知的路径操作/);
   await assert.rejects(ipcMain.invoke(F, sender, 'constructor'), /未知的路径操作/);
 });
+
+test('默认拒绝子 frame 与已失效 frame 的调用', async () => {
+  Ipc.init();
+  const win = new BrowserWindow();
+  const main = win.webContents.frame;
+
+  win.webContents.frame = { url: 'https://ads.example.com', parent: main };
+  ipcMain.emit(W, win.webContents, IpcWindowOptions.DESTROY);
+  assert.equal(win.destroyed, false);
+  await assert.rejects(ipcMain.invoke(F, win.webContents, 'join', 'a'), /来源未通过校验/);
+
+  win.webContents.frame = null;
+  ipcMain.emit(W, win.webContents, IpcWindowOptions.DESTROY);
+  assert.equal(win.destroyed, false);
+
+  win.webContents.frame = main;
+  ipcMain.emit(W, win.webContents, IpcWindowOptions.DESTROY);
+  assert.equal(win.destroyed, true);
+});
+
+test('allowedOrigins 限定主 frame 来源, file:// 按协议匹配', async () => {
+  Ipc.init({ allowedOrigins: ['file://', 'http://localhost:5173'] });
+  const sender = new BrowserWindow().webContents;
+
+  assert.equal(await ipcMain.invoke(F, sender, 'join', 'a'), 'a');
+  sender.frame = { url: 'http://localhost:5173/#/home', parent: null };
+  assert.equal(await ipcMain.invoke(F, sender, 'join', 'a'), 'a');
+  sender.frame = { url: 'https://evil.example.com', parent: null };
+  await assert.rejects(ipcMain.invoke(F, sender, 'join', 'a'), /来源未通过校验/);
+});
+
+test('validateSender 替代默认校验, 重复 init 以首次选项为准', async () => {
+  Ipc.init({ validateSender: (event) => event.sender.id === 2 });
+  Ipc.init({ validateSender: () => true });
+  const a = new BrowserWindow();
+  const b = new BrowserWindow();
+  b.webContents.frame = { url: 'https://x.y', parent: a.webContents.frame };
+
+  await assert.rejects(ipcMain.invoke(F, a.webContents, 'join', 'a'), /来源未通过校验/);
+  assert.equal(await ipcMain.invoke(F, b.webContents, 'join', 'a'), 'a');
+});

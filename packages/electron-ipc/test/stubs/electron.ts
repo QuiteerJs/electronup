@@ -3,8 +3,14 @@
  * 仅在 test 打包时通过 alias 替换 electron, 不参与产物构建
  */
 
+export interface WebFrameMain {
+  url: string;
+  parent: WebFrameMain | null;
+}
+
 export interface IpcMainEvent {
   sender: WebContents;
+  senderFrame: WebFrameMain | null;
 }
 
 export type IpcMainInvokeEvent = IpcMainEvent;
@@ -13,6 +19,8 @@ type Listener = (event: IpcMainEvent, ...args: any[]) => void;
 type Handler = (event: IpcMainInvokeEvent, ...args: any[]) => unknown;
 
 export class WebContents {
+  /** 发起调用的 frame, 测试里可改成子 frame / 其他来源 / null */
+  frame: WebFrameMain | null = { url: 'file:///index.html', parent: null };
   constructor(public id: number) {}
 }
 
@@ -44,7 +52,7 @@ export const ipcMain = {
   /** 模拟渲染层 send */
   emit(channel: string, sender: WebContents, ...args: unknown[]) {
     for (const listener of this.listeners.get(channel) ?? []) {
-      listener({ sender }, ...args);
+      listener({ sender, senderFrame: sender.frame }, ...args);
     }
   },
   /** 模拟渲染层 invoke */
@@ -53,7 +61,7 @@ export const ipcMain = {
     if (!handler) {
       throw new Error(`No handler registered for '${channel}'`);
     }
-    return handler({ sender }, ...args);
+    return handler({ sender, senderFrame: sender.frame }, ...args);
   },
   reset() {
     this.listeners.clear();
