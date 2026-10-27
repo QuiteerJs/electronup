@@ -17,7 +17,7 @@
     "template:run": "pnpm --filter './template/*' dev",
     "lint": "vp lint . --ignore-pattern \"**/.vitepress/cache/**\"",
     "lint:fix": "vp lint . --fix --ignore-pattern \"**/.vitepress/cache/**\"",
-    "typecheck": "tsc -p packages/electronup/tsconfig.json --noEmit && tsc -p packages/create-electronup/tsconfig.json --noEmit",
+    "typecheck": "tsc -p packages/electronup/tsconfig.json --noEmit && tsc -p packages/create-electronup/tsconfig.json --noEmit && pnpm --filter \"./packages/electron-*\" typecheck",
     "test": "pnpm --filter \"./packages/*\" test",
     "test:e2e:modules": "pnpm --filter ./playground/modules-smoke test:e2e",
     "prepare": "simple-git-hooks",

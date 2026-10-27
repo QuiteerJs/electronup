@@ -39,6 +39,7 @@
     "dev": "vp pack --watch",
     "build": "vp pack",
     "test": "vp pack && node --test test/.out/menu.test.js",
+    "typecheck": "tsc --noEmit && tsc -p test --noEmit",
     "prepublishOnly": "node ../../.github/scripts/check-publish-ready.mjs && pnpm run build"
   },
   "devDependencies": {

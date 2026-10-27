@@ -1,4 +1,5 @@
 import { BrowserWindow, app } from 'electron';
+import type { Event } from 'electron';
 
 import { extractUrls, normalizeSchemes, registerProtocols } from './protocol';
 import type {
@@ -242,11 +243,11 @@ export function setupApp(options: AppOptions = {}): AppController {
   }
 
   // macOS 的 deep link 与文件打开走事件, 可能早于 ready 触发
-  listen('open-url', (event: Electron.Event, url: string) => {
+  listen('open-url', (event: Event, url: string) => {
     event.preventDefault();
     openUrl(url, 'open-url');
   });
-  listen('open-file', (event: Electron.Event, path: string) => {
+  listen('open-file', (event: Event, path: string) => {
     event.preventDefault();
     if (onOpenFile) {
       dispatch(() => void invoke(() => onOpenFile(path, { source: 'open-file' }), 'open'));
@@ -271,7 +272,7 @@ export function setupApp(options: AppOptions = {}): AppController {
     }
   });
 
-  listen('before-quit', (event: Electron.Event) => {
+  listen('before-quit', (event: Event) => {
     quitting = true;
     if (quitState === 'done') {
       return;
