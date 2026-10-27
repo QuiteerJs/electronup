@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vitest';
 
 import { BrowserWindow, app, screen, shell } from 'electron';
 
@@ -59,7 +59,7 @@ test('响应式属性读写同步到真实窗口', () => {
 
 test('方法与 getter 透传 BrowserWindow', () => {
   const main = windows.getController('main')!;
-  main.loadURL('https://example.com');
+  void main.loadURL('https://example.com');
   assert.equal(main.target.url, 'https://example.com');
   assert.equal(main.id, main.target.id);
 });

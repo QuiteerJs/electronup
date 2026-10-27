@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { beforeEach, test } from 'node:test';
+import { beforeEach, test } from 'vitest';
 
 import { BrowserWindow, ipcMain } from 'electron';
 

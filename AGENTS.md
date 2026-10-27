@@ -10,7 +10,7 @@ electronup 是把 **Vite**（渲染进程、主进程 / preload）+ **electron-b
 | --- | --- |
 | `packages/electronup` | 核心包：CLI、配置解析、dev/build 流程、updater 导出（发布名 `electronup`） |
 | `packages/create-electronup` | 脚手架，用 degit 拉取 `electronup-template` 模板 |
-| `packages/electron-*` | 7 个可选的 Electron 运行时模块包（发布名 `@quiteer/electron-*`），vp pack 构建，node:test + electron 替身测试，changesets 管理版本 |
+| `packages/electron-*` | 7 个可选的 Electron 运行时模块包（发布名 `@quiteer/electron-*`），vp pack 构建，vitest（`vp test`）+ `test/stubs` 下的 electron 替身测试，changesets 管理版本 |
 | `playground/modules-basic` / `modules-smoke` | 模块包的最小示例与真 Electron 冒烟（playwright） |
 | `playground/electronup-test` | 端到端示例项目，CI 冒烟构建也用它 |
 | `template` | 脚手架测试入口；仅 `template/package.json` 被跟踪，`template/*` 其余内容被忽略 |

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { beforeEach, test } from 'node:test';
+import { beforeEach, test } from 'vitest';
 
 import { BrowserWindow, ipcMain, WebContents } from 'electron';
 
