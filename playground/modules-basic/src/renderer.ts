@@ -51,7 +51,8 @@ async function main(): Promise<void> {
     });
   }
 
-  if (sum !== 3 || joined !== '/a/c') {
+  // path.join 在主进程执行, Windows 上分隔符是反斜杠
+  if (sum !== 3 || joined.replaceAll('\\', '/') !== '/a/c') {
     throw new Error('返回值不符合预期');
   }
 }
