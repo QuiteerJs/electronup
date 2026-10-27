@@ -4,6 +4,8 @@ Electron 主进程 IPC 预设通道：一次 `init()`，渲染进程即可安全
 
 包内不持有任何全局状态，所有窗口操作都来自 `event.sender` 定位的窗口，渲染进程无法越权操作别的窗口。
 
+> 从 3.1 升级请看 [升级指南](https://github.com/QuiteerJs/electron-modules/blob/main/docs/migration.md#electron-ipc-31--32)：3.2 起内置通道默认只接受主 frame 的调用；也介绍了如何把现有通道迁到 IPC 契约。
+
 ## 安装
 
 ```bash
