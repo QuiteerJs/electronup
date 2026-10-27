@@ -1,0 +1,88 @@
+name: Release
+
+# 推送 electronup-v<版本> / create-electronup-v<版本> 标签后发布对应的包到 npm
+# 使用 npm Trusted Publishing ( OIDC ) : 不需要 NPM_TOKEN , 发布物自动附带 provenance
+on:
+  push:
+    tags:
+      - 'electronup-v*'
+      - 'create-electronup-v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # 检查标签提交是否已在 main 上需要完整历史
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+
+      # Trusted Publishing 需要 npm >= 11.5.1
+      - name: Update npm
+        run: npm install -g npm@^11.5.1 --registry=https://registry.npmjs.org/
+
+      - name: Resolve package from tag
+        id: pkg
+        shell: bash
+        run: |
+          case "$GITHUB_REF_NAME" in
+            electronup-v*) name=electronup ;;
+            create-electronup-v*) name=create-electronup ;;
+            *) echo "unknown tag $GITHUB_REF_NAME" && exit 1 ;;
+          esac
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "dir=packages/$name" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check tag, version and branch
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: node ../../.github/scripts/check-publish-ready.mjs
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build electronup CLI
+        run: pnpm --filter electronup build
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run unit tests ( all packages )
+        run: pnpm test
+
+      - name: Build and pack
+        shell: bash
+        run: |
+          pnpm --filter "${{ steps.pkg.outputs.name }}" build
+          mkdir -p "$RUNNER_TEMP/release/archive" "$RUNNER_TEMP/release/extracted"
+          # pnpm pack 会替换 catalog: / workspace: 协议并应用 publishConfig , 直接 npm publish 源目录不会
+          pnpm --filter "${{ steps.pkg.outputs.name }}" pack --pack-destination "$RUNNER_TEMP/release/archive"
+          tar -xf "$RUNNER_TEMP"/release/archive/*.tgz -C "$RUNNER_TEMP/release/extracted"
+          node .github/scripts/check-release-package.mjs "$RUNNER_TEMP/release/extracted/package"
+
+      # 仓库 .npmrc 指向 npmmirror , 发布必须显式指定官方注册表
+      - name: Publish to npm
+        shell: bash
+        run: npm publish "$RUNNER_TEMP"/release/archive/*.tgz --access public --provenance --registry=https://registry.npmjs.org/

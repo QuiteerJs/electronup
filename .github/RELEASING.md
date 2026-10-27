@@ -1,6 +1,6 @@
 # 发布流程
 
-固定分为准备与上传两步：agent 完成版本、检查、提交、标签和 CI；用户最后在包目录运行 `pnpm publish`。不再提供将这些动作串联的 `release` 命令。
+固定分为准备与上传两步：agent 完成版本、检查与提交，合入 main；维护者推送版本标签后，由 `.github/workflows/release.yml` 自动发布到 npm（也可以在包目录手动 `pnpm publish`）。不再提供将这些动作串联的 `release` 命令。
 
 ## 1. 确定版本
 
@@ -58,7 +58,22 @@ git push origin electronup-v<新版本>
 
 核对相同提交的 Smoke Build（三平台与 Windows 签名）通过；失败先修复，不能把旧提交的通过记录当作本次结果。未完成的真实升级验证必须明确记录。
 
-## 4. 用户上传
+## 4. 发布
+
+### 自动发布（推荐）
+
+推送 `electronup-v<版本>` 或 `create-electronup-v<版本>` 标签后，Release workflow 会：
+
+1. 校验标签与包版本一致、标签提交已在 main 上；
+2. 执行 typecheck、lint、单元测试；
+3. 用 `pnpm pack` 打包（替换 `catalog:` / `workspace:` 协议并应用 `publishConfig`），检查 tarball；
+4. 通过 npm Trusted Publishing（OIDC）发布到官方注册表，并附带 provenance。
+
+不需要 `NPM_TOKEN`，也不需要本地 2FA。首次使用前，维护者需要在 npmjs.com 上为两个包分别登记 Trusted Publisher：包页面 → Settings → Trusted Publisher → GitHub Actions，Organization 或 user 填 `QuiteerJs`，Repository 填 `electronup`，Workflow filename 填 `release.yml`，Environment 留空。
+
+标签只能推送一次：发布失败时先看 workflow 日志，修复后删除远端与本地标签再重新推送，不要直接改版本号重试。
+
+### 手动发布
 
 核心包在 `packages/electronup` 目录执行：
 
