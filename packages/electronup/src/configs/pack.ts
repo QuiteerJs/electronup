@@ -4,7 +4,7 @@ import type { ElectronupConfig, PackConfig } from '../typings/electronup'
 import { spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire, isBuiltin } from 'node:module'
-import { isAbsolute, resolve } from 'node:path'
+import { dirname, isAbsolute, resolve } from 'node:path'
 import process from 'node:process'
 import { config as getEnv } from 'dotenv'
 import { DefaultDirs, store } from '../utils'
@@ -122,14 +122,71 @@ export function getRuntimeDependencies(root: string): Set<string> {
   }
 }
 
+/** 从 root 向上查找 node_modules 下的包 package.json , 找不到返回 undefined */
+function readInstalledPackage(name: string, root: string): Record<string, any> | undefined {
+  for (let dir = root; ; dir = dirname(dir)) {
+    const file = resolve(dir, 'node_modules', name, 'package.json')
+    if (existsSync(file)) {
+      try { return JSON.parse(readFileSync(file, 'utf8')) }
+      catch { return undefined }
+    }
+    if (dirname(dir) === dir) { return undefined }
+  }
+}
+
+const REQUIRE_CONDITIONS = new Set(['node', 'require', 'default'])
+
+/** exports 条目在 require 时是否能命中某个文件 ( 只看 node / require / default 条件 ) */
+function hasRequireTarget(entry: unknown): boolean {
+  if (typeof entry === 'string') { return true }
+  if (Array.isArray(entry)) { return entry.some(hasRequireTarget) }
+  if (entry && typeof entry === 'object')
+    {return Object.entries(entry).some(([key, value]) => REQUIRE_CONDITIONS.has(key) && hasRequireTarget(value))}
+  return false
+}
+
+/** 在 exports 里找 subpath ( `.` / `./sub` ) 对应的条目 , 支持单个 `*` 通配 */
+function findExportsEntry(exports: unknown, subpath: string): unknown {
+  const isSubpathMap = exports && typeof exports === 'object' && !Array.isArray(exports)
+    && Object.keys(exports).some(key => key.startsWith('.'))
+  if (!isSubpathMap) { return subpath === '.' ? exports : undefined }
+
+  const map = exports as Record<string, unknown>
+  if (subpath in map) { return map[subpath] }
+  for (const [key, value] of Object.entries(map)) {
+    const star = key.indexOf('*')
+    if (star !== -1 && subpath.startsWith(key.slice(0, star)) && subpath.endsWith(key.slice(star + 1)))
+      {return value}
+  }
+  return undefined
+}
+
+/**
+ * 运行时依赖是否只能 import 不能 require ( exports 里该路径只有 import 条件 ) .
+ * 这类包留在 CJS 产物里运行期 require 会报 ERR_PACKAGE_PATH_NOT_EXPORTED , 需要打进产物
+ */
+export function isImportOnly(id: string, root: string) {
+  const name = getPackageName(id)
+  const pkg = readInstalledPackage(name, root)
+  if (!pkg || pkg.exports === undefined) { return false }
+  const entry = findExportsEntry(pkg.exports, id === name ? '.' : `.${id.slice(name.length)}`)
+  return entry != null && !hasRequireTarget(entry)
+}
+
 /**
  * 生成 rolldown 的 external 判断函数 , 与原 vite-plus pack 的默认行为保持一致 :
  * electron、Node 内置模块与项目运行时依赖不打包 ( electron-builder 会把 dependencies 装进安装包 ) ,
- * devDependencies 及其余模块打进产物 ; noExternal 优先于运行时依赖 , external 优先于 noExternal
+ * devDependencies 及其余模块打进产物 ; noExternal 优先于运行时依赖 , external 优先于 noExternal .
+ * 输出 CJS 时 , 只能 import 的运行时依赖 ( 纯 ESM 包 ) 也打进产物 , 否则运行期 require 会失败
  */
-export function createExternal(options: Pick<NodeBuildOptions, 'external' | 'noExternal'>, root = store.root) {
-  const { external = [], noExternal = [] } = options
+export function createExternal(options: Pick<NodeBuildOptions, 'external' | 'noExternal'> & Partial<Pick<NodeBuildOptions, 'format'>>, root = store.root) {
+  const { external = [], noExternal = [], format = 'cjs' } = options
   const dependencies = getRuntimeDependencies(root)
+  const importOnly = new Map<string, boolean>()
+  const checkImportOnly = (id: string) => {
+    if (!importOnly.has(id)) { importOnly.set(id, isImportOnly(id, root)) }
+    return importOnly.get(id)!
+  }
 
   return (id: string, _importer: string | undefined, isResolved: boolean) => {
     // 已解析的绝对路径与相对路径都是项目内部模块 , 交给打包流程
@@ -139,7 +196,9 @@ export function createExternal(options: Pick<NodeBuildOptions, 'external' | 'noE
       {return true}
     if (noExternal === true || matchPattern(id, noExternal))
       {return false}
-    return dependencies.has(getPackageName(id))
+    if (!dependencies.has(getPackageName(id)))
+      {return false}
+    return format !== 'cjs' || !checkImportOnly(id)
   }
 }
 

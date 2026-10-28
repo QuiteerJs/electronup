@@ -1,7 +1,7 @@
 /* oxlint-disable no-console, no-unused-vars */
 import { resolve } from 'node:path'
 import process from 'node:process'
-// @quiteer/electron-ipc 是纯 ESM 包 , 放在 devDependencies 让 electronup 打进 CJS 主进程产物 , 运行期不再 require
+// @quiteer/electron-ipc 是纯 ESM 包 , 放在 dependencies 也会被 electronup 打进 CJS 主进程产物 , 运行期不再 require
 import { Ipc } from '@quiteer/electron-ipc'
 import { app, BrowserWindow } from 'electron'
 import { initExampleUpdater } from './updater'

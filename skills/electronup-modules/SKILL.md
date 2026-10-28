@@ -24,14 +24,14 @@ description: 在 Electron 主进程里接入 @quiteer/electron-* 运行时模块
 
 ## 安装位置（electronup 项目必看）
 
-electronup 把主进程打成 CJS，`dependencies` 里的包在运行期 `require`。除 preload 外这些包都是纯 ESM，放错位置会在运行时报 `ERR_PACKAGE_PATH_NOT_EXPORTED`：
+electronup 把主进程打成 CJS。exports 只有 `import` 条件的纯 ESM 包（除 preload 外这些模块包都是）不管放在哪里都会自动打进 `electron.cjs`；electron-preload 必须在 `dependencies`，因为运行期要用包里的 `index.cjs`：
 
 ```bash
-pnpm add -D @quiteer/electron-app @quiteer/electron-browser @quiteer/electron-ipc   # 打进 electron.cjs
+pnpm add -D @quiteer/electron-app @quiteer/electron-browser @quiteer/electron-ipc   # 打进 electron.cjs，安装包里不重复带
 pnpm add @quiteer/electron-preload                                                   # 运行期要用包里的 index.cjs
 ```
 
-已经装进 `dependencies` 的 ESM 包，也可以在 `electronup.config.ts` 的 `packConfig.noExternal` 里列出来。用 electron-preload 时不要再用 electronup 的 `preload` 配置去构建它。
+用 electron-preload 时不要再用 electronup 的 `preload` 配置去构建它。
 
 ## 推荐写法
 

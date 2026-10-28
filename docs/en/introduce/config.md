@@ -140,7 +140,7 @@ Presets:
 | `minify` | Follows the CLI in build (on by default); off in dev |
 | `sourcemap` | On in dev, off in build |
 | Env | Injects `.env` / `.env.{mode}`, `NODE_ENV` and `RENDER_PORT`, replacing `process.env.X` and `import.meta.env.X` via `define` |
-| Dependencies | Packages declared in `dependencies` / `peerDependencies` / `optionalDependencies` of `package.json` stay external (electron-builder installs them into the app); `devDependencies` and other modules are bundled |
+| Dependencies | Packages declared in `dependencies` / `peerDependencies` / `optionalDependencies` of `package.json` stay external (electron-builder installs them into the app); `devDependencies` and other modules are bundled. When the output is CJS, ESM-only runtime dependencies whose exports only offer an `import` condition are bundled too, since `require` would fail at runtime |
 
 The main process build does not read the project's `vite.config.*` and does not copy `publicDir`. In dev, Electron is launched (or restarted) after every main process build is written; changes to main process files trigger a rebuild.
 

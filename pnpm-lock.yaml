@@ -215,6 +215,9 @@ importers:
 
   playground/electronup-test:
     dependencies:
+      '@quiteer/electron-ipc':
+        specifier: workspace:*
+        version: link:../../packages/electron-ipc
       electron-updater:
         specifier: ^6.8.9
         version: 6.8.9
@@ -222,9 +225,6 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(vue@3.5.44(typescript@5.9.3))
     devDependencies:
-      '@quiteer/electron-ipc':
-        specifier: workspace:*
-        version: link:../../packages/electron-ipc
       '@quiteer/ts-config':
         specifier: ^0.0.7
         version: 0.0.7

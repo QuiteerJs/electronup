@@ -150,6 +150,15 @@ jobs:
           esac
           echo "smoke build OK : ${{ runner.os }}"
 
+      # electron-ipc 放在 dependencies 且是纯 ESM , 必须被打进 electron.cjs , 不能留成运行期 require
+      - name: Assert import-only dependencies are bundled
+        shell: bash
+        working-directory: playground/electronup-test
+        run: |
+          if grep -q 'require("@quiteer/electron-ipc")' dist/resource/electron.cjs; then
+            echo "electron.cjs still requires the ESM-only @quiteer/electron-ipc" && exit 1
+          fi
+
       - name: Assert packaged updater dependencies
         shell: bash
         working-directory: playground/electronup-test

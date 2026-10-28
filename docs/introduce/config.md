@@ -140,7 +140,7 @@ export default defineConfig({
 | `minify` | build 跟随命令行（默认开启），dev 不压缩 |
 | `sourcemap` | dev 开启，build 关闭 |
 | 环境变量 | 自动注入 `.env` / `.env.{mode}`、`NODE_ENV`、`RENDER_PORT`，以 `define` 替换 `process.env.X` 与 `import.meta.env.X` |
-| 依赖 | `package.json` 中 `dependencies` / `peerDependencies` / `optionalDependencies` 声明的包不打包（electron-builder 会把它们装进安装包），`devDependencies` 与其他模块打进产物 |
+| 依赖 | `package.json` 中 `dependencies` / `peerDependencies` / `optionalDependencies` 声明的包不打包（electron-builder 会把它们装进安装包），`devDependencies` 与其他模块打进产物；产物为 CJS 时，exports 只提供 `import` 条件的纯 ESM 运行时依赖也会打进产物（否则运行期 `require` 会失败） |
 
 主进程构建不读取项目里的 `vite.config.*`，也不复制 `publicDir`。开发模式下主进程每次构建写盘后都会启动（或重启）Electron，主进程文件变化会触发重新构建。
 
