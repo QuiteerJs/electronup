@@ -37,4 +37,4 @@ node ../../packages/electronup/dist/bin/electronup.mjs build --dir   # 含主进
 
 ## 验收
 
-改代码后至少执行：`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm --filter electronup build`；涉及文档跑 `pnpm docs:build`；涉及打包跑上面的 `build --web` 与 `build --dir`。
+改代码后至少执行：`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm --filter electronup build`；涉及文档跑 `pnpm docs:build`；涉及打包跑上面的 `build --web` 与 `build --dir`；涉及 dev 链路跑 `pnpm test:e2e:dev`（无显示环境用 `xvfb-run -a`）。
