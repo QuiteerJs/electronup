@@ -55,7 +55,7 @@ pnpm create electronup my-app --template vue
 选择 `react` 时，脚手架还会询问使用普通 TypeScript 还是 SWC 变体。
 
 ::: tip 模板来源
-模板不在脚手架包内，而是通过 [degit](https://github.com/Rich-Harris/degit) 从 [electronup-template](https://github.com/QuiteerJs/electronup-template) 的对应分支实时拉取，因此需要能访问 GitHub。
+模板不在脚手架包内，而是通过 [giget](https://github.com/unjs/giget) 从 [electronup-template](https://github.com/QuiteerJs/electronup-template) 的对应分支实时拉取，因此需要能访问 GitHub；直连不稳定时可用 `--mirror` 指定镜像。
 :::
 
 ### 在当前目录创建

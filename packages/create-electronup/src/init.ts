@@ -3,10 +3,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import * as prompts from '@clack/prompts'
-import degit from 'degit'
+import { downloadTemplate } from 'giget'
 import mri from 'mri'
 import pc from 'picocolors'
-import { defaultTargetDir, emptyDir, formatTargetDir, FRAMEWORKS, helpMessage, isEmpty, isValidPackageName, pkgFromUserAgent, remote, TEMPLATES, toValidPackageName } from './utils'
+import { defaultTargetDir, emptyDir, formatTargetDir, FRAMEWORKS, helpMessage, isEmpty, isValidPackageName, mirrorEnv, pkgFromUserAgent, remote, templateRepo, templateTarball, TEMPLATES, toValidPackageName } from './utils'
 
 export interface InitOptions {
   /** 命令行参数 ( 不含 node 与脚本路径 ) */
@@ -30,10 +30,11 @@ export async function init(options: InitOptions = {}): Promise<number> {
   const argv = mri<{
     t?: string
     template?: string
+    mirror?: string
     overwrite?: boolean
     help?: boolean
   }>(args, {
-    string: ['_', 'template'],
+    string: ['_', 'template', 'mirror'],
     boolean: ['help', 'overwrite'],
     alias: { h: 'help', t: 'template' },
   })
@@ -46,6 +47,7 @@ export async function init(options: InitOptions = {}): Promise<number> {
 
   const argTargetDir = formatTargetDir(argv._[0])
   const argTemplate = argv.template
+  const mirror = argv.mirror || process.env[mirrorEnv] || ''
 
   let targetDir = argTargetDir || defaultTargetDir
   let result = {} as any
@@ -166,13 +168,25 @@ export async function init(options: InitOptions = {}): Promise<number> {
   const spinner = prompts.spinner()
   spinner.start(`正在拉取模板：${template}`)
   try {
-    const emitter = degit(`${remote}#${template}`, { cache: false, force: overwrite })
-    await emitter.clone(root)
+    await downloadTemplate(`${templateRepo}#${template}`, {
+      dir: root,
+      force: Boolean(overwrite),
+      // 每次都拉最新的模板分支 , 不读 giget 的本地缓存
+      preferOffline: false,
+      registry: false,
+      provider: mirror ? 'mirror' : 'github',
+      providers: {
+        mirror: () => ({ name: `electronup-template-${template}`, version: template, tar: templateTarball(template, mirror) }),
+      },
+    })
   }
   catch (error: any) {
     spinner.error('模板拉取失败')
-    console.error(pc.red(`\n无法从 GitHub 拉取模板 ${template}：${error?.message ?? error}`))
-    console.error(`请确认可以访问 GitHub ( 必要时设置 HTTPS_PROXY ) 后重试 , 或手动克隆：\n`)
+    const from = mirror ? `镜像 ${mirror}` : 'GitHub'
+    console.error(pc.red(`\n无法从 ${from} 拉取模板 ${template}：${error?.message ?? error}`))
+    console.error(mirror
+      ? `请确认镜像地址可用 ( 应能替换 https://github.com ) 后重试 , 或手动克隆：\n`
+      : `请确认可以访问 GitHub ( 必要时设置 HTTPS_PROXY , 或用 --mirror 指定镜像 ) 后重试 , 或手动克隆：\n`)
     console.error(pc.cyan(`  git clone -b ${template} --depth 1 ${remote} ${targetDir}\n`))
     return 1
   }

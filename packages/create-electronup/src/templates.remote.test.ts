@@ -2,10 +2,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
-import degit from 'degit'
+import { downloadTemplate } from 'giget'
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test'
 import electronupPkg from '../../electronup/package.json'
-import { remote, TEMPLATES } from './utils'
+import { templateRepo, TEMPLATES } from './utils'
 
 // 真实拉取 electronup-template 各分支 , 校验模板与当前 electronup 的约定一致
 // 依赖 GitHub 网络 , 默认跳过 ; 通过 CREATE_ELECTRONUP_REMOTE=1 开启
@@ -26,7 +26,7 @@ describe.skipIf(!enabled)('electronup-template 远端模板', () => {
 
   it.each(TEMPLATES)('%s 分支与 electronup 约定一致', async (template) => {
     const dest = path.join(sandbox, template)
-    await degit(`${remote}#${template}`, { cache: false, force: true }).clone(dest)
+    await downloadTemplate(`${templateRepo}#${template}`, { dir: dest, force: true, preferOffline: false, registry: false, auth: process.env.GITHUB_TOKEN })
 
     const pkg = JSON.parse(fs.readFileSync(path.join(dest, 'package.json'), 'utf8'))
     // 主进程产物为 CJS

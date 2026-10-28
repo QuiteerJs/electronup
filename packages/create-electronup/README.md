@@ -32,7 +32,7 @@ pnpm create electronup my-app --template vue
 | `react-swc` | React + TypeScript + SWC |
 | `solid` | Solid |
 
-模板通过 [degit](https://github.com/Rich-Harris/degit) 从 [electronup-template](https://github.com/QuiteerJs/electronup-template) 的对应分支实时拉取，需要可访问 GitHub 的网络环境。
+模板通过 [giget](https://github.com/unjs/giget) 从 [electronup-template](https://github.com/QuiteerJs/electronup-template) 的对应分支实时拉取，需要可访问 GitHub 的网络环境；直连不稳定时可用 `--mirror <地址>` 或环境变量 `CREATE_ELECTRONUP_MIRROR` 指定镜像（替换 `https://github.com` 这一段，如 `https://kkgithub.com`）。
 
 ## 文档
 

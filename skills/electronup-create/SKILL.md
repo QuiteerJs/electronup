@@ -22,7 +22,7 @@ pnpm create electronup my-app --template vue   # -t 为短参数
 
 - 可用模板：`vanilla`、`vue`、`react`、`react-swc`、`solid`。传入无效模板或不传时会进入交互选择；选 `react`（包括 `-t react`）时还会再询问 TypeScript / SWC 变体；`-t react-swc` 不会询问。想完全不交互，就同时传项目名和除 `react` 之外的模板，并保证目标目录为空。
 - 不传项目名会交互询问；项目名为 `.` 表示当前目录。目标目录非空时会询问是否清空（保留 `.git`），**清空前先征得用户同意**。
-- 模板来自 `https://github.com/QuiteerJs/electronup-template.git#<template>`（degit 拉取，不缓存）。网络失败时提示用户检查 GitHub 访问，不要改用其他仓库。
+- 模板来自 `https://github.com/QuiteerJs/electronup-template.git#<template>`（giget 拉取，不读缓存）。网络失败时提示用户检查 GitHub 访问，或用 `--mirror <地址>` / 环境变量 `CREATE_ELECTRONUP_MIRROR` 走镜像（替换 `https://github.com` 这一段）；不要改用其他模板仓库。
 - 脚手架**不会安装依赖**，完成后执行：
 
 ```bash

@@ -2,7 +2,20 @@ import fs from 'node:fs'
 import path from 'node:path'
 import pc from 'picocolors'
 
-export const remote = 'https://github.com/QuiteerJs/electronup-template.git'
+export const templateRepo = 'QuiteerJs/electronup-template'
+
+export const remote = `https://github.com/${templateRepo}.git`
+
+/** 镜像地址的环境变量 , 与 --mirror 等价 , 命令行参数优先 */
+export const mirrorEnv = 'CREATE_ELECTRONUP_MIRROR'
+
+/**
+ * 模板分支的 tar 包地址 . mirror 替换 `https://github.com` 这一段 ,
+ * 既支持 `https://kkgithub.com` 这类换域名的镜像 , 也支持 `https://ghfast.top/https://github.com` 这类前缀代理
+ */
+export function templateTarball(template: string, mirror: string) {
+  return `${mirror.replace(/\/+$/, '')}/${templateRepo}/archive/refs/heads/${template}.tar.gz`
+}
 
 export const defaultTargetDir = 'electronup-project'
 
@@ -116,6 +129,8 @@ export const helpMessage = `\
 选项：
   -t, --template 模板名      使用指定模板，跳过选择
   --overwrite               目标目录不为空时直接清空（保留 .git），不再询问
+  --mirror 地址             通过 GitHub 镜像拉取模板，替换 https://github.com 这一段，
+                            如 https://kkgithub.com ；也可用环境变量 ${mirrorEnv}
   -h, --help                显示帮助
 
 可用模板：

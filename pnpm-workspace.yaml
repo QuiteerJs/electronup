@@ -18,9 +18,6 @@ packages:
 overrides:
   vite: 'catalog:'
   vitest: 'catalog:'
-  # degit 在 2.8.4 ( 2021 ) 之后停更五年 , 又于 2026-05 / 2026-06 从旧 minor 分支重新发布 2.8.5 / 2.8.6 且无 provenance ,
-  # 与供应链劫持特征一致 , 固定到 2.8.4 ; 如需升级请先核实发布来源
-  degit: '2.8.4'
   # vitepress 2 依赖 @docsearch ^4.7.0 , 但 4.7.1 触发了 trustPolicy no-downgrade , 固定到上一版本 4.7.0
   '@docsearch/css': '4.7.0'
   '@docsearch/js': '4.7.0'

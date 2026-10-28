@@ -43,6 +43,7 @@ pnpm create electronup my-app --template vue
 | `[项目目录]` | 项目目录，不传时询问 |
 | `-t, --template <模板>` | 指定模板，跳过选择 |
 | `--overwrite` | 目标目录不为空时直接清空（保留 `.git`） |
+| `--mirror <地址>` | 通过 GitHub 镜像拉取模板，也可用环境变量 `CREATE_ELECTRONUP_MIRROR` |
 | `-h, --help` | 显示帮助 |
 
 取消操作或模板拉取失败时，进程以退出码 `1` 结束。
@@ -61,13 +62,20 @@ pnpm create electronup my-app --template vue
 
 ## 模板来源
 
-脚手架不会把模板打进包里，而是通过 [degit](https://github.com/Rich-Harris/degit) 从远程仓库实时拉取：
+脚手架不会把模板打进包里，而是通过 [giget](https://github.com/unjs/giget) 从远程仓库实时拉取对应分支：
 
 ```text
 https://github.com/QuiteerJs/electronup-template.git#<template>
 ```
 
-因此创建项目时需要能够访问 GitHub。拉取失败时脚手架会给出对应分支的 `git clone` 命令，可以手动克隆。
+因此创建项目时需要能够访问 GitHub（会读取 `HTTPS_PROXY`）。直连 GitHub 不稳定时，可以用 `--mirror` 或环境变量 `CREATE_ELECTRONUP_MIRROR` 指定镜像。镜像地址用来替换 `https://github.com` 这一段，脚手架会从 `<镜像>/QuiteerJs/electronup-template/archive/refs/heads/<template>.tar.gz` 下载，所以换域名的镜像和前缀式代理都可以用：
+
+```bash
+pnpm create electronup my-app -t vue --mirror https://kkgithub.com
+CREATE_ELECTRONUP_MIRROR=https://ghfast.top/https://github.com pnpm create electronup my-app -t vue
+```
+
+镜像由第三方提供，可用性请自行确认。拉取失败时脚手架会给出对应分支的 `git clone` 命令，可以手动克隆。
 
 ## 创建完成后
 
