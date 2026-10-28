@@ -55,7 +55,7 @@ pnpm create electronup my-app --template vue
 When you choose `react`, the CLI asks whether to use plain TypeScript or the SWC variant.
 
 ::: tip Template source
-Templates are not bundled with the CLI. They are fetched with [degit](https://github.com/Rich-Harris/degit) from the matching branch of [electronup-template](https://github.com/QuiteerJs/electronup-template), so GitHub access is required.
+Templates are not bundled with the CLI. They are fetched with [giget](https://github.com/unjs/giget) from the matching branch of [electronup-template](https://github.com/QuiteerJs/electronup-template), so GitHub access is required; use `--mirror` when GitHub is hard to reach.
 :::
 
 ### Create in the current directory

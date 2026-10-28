@@ -9,14 +9,14 @@ electronup 是把 **Vite**（渲染进程、主进程 / preload）+ **electron-b
 | 路径 | 说明 |
 | --- | --- |
 | `packages/electronup` | 核心包：CLI、配置解析、dev/build 流程、updater 导出（发布名 `electronup`） |
-| `packages/create-electronup` | 脚手架，用 degit 拉取 `electronup-template` 模板 |
+| `packages/create-electronup` | 脚手架，用 giget 拉取 `electronup-template` 模板（`--mirror` 支持镜像） |
 | `packages/electron-*` | 7 个可选的 Electron 运行时模块包（发布名 `@quiteer/electron-*`），vp pack 构建，vitest（`vp test`）+ `test/stubs` 下的 electron 替身测试，changesets 管理版本 |
 | `playground/modules-basic` / `modules-smoke` | 模块包的最小示例与真 Electron 冒烟（playwright） |
 | `playground/electronup-test` | 端到端示例项目，CI 冒烟构建也用它 |
 | `template` | 脚手架测试入口；仅 `template/package.json` 被跟踪，`template/*` 其余内容被忽略 |
 | `docs` | VitePress 中英双语文档站（`docs/` 中文，`docs/en/` 英文） |
 | `skills` | 面向 electronup 使用者的 Agent Skills（`SKILL.md`），通过根目录 `.claude-plugin/` 作为 Claude Code 插件分发；维护者 skill 在 `.claude/skills/` |
-| `.github/workflows/smoke-build.yml` | 全包 typecheck / lint / test + 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 + 模块包真 Electron 冒烟（Linux） |
+| `.github/workflows/smoke-build.yml` | 全包 typecheck / lint / test + 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 + 模块包真 Electron 冒烟（Linux）+ `electronup dev` 真 Electron 端到端（Linux，`pnpm test:e2e:dev`） |
 | `.github/workflows/release.yml` | 推送 `electronup-v*` / `create-electronup-v*` 标签后经 npm Trusted Publishing 自动发布 |
 
 ## 环境与安装
@@ -47,7 +47,7 @@ $env:ELECTRON_CUSTOM_DIR = '{{ version }}'
 | 发布物自检 | `pnpm --filter electronup pack --pack-destination <临时目录>`，确认 tarball 只含 `dist` 与 README/LICENSE/package.json |
 | 交互式提交 | `pnpm commit`（`qui gc`） |
 
-修改代码后的最小验收：`pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm --filter electronup build`；涉及文档再跑 `pnpm docs:build`；涉及构建/打包再跑 playground 的 `--web` / `--dir`。
+修改代码后的最小验收：`pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm --filter electronup build`；涉及文档再跑 `pnpm docs:build`；涉及构建/打包再跑 playground 的 `--web` / `--dir`；涉及 dev 链路（watch、重启、env / mode）再跑 `pnpm test:e2e:dev`（Linux 无显示环境用 `xvfb-run -a` 包一层，root 下加 `ELECTRON_DISABLE_SANDBOX=1`）。
 
 ## 代码结构与调用链
 

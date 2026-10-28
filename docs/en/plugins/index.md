@@ -29,11 +29,11 @@ These runtime packages do not depend on the electronup CLI and do not affect bui
 
 ### Installing in an electronup project
 
-electronup builds the main process as CJS (`electron.cjs`). Packages in `dependencies` are not bundled; they are `require`d at runtime. Except for electron-preload these packages are ESM only, so `require` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`. Therefore:
+electronup builds the main process as CJS (`electron.cjs`). Packages in `dependencies` that can be `require`d stay external and are `require`d at runtime. ESM-only packages whose exports only offer an `import` condition (all of these except electron-preload) are bundled into `electron.cjs` automatically, because `require` would fail with `ERR_PACKAGE_PATH_NOT_EXPORTED`. So these packages work from either `dependencies` or `devDependencies`:
 
-| Package | Put it in | Why |
+| Package | Recommended | Why |
 | --- | --- | --- |
-| electron-ipc / browser / menu / tray / app / shortcut | `devDependencies` | electronup bundles devDependencies into `electron.cjs`, so the installer does not need another copy |
+| electron-ipc / browser / menu / tray / app / shortcut | `devDependencies` | They are bundled into `electron.cjs` either way; in devDependencies the installer does not carry another copy |
 | electron-preload | `dependencies` | `preloadPath` / `createPreload()` point to the prebuilt `index.cjs` inside the package, which must exist at runtime, so electron-builder ships it |
 
 ```bash
@@ -41,4 +41,4 @@ pnpm add -D @quiteer/electron-ipc @quiteer/electron-browser
 pnpm add @quiteer/electron-preload
 ```
 
-If they are already in `dependencies`, you can also list them in `packConfig.noExternal` in `electronup.config.ts` so electronup bundles them into the main process. When using electron-preload you do not need to build it again through electronup's `preload` option.
+To bundle other `require`-able runtime dependencies into the main process too, list them in `packConfig.noExternal` in `electronup.config.ts`; packages listed in `packConfig.external` are never bundled. When using electron-preload you do not need to build it again through electronup's `preload` option.

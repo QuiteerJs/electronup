@@ -5,7 +5,7 @@ electronup is an Electron build tool that fuses **Vite** (renderer), **vite-plus
 ## Workspace layout
 
 - `packages/electronup` — core package: CLI (`src/cli.ts`), config resolution (`src/transform`), dev/build runners (`src/runner`), preset configs (`src/configs`), optional auto-updater (`src/updater.ts`).
-- `packages/create-electronup` — project scaffolder (degit templates).
+- `packages/create-electronup` — project scaffolder (giget templates, `--mirror` for GitHub mirrors).
 - `playground/electronup-test` — end-to-end example used by CI smoke builds.
 - `docs/` — VitePress site, Chinese at root and English under `docs/en/` (17 pages each).
 - `.github/workflows/smoke-build.yml` — cross-platform `build --dir` smoke build plus a Windows self-signed code-signing smoke job.

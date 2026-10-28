@@ -264,6 +264,32 @@ describe('createExternal ( 依赖是否打包 )', () => {
     expect(bundleAll('node:path', undefined, false)).toBe(true)
   })
 
+  it('输出 CJS 时 , 只能 import 的运行时依赖打进产物 , 能 require 的仍留在外部', () => {
+    const write = (name: string, pkg: object) => {
+      fs.mkdirSync(path.join(dir, 'node_modules', name), { recursive: true })
+      fs.writeFileSync(path.join(dir, 'node_modules', name, 'package.json'), JSON.stringify(pkg))
+    }
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({
+      dependencies: { 'esm-only': '1', 'dual': '1', 'legacy': '1', 'nested': '1', '@scope/mixed': '1' },
+    }))
+    write('esm-only', { type: 'module', exports: { '.': { types: './a.d.ts', import: './a.js' } } })
+    write('dual', { type: 'module', exports: { import: './a.js', require: './a.cjs' } })
+    write('legacy', { main: 'index.js' })
+    write('nested', { exports: { node: { import: './a.js' } } })
+    write('@scope/mixed', { exports: { '.': { default: './index.cjs' }, './esm/*': { import: './esm/*.js' } } })
+
+    const isExternal = createExternal({}, dir)
+    expect(isExternal('esm-only', undefined, false)).toBe(false)
+    expect(isExternal('nested', undefined, false)).toBe(false)
+    expect(isExternal('@scope/mixed/esm/a', undefined, false)).toBe(false)
+    for (const id of ['dual', 'legacy', '@scope/mixed', '@scope/mixed/not-exported'])
+      {expect(isExternal(id, undefined, false), id).toBe(true)}
+
+    // 输出 ESM 时运行期走 import , 不需要打包 ; external 仍优先
+    expect(createExternal({ format: 'esm' }, dir)('esm-only', undefined, false)).toBe(true)
+    expect(createExternal({ external: ['esm-only'] }, dir)('esm-only', undefined, false)).toBe(true)
+  })
+
   it('没有 package.json 时只排除 electron 与内置模块', () => {
     const isExternal = createExternal({}, path.join(dir, 'missing'))
     expect(isExternal('dep', undefined, false)).toBe(false)

@@ -20,6 +20,7 @@
     "typecheck": "tsc -p packages/electronup/tsconfig.json --noEmit && tsc -p packages/create-electronup/tsconfig.json --noEmit && pnpm --filter \"./packages/electron-*\" typecheck",
     "test": "pnpm --filter \"./packages/*\" test",
     "test:e2e:modules": "pnpm --filter ./playground/modules-smoke test:e2e",
+    "test:e2e:dev": "node .github/scripts/dev-e2e.mjs",
     "prepare": "simple-git-hooks",
     "upgrade:latest": "pnpm update --latest",
     "upgrade:interactive": "pnpm update --interactive --latest",

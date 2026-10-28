@@ -2,10 +2,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import * as prompts from '@clack/prompts'
-import degit from 'degit'
+import { downloadTemplate } from 'giget'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { init } from './init'
-import { FRAMEWORKS, remote } from './utils'
+import { FRAMEWORKS, remote, templateRepo } from './utils'
 
 const CANCEL = Symbol('cancel')
 
@@ -17,23 +17,22 @@ vi.mock('@clack/prompts', () => ({
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn(), error: vi.fn() })),
 }))
 
-// 用本地写文件模拟 degit 拉取 , 测试不访问网络
-vi.mock('degit', () => ({
-  default: vi.fn((src: string) => ({
-    clone: vi.fn(async (dest: string) => {
-      const branch = src.split('#')[1]
-      const files: Record<string, string> = {
-        'package.json': JSON.stringify({ name: 'electronup-template', main: 'dist/resource/electron.cjs' }),
-        'electronup.config.ts': `// ${branch}\n`,
-        'main/index.ts': '',
-        'render/index.html': '',
-      }
-      for (const [file, content] of Object.entries(files)) {
-        fs.mkdirSync(path.dirname(path.join(dest, file)), { recursive: true })
-        fs.writeFileSync(path.join(dest, file), content)
-      }
-    }),
-  })),
+// 用本地写文件模拟 giget 拉取 , 测试不访问网络
+vi.mock('giget', () => ({
+  downloadTemplate: vi.fn(async (input: string, options: { dir: string }) => {
+    const branch = input.split('#')[1]
+    const files: Record<string, string> = {
+      'package.json': JSON.stringify({ name: 'electronup-template', main: 'dist/resource/electron.cjs' }),
+      'electronup.config.ts': `// ${branch}\n`,
+      'main/index.ts': '',
+      'render/index.html': '',
+    }
+    for (const [file, content] of Object.entries(files)) {
+      fs.mkdirSync(path.dirname(path.join(options.dir, file)), { recursive: true })
+      fs.writeFileSync(path.join(options.dir, file), content)
+    }
+    return { dir: options.dir, source: input, name: branch, tar: '' }
+  }),
 }))
 
 let cwd: string
@@ -79,7 +78,7 @@ describe('init', () => {
 
     expect(prompts.text).not.toHaveBeenCalled()
     expect(prompts.select).not.toHaveBeenCalled()
-    expect(degit).toHaveBeenCalledWith(`${remote}#vue`, { cache: false, force: false })
+    expect(downloadTemplate).toHaveBeenCalledWith(`${templateRepo}#vue`, expect.objectContaining({ dir: path.join(cwd, 'my-app'), force: false, provider: 'github', registry: false }))
     expect(listFiles(path.join(cwd, 'my-app'))).toEqual([
       'electronup.config.ts',
       'main/index.ts',
@@ -98,7 +97,7 @@ describe('init', () => {
   it.each(['vanilla', 'vue', 'react', 'react-swc', 'solid'])('-t %s 直接拉取对应分支 , 不再询问', async (template) => {
     await run(['app', '-t', template])
     expect(prompts.select).not.toHaveBeenCalled()
-    expect(degit).toHaveBeenCalledWith(`${remote}#${template}`, expect.any(Object))
+    expect(downloadTemplate).toHaveBeenCalledWith(`${templateRepo}#${template}`, expect.any(Object))
   })
 
   it('交互选择 react 后再选择变体', async () => {
@@ -108,7 +107,7 @@ describe('init', () => {
     await run(['app'])
 
     expect(prompts.select).toHaveBeenCalledTimes(2)
-    expect(degit).toHaveBeenCalledWith(`${remote}#react-swc`, expect.any(Object))
+    expect(downloadTemplate).toHaveBeenCalledWith(`${templateRepo}#react-swc`, expect.any(Object))
   })
 
   it('无效模板时提示重新选择', async () => {
@@ -118,7 +117,7 @@ describe('init', () => {
     await run(['app', '-t', 'angular'])
 
     expect(vi.mocked(prompts.select).mock.calls[0][0].message).toContain('"angular" 不是有效模板')
-    expect(degit).toHaveBeenCalledWith(`${remote}#solid`, expect.any(Object))
+    expect(downloadTemplate).toHaveBeenCalledWith(`${templateRepo}#solid`, expect.any(Object))
   })
 
   it('未传项目名时询问 , 留空使用默认目录', async () => {
@@ -157,7 +156,7 @@ describe('init', () => {
 
     await run(['app', '-t', 'vue'])
 
-    expect(degit).toHaveBeenCalledWith(`${remote}#vue`, { cache: false, force: true })
+    expect(downloadTemplate).toHaveBeenCalledWith(`${templateRepo}#vue`, expect.objectContaining({ force: true }))
     expect(fs.existsSync(path.join(target, 'old.txt'))).toBe(false)
     expect(fs.existsSync(path.join(target, '.git'))).toBe(true)
     expect(fs.existsSync(path.join(target, 'package.json'))).toBe(true)
@@ -171,7 +170,7 @@ describe('init', () => {
     expect(await run(['app', '-t', 'vue', '--overwrite'])).toBe(0)
 
     expect(prompts.confirm).not.toHaveBeenCalled()
-    expect(degit).toHaveBeenCalledWith(`${remote}#vue`, { cache: false, force: true })
+    expect(downloadTemplate).toHaveBeenCalledWith(`${templateRepo}#vue`, expect.objectContaining({ force: true }))
     expect(fs.existsSync(path.join(target, 'old.txt'))).toBe(false)
   })
 
@@ -183,7 +182,7 @@ describe('init', () => {
 
     expect(await run(['app', '-t', 'vue'])).toBe(1)
 
-    expect(degit).not.toHaveBeenCalled()
+    expect(downloadTemplate).not.toHaveBeenCalled()
     expect(fs.readdirSync(target)).toEqual(['old.txt'])
     expect(logs.join('\n')).toContain('Operation cancelled')
   })
@@ -193,7 +192,7 @@ describe('init', () => {
 
     expect(await run([])).toBe(1)
 
-    expect(degit).not.toHaveBeenCalled()
+    expect(downloadTemplate).not.toHaveBeenCalled()
     expect(fs.readdirSync(cwd)).toEqual([])
   })
 
@@ -202,11 +201,7 @@ describe('init', () => {
     vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
       errors.push(args.join(' '))
     })
-    vi.mocked(degit).mockImplementationOnce(() => ({
-      clone: vi.fn(async () => {
-        throw new Error('could not download')
-      }),
-    }))
+    vi.mocked(downloadTemplate).mockRejectedValueOnce(new Error('could not download'))
 
     expect(await run(['app', '-t', 'vue'])).toBe(1)
 
@@ -214,6 +209,36 @@ describe('init', () => {
     expect(output).toContain('could not download')
     expect(output).toContain(`git clone -b vue --depth 1 ${remote} app`)
     expect(logs.join('\n')).not.toContain('pnpm install')
+  })
+
+  it.each([
+    ['--mirror', ['--mirror', 'https://kkgithub.com/'], '', 'https://kkgithub.com'],
+    ['环境变量', [], 'https://ghfast.top/https://github.com', 'https://ghfast.top/https://github.com'],
+  ])('通过 %s 指定镜像时 , 从镜像拉取模板分支的 tar 包', async (_, extra, env, mirror) => {
+    vi.stubEnv('CREATE_ELECTRONUP_MIRROR', env)
+    expect(await run(['app', '-t', 'vue', ...extra])).toBe(0)
+
+    const [input, options] = vi.mocked(downloadTemplate).mock.calls[0]
+    expect(input).toBe(`${templateRepo}#vue`)
+    expect(options?.provider).toBe('mirror')
+    expect(await options?.providers?.mirror('', {})).toMatchObject({
+      tar: `${mirror}/${templateRepo}/archive/refs/heads/vue.tar.gz`,
+    })
+    vi.unstubAllEnvs()
+  })
+
+  it('镜像拉取失败时提示检查镜像地址', async () => {
+    const errors: string[] = []
+    vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      errors.push(args.join(' '))
+    })
+    vi.mocked(downloadTemplate).mockRejectedValueOnce(new Error('fetch failed'))
+
+    expect(await run(['app', '-t', 'vue', '--mirror', 'https://kkgithub.com'])).toBe(1)
+
+    const output = errors.join('\n')
+    expect(output).toContain('镜像 https://kkgithub.com')
+    expect(output).toContain(`git clone -b vue --depth 1 ${remote} app`)
   })
 
   it.each(['npm/10.9.0 node/v24.12.0', 'yarn/1.22.22 npm/? node/v24.12.0'])('用 %s 创建时仍提示 pnpm 并说明原因', async (userAgent) => {
@@ -230,7 +255,8 @@ describe('init', () => {
     expect(await run(['-h'])).toBe(0)
 
     expect(logs.join('\n')).toContain('--overwrite')
-    expect(degit).not.toHaveBeenCalled()
+    expect(logs.join('\n')).toContain('--mirror')
+    expect(downloadTemplate).not.toHaveBeenCalled()
     expect(fs.readdirSync(cwd)).toEqual([])
   })
 })
