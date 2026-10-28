@@ -1,0 +1,109 @@
+name: Sync templates
+
+# electronup / @quiteer/electron-* 发布成功后 , 把 electronup-template 各分支里的同名依赖升级到本仓库当前版本 ,
+# 重新生成 pnpm-lock.yaml , 在模板上跑通 typecheck 与 build --web 后直接推回模板分支
+# 版本号只有一个来源 : packages/*/package.json ; 模板分支列表来自 create-electronup 的 TEMPLATES
+# 需要仓库 secret TEMPLATE_REPO_TOKEN : 对 QuiteerJs/electronup-template 有 Contents 读写权限的 fine-grained token
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 只检查和验证 , 不推送
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-templates
+  cancel-in-progress: false
+
+jobs:
+  list:
+    # create-electronup 的发布不影响模板依赖
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && !startsWith(github.event.workflow_run.head_branch, 'create-electronup-v'))
+    runs-on: ubuntu-latest
+    outputs:
+      templates: ${{ steps.list.outputs.templates }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+
+      - run: pnpm --filter create-electronup install --frozen-lockfile
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+
+      - id: list
+        run: echo "templates=$(node .github/scripts/sync-template-versions.mjs --list)" >> "$GITHUB_OUTPUT"
+
+  sync:
+    needs: list
+    name: sync ${{ matrix.template }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        template: ${{ fromJSON(needs.list.outputs.templates) }}
+    env:
+      # 模板只验证渲染进程构建 , 不需要 electron 二进制
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - name: Checkout electronup
+        uses: actions/checkout@v4
+        with:
+          path: electronup
+
+      - name: Checkout template ${{ matrix.template }}
+        uses: actions/checkout@v4
+        with:
+          repository: QuiteerJs/electronup-template
+          ref: ${{ matrix.template }}
+          path: template
+          token: ${{ secrets.TEMPLATE_REPO_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: template/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Bump versions
+        id: bump
+        run: node electronup/.github/scripts/sync-template-versions.mjs template
+
+      # 模板 .npmrc 指向 npmmirror , 刚发布的版本可能还没同步过去 , 这里固定用官方注册表
+      - name: Update lockfile and verify
+        if: steps.bump.outputs.changed == 'true'
+        working-directory: template
+        run: |
+          pnpm install --no-frozen-lockfile --registry=https://registry.npmjs.org/
+          pnpm typecheck
+          pnpm build:web
+
+      - name: Push
+        if: steps.bump.outputs.changed == 'true' && inputs.dry_run != true
+        working-directory: template
+        env:
+          SUMMARY: ${{ steps.bump.outputs.summary }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json pnpm-lock.yaml
+          # 上一步已验证过 , 跳过模板 install 时装上的 git hooks
+          git commit --no-verify -m "chore(deps): 同步 electronup 发布版本" -m "$SUMMARY"
+          git push origin "HEAD:${{ matrix.template }}"
