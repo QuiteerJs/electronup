@@ -83,6 +83,16 @@ git push origin electronup-v<新版本>
 
 标签只能推送一次：发布失败时先看 workflow 日志，修复后删除远端与本地标签再重新推送，不要直接改版本号重试。
 
+### 模板依赖自动同步
+
+electronup 或 `@quiteer/electron-*` 经 Release workflow 发布成功后，Sync templates workflow（`.github/workflows/sync-templates.yml`）会把 `electronup-template` 各分支里已声明的同名依赖升到本仓库 `packages/*/package.json` 的当前版本（`^<版本>`，只升不降，跳过 npm 上还不存在的版本），重新生成 `pnpm-lock.yaml`，跑通模板的 `typecheck` 与 `build:web` 后直接推回模板分支。不要再手改模板分支的版本号。
+
+- 首次使用前需在本仓库 Settings → Secrets and variables → Actions 添加 `TEMPLATE_REPO_TOKEN`：对 `QuiteerJs/electronup-template` 有 Contents 读写权限的 fine-grained token。
+- 手动发布或需要补跑时，在 Actions 页面手动运行 Sync templates（可勾选 `dry_run` 只验证不推送）。
+- 本地检查某个模板分支是否落后：`node .github/scripts/sync-template-versions.mjs <模板目录> --check`。
+- 模板分支列表取自 `packages/create-electronup/src/utils.ts` 的 `TEMPLATES`，新增模板只需在那里登记。
+- 某个分支验证失败时只影响该分支，其余分支照常推送；按日志修复模板后手动重跑即可。
+
 ### 手动发布
 
 核心包在 `packages/electronup` 目录执行：

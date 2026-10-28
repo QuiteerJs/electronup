@@ -18,6 +18,7 @@ electronup 是把 **Vite**（渲染进程、主进程 / preload）+ **electron-b
 | `skills` | 面向 electronup 使用者的 Agent Skills（`SKILL.md`），通过根目录 `.claude-plugin/` 作为 Claude Code 插件分发；维护者 skill 在 `.claude/skills/` |
 | `.github/workflows/smoke-build.yml` | 全包 typecheck / lint / test + 三平台 `build --dir` 冒烟 + Windows 自签名代码签名冒烟 + 模块包真 Electron 冒烟（Linux）+ `electronup dev` 真 Electron 端到端（Linux，`pnpm test:e2e:dev`） |
 | `.github/workflows/release.yml` | 推送 `electronup-v*` / `create-electronup-v*` 标签后经 npm Trusted Publishing 自动发布 |
+| `.github/workflows/sync-templates.yml` | 发布成功后把 `electronup-template` 各分支的 electronup / `@quiteer/electron-*` 依赖同步到当前版本并推回模板分支（需 secret `TEMPLATE_REPO_TOKEN`）；不要手改模板版本号 |
 
 ## 环境与安装
 
