@@ -83,7 +83,7 @@ child.on('exit', (code) => {
 })
 
 function stop() {
-  if (exited) { return }
+  if (exited || child.pid === undefined) { return }
   stopping = true
   try {
     if (process.platform === 'win32') { spawn('taskkill', ['/pid', String(child.pid), '/T', '/F']) }
